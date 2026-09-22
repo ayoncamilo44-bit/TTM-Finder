@@ -235,3 +235,25 @@ function setupMission() {
     if (confirmation) confirmation.hidden = false;
   });
 }
+async function loadPlayersFromCSV() {
+  try {
+    const response = await fetch('players.csv');
+    const data = await response.text();
+    
+    // Split lines and drop the header row
+    const rows = data.trim().split('\n').slice(1);
+    
+    const players = rows.map(row => {
+      const [name, street, city, state, zip, dateSent, status, notes] = row.split(',');
+      return { name, street, city, state, zip, dateSent, status, notes };
+    });
+
+    console.log('Loaded Players:', players);
+    return players;
+  } catch (error) {
+    console.error('Error loading players.csv:', error);
+  }
+}
+
+// Automatically load when page opens
+document.addEventListener('DOMContentLoaded', loadPlayersFromCSV);
