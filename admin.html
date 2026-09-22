@@ -19,6 +19,35 @@
         <p class="eyebrow">Staff only</p>
         <h1>Moderation console</h1>
         <p id="adminStatus" class="lead">Checking your staff access…</p>
+        <section class="sheet-panel">
+          <div class="sheet-toolbar">
+            <h2>Signer spreadsheet</h2>
+            <div class="sheet-actions">
+              <button class="button secondary" type="button" id="addSignerRow">Add row</button>
+              <button class="button" type="button" id="saveSignerSheet">Save sheet</button>
+            </div>
+          </div>
+          <div class="sheet-wrap">
+            <table class="sheet-table" aria-label="Signer spreadsheet">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Category</th>
+                  <th>Subcategory</th>
+                  <th>Status</th>
+                  <th>Signal</th>
+                  <th>Wait min</th>
+                  <th>Wait max</th>
+                  <th>Contact type</th>
+                  <th>Contact URL</th>
+                  <th>Verified</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody id="signerSheetBody"></tbody>
+            </table>
+          </div>
+        </section>
         <div id="queue" class="admin-queue" aria-live="polite"></div>
       </div>
     </main>
@@ -28,9 +57,45 @@
     <script>
       const status = document.getElementById('adminStatus');
       const queue = document.getElementById('queue');
+      const sheetBody = document.getElementById('signerSheetBody');
+      const defaultRow = () => ({
+        id: '',
+        name: '',
+        category: 'Sports',
+        subcategory: 'Baseball',
+        record_status: 'draft',
+        response_status: 'unverified',
+        signal_score: 0,
+        typical_wait_min: 0,
+        typical_wait_max: 0,
+        public_contact_type: 'official',
+        public_contact_label: '',
+        public_contact_url: '',
+        public_contact_verified_at: '',
+        note: '',
+        source_notes: ''
+      });
       const escapeHtml = (value) => String(value || '').replace(/[&<>"']/g, (character) => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
       }[character]));
+
+      function renderSheet(rows) {
+        sheetBody.innerHTML = rows.map((row, index) => `
+          <tr data-index="${index}">
+            <td><input data-field="name" value="${escapeHtml(row.name)}" placeholder="Name" /></td>
+            <td><input data-field="category" value="${escapeHtml(row.category)}" placeholder="Sports" /></td>
+            <td><input data-field="subcategory" value="${escapeHtml(row.subcategory)}" placeholder="Baseball" /></td>
+            <td><select data-field="record_status"><option value="draft" ${row.record_status === 'draft' ? 'selected' : ''}>Draft</option><option value="pending" ${row.record_status === 'pending' ? 'selected' : ''}>Pending</option><option value="published" ${row.record_status === 'published' ? 'selected' : ''}>Published</option><option value="needs_review" ${row.record_status === 'needs_review' ? 'selected' : ''}>Needs review</option></select></td>
+            <td><input type="number" data-field="signal_score" min="0" max="100" value="${row.signal_score || 0}" /></td>
+            <td><input type="number" data-field="typical_wait_min" min="0" value="${row.typical_wait_min || 0}" /></td>
+            <td><input type="number" data-field="typical_wait_max" min="0" value="${row.typical_wait_max || 0}" /></td>
+            <td><select data-field="public_contact_type"><option value="official" ${row.public_contact_type === 'official' ? 'selected' : ''}>Official</option><option value="agency" ${row.public_contact_type === 'agency' ? 'selected' : ''}>Agency</option><option value="team" ${row.public_contact_type === 'team' ? 'selected' : ''}>Team</option><option value="venue" ${row.public_contact_type === 'venue' ? 'selected' : ''}>Venue</option><option value="publisher" ${row.public_contact_type === 'publisher' ? 'selected' : ''}>Publisher</option><option value="institution" ${row.public_contact_type === 'institution' ? 'selected' : ''}>Institution</option></select></td>
+            <td><input data-field="public_contact_url" value="${escapeHtml(row.public_contact_url || '')}" placeholder="https://..." /></td>
+            <td><input data-field="public_contact_verified_at" value="${escapeHtml(row.public_contact_verified_at || '')}" placeholder="2026-09-22" /></td>
+            <td><textarea data-field="note" rows="2" placeholder="Collector note">${escapeHtml(row.note || '')}</textarea></td>
+          </tr>`).join('');
+      }
+
       async function loadQueue() {
         if (!window.TTMBackend || !window.TTMBackend.enabled) {
           status.textContent = 'Supabase is not connected. Add supabase-config.js before using moderation.';
@@ -43,6 +108,8 @@
             return;
           }
           status.textContent = `Signed in as ${result.profile.display_name}. Review the queue below.`;
+          const sheetRows = await window.TTMBackend.getSignerSheet();
+          renderSheet(sheetRows.length ? sheetRows : [defaultRow()]);
           const signerCards = result.signers.map((signer) => `
             <article class="card moderation-card">
               <div><span class="profile-label">Signer record · ${escapeHtml(signer.record_status)}</span><h2>${escapeHtml(signer.name)}</h2><p>${escapeHtml(signer.category)} · ${escapeHtml(signer.subcategory)}</p><p>${escapeHtml(signer.source_notes || 'No source notes supplied.')}</p></div>
@@ -65,6 +132,38 @@
           status.textContent = `Could not load moderation queue: ${error.message}`;
         }
       }
+
+      document.getElementById('addSignerRow').addEventListener('click', async () => {
+        const rows = Array.from(sheetBody.querySelectorAll('tr')).map((row) => {
+          const cells = row.querySelectorAll('[data-field]');
+          const record = { id: '' };
+          cells.forEach((cell) => {
+            const field = cell.dataset.field;
+            record[field] = cell.tagName === 'SELECT' || cell.tagName === 'TEXTAREA' || cell.type === 'number' ? cell.value : cell.value;
+          });
+          return record;
+        });
+        rows.push(defaultRow());
+        renderSheet(rows);
+      });
+
+      document.getElementById('saveSignerSheet').addEventListener('click', async () => {
+        const rows = Array.from(sheetBody.querySelectorAll('tr')).map((row) => {
+          const record = {};
+          row.querySelectorAll('[data-field]').forEach((field) => {
+            record[field.dataset.field] = field.value;
+          });
+          return record;
+        }).filter((record) => record.name && record.name.trim());
+        try {
+          const result = await window.TTMBackend.saveSignerSheet(rows);
+          status.textContent = `Saved ${result.count} signer row(s) to Supabase.`;
+          await loadQueue();
+        } catch (error) {
+          status.textContent = `Save failed: ${error.message}`;
+        }
+      });
+
       loadQueue();
     </script>
   </body>

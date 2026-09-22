@@ -50,6 +50,40 @@
       if (reports.error) throw reports.error;
       return { authorized: true, profile, signers: signers.data || [], reports: reports.data || [] };
     },
+    async getSignerSheet() {
+      const { data, error } = await this.client.from('signers').select('*').order('name');
+      if (error) throw error;
+      return data || [];
+    },
+    async saveSignerSheet(rows) {
+      const safeRows = rows
+        .filter((row) => row.name && row.name.trim())
+        .map((row) => ({
+          id: row.id || undefined,
+          slug: row.slug || row.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+          name: row.name.trim(),
+          category: row.category || 'Sports',
+          subcategory: row.subcategory || 'Baseball',
+          note: row.note || '',
+          public_contact_type: row.public_contact_type || 'official',
+          public_contact_label: row.public_contact_label || '',
+          public_contact_url: row.public_contact_url || '',
+          public_contact_verified_at: row.public_contact_verified_at || null,
+          source_notes: row.source_notes || '',
+          record_status: row.record_status || 'draft',
+          confidence: row.confidence || 'medium',
+          response_status: row.response_status || 'unverified',
+          typical_wait_min: Number(row.typical_wait_min || 0),
+          typical_wait_max: Number(row.typical_wait_max || 0),
+          signal_score: Number(row.signal_score || 0),
+          created_by: row.created_by || null,
+          updated_by: row.updated_by || null
+        }));
+      if (!safeRows.length) return { count: 0 };
+      const { data, error } = await this.client.from('signers').upsert(safeRows, { onConflict: 'id' }).select();
+      if (error) throw error;
+      return { count: data.length };
+    },
     async moderate(table, id, status, reason) {
       const { data: userData } = await this.client.auth.getUser();
       if (!userData.user) return { authorized: false };
