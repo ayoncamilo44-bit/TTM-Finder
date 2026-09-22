@@ -34,3 +34,5 @@ The legal pages are jurisdiction-neutral starting drafts, not legal advice. Repl
 5. Sign up once, then promote that user's profile to `admin` in Supabase.
 
 The schema uses row-level security. Never put a Supabase service-role key in this repository or in browser code.
+
+If the signer sheet shows an older column layout, run the current `supabase/repair-signers.sql` once more to add the `signed_status` and `wait_unit` fields.

@@ -73,6 +73,8 @@
           record_status: row.record_status || 'draft',
           confidence: row.confidence || 'medium',
           response_status: row.response_status || 'unverified',
+          signed_status: row.signed_status || 'unknown',
+          wait_unit: row.wait_unit || 'days',
           typical_wait_min: Number(row.typical_wait_min || 0),
           typical_wait_max: Number(row.typical_wait_max || 0),
           signal_score: Number(row.signal_score || 0),

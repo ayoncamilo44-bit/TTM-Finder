@@ -31,8 +31,8 @@
           </div>
           <details class="paste-panel">
             <summary>Paste a list from anywhere</summary>
-            <p>Use one signer per line, or paste comma-separated rows with this order: name, category, subcategory, status, signal, wait min, wait max, contact type, contact URL, verified date, notes.</p>
-            <textarea id="bulkPaste" rows="5" placeholder="Mickey Mantle, Sports, Baseball, draft, 82, 18, 35, official, https://example.com, 2026-09-22, Verify before publishing"></textarea>
+            <p>Use one signer per line, or paste comma-separated rows with this order: name, category, genre, status, signed, wait min, wait max, wait unit, contact type, contact URL, verified date, notes.</p>
+            <textarea id="bulkPaste" rows="5" placeholder="Mickey Mantle, Sports, Baseball, draft, unknown, 2, 5, weeks, official, https://example.com, 2026-09-22, Verify before publishing"></textarea>
             <button class="button secondary" type="button" id="importBulkPaste">Add pasted rows</button>
           </details>
           <div class="sheet-wrap">
@@ -41,11 +41,12 @@
                 <tr>
                   <th>Name</th>
                   <th>Category</th>
-                  <th>Subcategory</th>
+                  <th>Genre</th>
                   <th>Status</th>
-                  <th>Signal</th>
-                  <th>Wait min</th>
-                  <th>Wait max</th>
+                  <th>Signed?</th>
+                  <th>Wait from</th>
+                  <th>Wait to</th>
+                  <th>Wait unit</th>
                   <th>Contact type</th>
                   <th>Contact URL</th>
                   <th>Verified</th>
@@ -73,9 +74,10 @@
         subcategory: 'Baseball',
         record_status: 'draft',
         response_status: 'unverified',
-        signal_score: 0,
+        signed_status: 'unknown',
         typical_wait_min: 0,
         typical_wait_max: 0,
+        wait_unit: 'days',
         public_contact_type: 'official',
         public_contact_label: '',
         public_contact_url: '',
@@ -91,12 +93,13 @@
         sheetBody.innerHTML = rows.map((row, index) => `
           <tr data-index="${index}">
             <td data-label="Name"><input data-field="name" value="${escapeHtml(row.name)}" placeholder="Name" /></td>
-            <td data-label="Category"><input data-field="category" value="${escapeHtml(row.category)}" placeholder="Sports" /></td>
-            <td data-label="Subcategory"><input data-field="subcategory" value="${escapeHtml(row.subcategory)}" placeholder="Baseball" /></td>
+            <td data-label="Category"><select data-field="category"><option value="Sports" ${row.category === 'Sports' ? 'selected' : ''}>Sports</option><option value="Film & TV" ${row.category === 'Film & TV' ? 'selected' : ''}>Film & TV</option><option value="Music" ${row.category === 'Music' ? 'selected' : ''}>Music</option><option value="Arts & Authors" ${row.category === 'Arts & Authors' ? 'selected' : ''}>Arts & Authors</option></select></td>
+            <td data-label="Genre"><select data-field="subcategory"><option value="Baseball" ${row.subcategory === 'Baseball' ? 'selected' : ''}>Baseball</option><option value="Football" ${row.subcategory === 'Football' ? 'selected' : ''}>Football</option><option value="Basketball" ${row.subcategory === 'Basketball' ? 'selected' : ''}>Basketball</option><option value="Actors" ${row.subcategory === 'Actors' ? 'selected' : ''}>Actors</option><option value="Musicians" ${row.subcategory === 'Musicians' ? 'selected' : ''}>Musicians</option><option value="Authors" ${row.subcategory === 'Authors' ? 'selected' : ''}>Authors</option><option value="Other" ${row.subcategory === 'Other' ? 'selected' : ''}>Other</option></select></td>
             <td data-label="Status"><select data-field="record_status"><option value="draft" ${row.record_status === 'draft' ? 'selected' : ''}>Draft</option><option value="pending" ${row.record_status === 'pending' ? 'selected' : ''}>Pending</option><option value="published" ${row.record_status === 'published' ? 'selected' : ''}>Published</option><option value="needs_review" ${row.record_status === 'needs_review' ? 'selected' : ''}>Needs review</option></select></td>
-            <td data-label="Signal"><input type="number" data-field="signal_score" min="0" max="100" value="${row.signal_score || 0}" /></td>
-            <td data-label="Wait min"><input type="number" data-field="typical_wait_min" min="0" value="${row.typical_wait_min || 0}" /></td>
-            <td data-label="Wait max"><input type="number" data-field="typical_wait_max" min="0" value="${row.typical_wait_max || 0}" /></td>
+            <td data-label="Signed?"><select data-field="signed_status"><option value="unknown" ${row.signed_status === 'unknown' ? 'selected' : ''}>Unknown</option><option value="yes" ${row.signed_status === 'yes' ? 'selected' : ''}>Yes</option><option value="no" ${row.signed_status === 'no' ? 'selected' : ''}>No</option></select></td>
+            <td data-label="Wait from"><input type="number" data-field="typical_wait_min" min="0" value="${row.typical_wait_min || 0}" /></td>
+            <td data-label="Wait to"><input type="number" data-field="typical_wait_max" min="0" value="${row.typical_wait_max || 0}" /></td>
+            <td data-label="Wait unit"><select data-field="wait_unit"><option value="days" ${row.wait_unit === 'days' ? 'selected' : ''}>Days</option><option value="weeks" ${row.wait_unit === 'weeks' ? 'selected' : ''}>Weeks</option><option value="months" ${row.wait_unit === 'months' ? 'selected' : ''}>Months</option></select></td>
             <td data-label="Contact type"><select data-field="public_contact_type"><option value="official" ${row.public_contact_type === 'official' ? 'selected' : ''}>Official</option><option value="agency" ${row.public_contact_type === 'agency' ? 'selected' : ''}>Agency</option><option value="team" ${row.public_contact_type === 'team' ? 'selected' : ''}>Team</option><option value="venue" ${row.public_contact_type === 'venue' ? 'selected' : ''}>Venue</option><option value="publisher" ${row.public_contact_type === 'publisher' ? 'selected' : ''}>Publisher</option><option value="institution" ${row.public_contact_type === 'institution' ? 'selected' : ''}>Institution</option></select></td>
             <td data-label="Contact URL"><input data-field="public_contact_url" value="${escapeHtml(row.public_contact_url || '')}" placeholder="https://..." /></td>
             <td data-label="Verified"><input data-field="public_contact_verified_at" value="${escapeHtml(row.public_contact_verified_at || '')}" placeholder="2026-09-22" /></td>
@@ -192,13 +195,14 @@
             category: values[1] || 'Sports',
             subcategory: values[2] || 'Baseball',
             record_status: values[3] || 'draft',
-            signal_score: values[4] || 0,
+            signed_status: values[4] || 'unknown',
             typical_wait_min: values[5] || 0,
             typical_wait_max: values[6] || 0,
-            public_contact_type: values[7] || 'official',
-            public_contact_url: values[8] || '',
-            public_contact_verified_at: values[9] || '',
-            note: values.slice(10).join(', ')
+            wait_unit: values[7] || 'days',
+            public_contact_type: values[8] || 'official',
+            public_contact_url: values[9] || '',
+            public_contact_verified_at: values[10] || '',
+            note: values.slice(11).join(', ')
           });
         });
         renderSheet(rows);
@@ -207,7 +211,7 @@
       });
 
       function downloadCsv(filename, rows) {
-        const columns = ['name', 'category', 'subcategory', 'record_status', 'signal_score', 'typical_wait_min', 'typical_wait_max', 'public_contact_type', 'public_contact_url', 'public_contact_verified_at', 'note'];
+        const columns = ['name', 'category', 'subcategory', 'record_status', 'signed_status', 'typical_wait_min', 'typical_wait_max', 'wait_unit', 'public_contact_type', 'public_contact_url', 'public_contact_verified_at', 'note'];
         const csv = [columns.join(','), ...rows.map((row) => columns.map((column) => `"${String(row[column] || '').replace(/"/g, '""')}"`).join(','))].join('\n');
         const link = document.createElement('a');
         link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));

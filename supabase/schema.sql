@@ -32,6 +32,8 @@ create table public.signers (
   record_status public.record_status not null default 'draft',
   confidence public.confidence_level not null default 'low',
   response_status text not null default 'unverified' check (response_status in ('often', 'moderate', 'slow', 'unverified')),
+  signed_status text not null default 'unknown' check (signed_status in ('yes', 'no', 'unknown')),
+  wait_unit text not null default 'days' check (wait_unit in ('days', 'weeks', 'months')),
   typical_wait_min integer check (typical_wait_min is null or typical_wait_min >= 0),
   typical_wait_max integer check (typical_wait_max is null or typical_wait_max >= typical_wait_min),
   signal_score integer not null default 0 check (signal_score between 0 and 100),

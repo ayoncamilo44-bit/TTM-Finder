@@ -15,6 +15,8 @@ alter table public.signers add column if not exists source_notes text;
 alter table public.signers add column if not exists record_status text default 'draft';
 alter table public.signers add column if not exists confidence text default 'medium';
 alter table public.signers add column if not exists response_status text default 'unverified';
+alter table public.signers add column if not exists signed_status text default 'unknown';
+alter table public.signers add column if not exists wait_unit text default 'days';
 alter table public.signers add column if not exists typical_wait_min integer default 0;
 alter table public.signers add column if not exists typical_wait_max integer default 0;
 alter table public.signers add column if not exists signal_score integer default 0;
@@ -32,6 +34,8 @@ set
   record_status = coalesce(nullif(record_status, ''), 'draft'),
   confidence = coalesce(nullif(confidence, ''), 'medium'),
   response_status = coalesce(nullif(response_status, ''), 'unverified'),
+  signed_status = coalesce(nullif(signed_status, ''), 'unknown'),
+  wait_unit = coalesce(nullif(wait_unit, ''), 'days'),
   typical_wait_min = coalesce(typical_wait_min, 0),
   typical_wait_max = coalesce(typical_wait_max, 0),
   signal_score = coalesce(signal_score, 0),
