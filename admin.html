@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="TTM Finder moderation dashboard." />
+    <title>TTM Finder | Moderation</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="index.html" aria-label="TTM Finder home"><span class="brand-mark">T</span><span>TTM <em>Finder</em><small>Moderation console</small></span></a>
+        <a class="button secondary" href="index.html">Back home</a>
+      </div>
+    </header>
+    <main class="page-shell">
+      <div class="container">
+        <p class="eyebrow">Staff only</p>
+        <h1>Moderation console</h1>
+        <p id="adminStatus" class="lead">Checking your staff access…</p>
+        <div id="queue" class="admin-queue" aria-live="polite"></div>
+      </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-client.js"></script>
+    <script>
+      const status = document.getElementById('adminStatus');
+      const queue = document.getElementById('queue');
+      const escapeHtml = (value) => String(value || '').replace(/[&<>"']/g, (character) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+      }[character]));
+      async function loadQueue() {
+        if (!window.TTMBackend || !window.TTMBackend.enabled) {
+          status.textContent = 'Supabase is not connected. Add supabase-config.js before using moderation.';
+          return;
+        }
+        try {
+          const result = await window.TTMBackend.getStaffQueue();
+          if (!result.authorized) {
+            status.textContent = 'This account does not have moderator access. Set its profile role to admin or moderator.';
+            return;
+          }
+          status.textContent = `Signed in as ${result.profile.display_name}. Review the queue below.`;
+          const signerCards = result.signers.map((signer) => `
+            <article class="card moderation-card">
+              <div><span class="profile-label">Signer record · ${escapeHtml(signer.record_status)}</span><h2>${escapeHtml(signer.name)}</h2><p>${escapeHtml(signer.category)} · ${escapeHtml(signer.subcategory)}</p><p>${escapeHtml(signer.source_notes || 'No source notes supplied.')}</p></div>
+              <div class="moderation-actions"><button class="button" data-table="signers" data-id="${signer.id}" data-status="published">Publish</button><button class="button secondary" data-table="signers" data-id="${signer.id}" data-status="removed">Reject</button></div>
+            </article>`).join('');
+          const reportCards = result.reports.map((report) => `
+            <article class="card moderation-card">
+              <div><span class="profile-label">Collector report · pending</span><h2>${escapeHtml(report.signers && report.signers.name)}</h2><p>${escapeHtml(report.item_type)} · ${escapeHtml(report.outcome)}</p><p>${escapeHtml(report.collector_note || 'No collector note supplied.')}</p></div>
+              <div class="moderation-actions"><button class="button" data-table="signer_reports" data-id="${report.id}" data-status="published">Approve</button><button class="button secondary" data-table="signer_reports" data-id="${report.id}" data-status="removed">Reject</button></div>
+            </article>`).join('');
+          queue.innerHTML = `<h2>Pending signer records</h2>${signerCards || '<p class="empty-state">No signer records need review.</p>'}<h2>Pending collector reports</h2>${reportCards || '<p class="empty-state">No reports need review.</p>'}`;
+          queue.querySelectorAll('[data-table]').forEach((button) => button.addEventListener('click', async () => {
+            button.disabled = true;
+            const reason = window.prompt('Add a short moderation reason:');
+            if (!reason || reason.length < 10) { button.disabled = false; return; }
+            try { await window.TTMBackend.moderate(button.dataset.table, button.dataset.id, button.dataset.status, reason); await loadQueue(); }
+            catch (error) { window.alert(error.message); button.disabled = false; }
+          }));
+        } catch (error) {
+          status.textContent = `Could not load moderation queue: ${error.message}`;
+        }
+      }
+      loadQueue();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">TTM Finder logo</title>
+  <desc id="desc">A gold collector seal with a T monogram and an envelope line.</desc>
+  <rect x="2" y="2" width="60" height="60" rx="20" fill="#F3BF68"/>
+  <rect x="6" y="6" width="52" height="52" rx="16" fill="#0D1724"/>
+  <path d="M18 21H46" stroke="#FFD58D" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M32 21V39" stroke="#FFD58D" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M23 39H41" stroke="#FFD58D" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M17 43.5L25.5 36L32 41.5L38.5 36L47 43.5" stroke="#87F0D5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M17 43.5V46C17 47.1046 17.8954 48 19 48H45C46.1046 48 47 47.1046 47 46V43.5" stroke="#87F0D5" stroke-width="2.5" stroke-linecap="round"/>
+</svg>

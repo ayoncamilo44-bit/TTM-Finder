@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Sign in to save TTM Finder missions and submit verified collector reports." />
+    <title>TTM Finder | Collector account</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="index.html" aria-label="TTM Finder home"><span class="brand-mark">T</span><span>TTM <em>Finder</em><small>Collector account</small></span></a>
+        <a class="button secondary" href="index.html">Back home</a>
+      </div>
+    </header>
+    <main class="page-shell">
+      <div class="container">
+        <p class="eyebrow">Your collector workspace</p>
+        <h1>Sign in to save your missions.</h1>
+        <p class="lead">Use an email and password to keep Request Missions synced across devices and submit reports for moderation.</p>
+        <form id="authForm" class="card policy-card">
+          <label>Email<input name="email" type="email" autocomplete="email" required /></label>
+          <label>Password<input name="password" type="password" autocomplete="current-password" minlength="8" required /></label>
+          <div class="hero-actions">
+            <button class="button" type="submit" data-action="sign-in">Sign in</button>
+            <button class="button secondary" type="button" data-action="sign-up">Create account</button>
+          </div>
+          <p id="authMessage" role="status"></p>
+        </form>
+      </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-client.js"></script>
+    <script>
+      const form = document.getElementById('authForm');
+      const message = document.getElementById('authMessage');
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        await authenticate('signInWithPassword');
+      });
+      document.querySelector('[data-action="sign-up"]').addEventListener('click', () => authenticate('signUp'));
+      async function authenticate(method) {
+        if (!window.TTMBackend || !window.TTMBackend.enabled) {
+          message.textContent = 'Connect Supabase by adding supabase-config.js before using accounts.';
+          return;
+        }
+        const credentials = { email: form.elements.email.value, password: form.elements.password.value };
+        const result = await window.TTMBackend.client.auth[method](credentials);
+        message.textContent = result.error ? result.error.message : method === 'signUp'
+          ? 'Account created. Check your email if confirmation is enabled.'
+          : 'Signed in successfully.';
+      }
+    </script>
+  </body>
+</html>
