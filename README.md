@@ -18,6 +18,7 @@ A lightweight static site for researching Through the Mail signers, exploring ca
 - `submissions.html`, `copyright.html` — contributor rights and takedown process
 - `accessibility.html` — accessibility statement and feedback placeholder
 - `supabase/schema.sql` — production database, authentication profile, RLS, reports, missions, and moderation schema
+- `supabase/repair-signers.sql` — migration for an older/basic `signers` table missing the fields used by the admin sheet
 - `supabase/config.example.js` — safe browser configuration template; never commit the real anon configuration file
 - `supabase-client.js` — optional frontend adapter with local-prototype fallback
 - `admin.html` — Supabase-protected moderation queue for signer and report approvals
