@@ -1,7 +1,0 @@
-Name,Street_Address,City,State,Zip,Date_Sent,Status,Notes
-Mike Lansford,32472 Cook Ln.,San Juan Capistrano,CA,92675-3814,2026-07-16,Returned 7/25,Wrong address listed
-Vince Newsome,5308 Woodnote Ln.,Columbia,MD,21044,2026-07-16,Pending,
-Frank Corral,823 Sand Wagon Cir.,Hemet,CA,92544,2026-07-16,Resent,Previous address wrong
-Dennis Harrah,925 Rock In One Way,Paso Robles,CA,93446,2026-07-16,Returned 8/29,Retried on 8/20
-Pete Holohan,2945 Curie St.,San Diego,CA,92122,2026-07-16,Pending,Deceased at Calle Ganado; alt: San Clemente CA 92693
-Preston Dennard,13210 High Star Dr.,Houston,TX,77083,2026-07-16,Pending,New address 7/30/26; moved from Kingwood TX
