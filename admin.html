@@ -240,7 +240,7 @@
       });
 
       document.getElementById('saveSignerSheet').addEventListener('click', async () => {
-        const rows = readSheetRows().filter((record) => record.name && record.name.trim());
+        const rows = readSheetRows().map((record) => record.name && record.name.trim());
         try {
           const result = await window.TTMBackend.saveSignerSheet(rows);
           status.textContent = `Saved ${result.count} signer row(s) to Supabase.`;
