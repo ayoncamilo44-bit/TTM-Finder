@@ -48,7 +48,7 @@
       ]);
       if (signers.error) throw signers.error;
       if (reports.error) throw reports.error;
-      return { authorized: true, profile, signers: signers.data || [], reports: reports.data || [] };
+      return { authorized: true, profile, email: userData.user.email, signers: signers.data || [], reports: reports.data || [] };
     },
     async getSignerSheet() {
       const { data, error } = await this.client.from('signers').select('*').order('name');
@@ -104,6 +104,10 @@
       });
       if (actionError) throw actionError;
       return { authorized: true };
+    },
+    async signOut() {
+      const { error } = await this.client.auth.signOut();
+      if (error) throw error;
     }
   };
 }());
