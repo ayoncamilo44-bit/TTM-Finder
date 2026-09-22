@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "description": "Draft production shape for verified TTM Finder records.",
+  "signer": {
+    "id": "stable-slug",
+    "name": "Public figure name",
+    "category": "Sports",
+    "subcategory": "Baseball",
+    "publicContact": {
+      "type": "official|agency|team|venue|publisher|institution",
+      "label": "Public destination label",
+      "url": "https://example.com/contact",
+      "lastVerifiedAt": "2026-09-21",
+      "sourceNotes": "Why this is considered public and current"
+    },
+    "response": {
+      "status": "often|moderate|slow|unverified",
+      "typicalWaitDays": {
+        "minimum": 0,
+        "maximum": 0
+      },
+      "reportCount": 0,
+      "signalScore": 0
+    },
+    "moderation": {
+      "status": "draft|pending|published|needs-review|removed",
+      "confidence": "low|medium|high",
+      "createdBy": "moderator-id",
+      "updatedAt": "2026-09-21",
+      "changeLog": []
+    }
+  },
+  "report": {
+    "id": "report-id",
+    "signerId": "stable-slug",
+    "submittedAt": "2026-09-21",
+    "sentAt": "2026-09-21",
+    "outcome": "returned|no-response|returned-to-sender|pending",
+    "itemType": "trading-card|photo|book|other",
+    "evidence": "private-moderation-reference",
+    "moderationStatus": "pending"
+  }
+}

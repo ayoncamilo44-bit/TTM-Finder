@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Browse a directory of Through the Mail signers and their response habits." />
+    <title>Signer Directory | TTM Finder</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="index.html" aria-label="TTM Finder home">
+          <span class="brand-mark">T</span>
+          <span>
+            TTM <em>Finder</em>
+            <small>Signer atlas</small>
+          </span>
+        </a>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="index.html">Home</a>
+          <a href="directory.html">Directory</a>
+          <a href="resources.html">Resources</a>
+          <a href="index.html#guide">Guide</a>
+          <a href="index.html#about">About</a>
+        </nav>
+        <a class="button secondary" href="index.html">Back home</a>
+      </div>
+    </header>
+
+    <main class="container page-shell">
+      <div class="page-intro">
+        <div>
+          <p class="eyebrow">Collector-ready directory</p>
+          <h1>Signer directory</h1>
+          <p>Track the most relevant public figures to contact and filter by response history.</p>
+        </div>
+        <a class="button" href="index.html#start">Find a signer</a>
+      </div>
+
+      <div class="search-bar" aria-label="Signer filters">
+        <input type="search" aria-label="Search by name" placeholder="Search a signer or category" />
+        <select id="categoryFilter" aria-label="Filter by category">
+          <option value="All">All categories</option>
+          <option value="Sports">Sports</option>
+          <option value="Film & TV">Film &amp; TV</option>
+          <option value="Music">Music</option>
+          <option value="Arts & Authors">Arts &amp; Authors</option>
+        </select>
+        <select id="statusFilter" aria-label="Filter by response status">
+          <option value="All">All response statuses</option>
+          <option value="Often responds">Often responds</option>
+          <option value="Moderate">Moderate</option>
+          <option value="Slow response">Slow response</option>
+        </select>
+      </div>
+
+      <section class="directory-grid" id="signerList" aria-live="polite"></section>
+
+      <section class="section" id="guide">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Mail advice</p>
+            <h2>What makes a strong request?</h2>
+          </div>
+        </div>
+        <div class="tip-grid">
+          <article class="card">
+            <div class="category-badge">01</div>
+            <h3>Keep it neat</h3>
+            <p>Use a clean card, clear return address, and a simple note that is easy to read.</p>
+          </article>
+          <article class="card">
+            <div class="category-badge">02</div>
+            <h3>Include the basics</h3>
+            <p>Always add your name, address, and a polite request or offer to send a self-addressed envelope.</p>
+          </article>
+          <article class="card">
+            <div class="category-badge">03</div>
+            <h3>Be patient</h3>
+            <p>Response windows vary by signer, so track contact history and give every request time.</p>
+          </article>
+          <article class="card">
+            <div class="category-badge">04</div>
+            <h3>Stay respectful</h3>
+            <p>Professional, friendly requests are more likely to stand out in a crowded mail room.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div class="brand" aria-label="TTM Finder brand">
+          <span class="brand-mark">T</span>
+          <span>TTM <em>Finder</em></span>
+        </div>
+        <div class="footer-links">
+          <a href="terms.html">Terms</a>
+          <a href="privacy.html">Privacy</a>
+          <a href="guidelines.html">Guidelines</a>
+          <a href="abuse.html">Abuse policy</a>
+          <a href="disclaimer.html">Disclaimer</a>
+          <a href="data-policy.html">Data policy</a>
+          <a href="submissions.html">Submissions</a>
+          <a href="accessibility.html">Accessibility</a>
+          <a href="copyright.html">Copyright</a>
+        </div>
+        <p>Copyright <span id="year"></span> TTM Finder</p>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-client.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

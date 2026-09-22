@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Create a private Request Mission checklist in TTM Finder." />
+    <title>Request Mission | TTM Finder</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header"><div class="container header-inner"><a class="brand" href="index.html"><span class="brand-mark">T</span><span>TTM <em>Finder</em><small>Private prototype workspace</small></span></a><a class="button secondary" href="directory.html">Directory</a></div></header>
+    <main class="container page-shell">
+      <div class="page-intro"><div><p class="eyebrow">Your next move</p><h1>Request Mission</h1><p>Build a simple, focused checklist for <strong id="missionSigner">your selected signer</strong>.</p></div></div>
+      <form class="mission-layout" id="missionForm">
+        <input type="hidden" name="signer" />
+        <section class="card mission-form-card">
+          <span class="profile-label">Mission details</span>
+          <label for="item">What are you sending?</label>
+          <select id="item" name="item"><option value="">Choose an item</option><option>Trading card</option><option>Photo</option><option>Book or print</option><option>Other collectible</option></select>
+          <label for="note">Your personal note</label>
+          <textarea id="note" name="note" rows="7" placeholder="Write a short, respectful message or a reminder for yourself."></textarea>
+          <label for="status">Mission status</label>
+          <select id="status" name="status"><option value="Planning">Planning</option><option value="Ready to send">Ready to send</option><option value="Sent">Sent</option><option value="Returned">Returned</option><option value="No response">No response</option></select>
+          <button class="button" type="submit">Save mission</button>
+          <p class="form-note">Saved privately in this browser for the prototype. Nothing is sent to a server yet.</p>
+          <p class="success-message" id="missionConfirmation" hidden>Mission saved. Your checklist is ready for the next step.</p>
+        </section>
+        <aside class="card mission-checklist">
+          <span class="profile-label">Send-day checklist</span>
+          <label><input type="checkbox" /> Confirm the public source</label>
+          <label><input type="checkbox" /> Prepare the request note</label>
+          <label><input type="checkbox" /> Add a return envelope</label>
+          <label><input type="checkbox" /> Photograph your item</label>
+          <label><input type="checkbox" /> Record the date sent</label>
+          <div class="policy-notice">Never include private information in a public submission. Verify the address independently before sending.</div>
+        </aside>
+      </form>
+    </main>
+    <footer class="site-footer"><div class="container footer-inner"><a class="brand" href="index.html"><span class="brand-mark">T</span><span>TTM <em>Finder</em></span></a><div class="footer-links"><a href="legal.html">Legal center</a><a href="privacy.html">Privacy</a></div></div></footer>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-client.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
