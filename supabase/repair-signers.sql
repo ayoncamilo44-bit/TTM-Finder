@@ -2,6 +2,8 @@
 -- "Could not find the 'name' column of 'signers' in the schema cache".
 -- It upgrades an older/basic signers table without deleting existing rows.
 
+alter table public.signers alter column id set default gen_random_uuid();
+
 alter table public.signers add column if not exists slug text;
 alter table public.signers add column if not exists name text;
 alter table public.signers add column if not exists category text;

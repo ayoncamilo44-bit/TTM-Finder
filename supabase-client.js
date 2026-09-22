@@ -58,8 +58,8 @@
     async saveSignerSheet(rows) {
       const safeRows = rows
         .filter((row) => row.name && row.name.trim())
-        .map((row) => ({
-          id: row.id || undefined,
+        .map((row) => {
+          const safeRow = {
           slug: row.slug || row.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
           name: row.name.trim(),
           category: row.category || 'Sports',
@@ -80,7 +80,10 @@
           signal_score: Number(row.signal_score || 0),
           created_by: row.created_by || null,
           updated_by: row.updated_by || null
-        }));
+          };
+          safeRow.id = row.id || crypto.randomUUID();
+          return safeRow;
+        });
       if (!safeRows.length) return { count: 0 };
       const { data, error } = await this.client.from('signers').upsert(safeRows, { onConflict: 'id' }).select();
       if (error) throw error;
