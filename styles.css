@@ -57,6 +57,37 @@ img { max-width: 100%; display: block; }
   gap: 10px;
   flex-wrap: wrap;
 }
+.admin-account {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.admin-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.admin-account > span:nth-child(2) {
+  display: grid;
+  gap: 2px;
+}
+.admin-account strong {
+  font-size: 0.86rem;
+}
+.admin-account small {
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+.admin-avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold-strong));
+  color: #0d1724;
+  font-weight: 800;
+}
 .brand {
   display: inline-flex;
   align-items: center;

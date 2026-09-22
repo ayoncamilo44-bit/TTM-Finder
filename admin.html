@@ -11,7 +11,14 @@
     <header class="site-header">
       <div class="container header-inner">
         <a class="brand" href="index.html" aria-label="TTM Finder home"><span class="brand-mark">T</span><span>TTM <em>Finder</em><small>Moderation console</small></span></a>
-        <a class="button secondary" href="index.html">Back home</a>
+        <div class="admin-header-actions">
+          <a class="button secondary" href="index.html">Back home</a>
+          <div class="admin-account" id="adminAccount" hidden>
+            <span class="admin-avatar" id="adminAvatar">A</span>
+            <span><strong id="adminName">Admin</strong><small id="adminRole">Administrator</small></span>
+            <button class="button secondary" type="button" id="signOut">Sign out</button>
+          </div>
+        </div>
       </div>
     </header>
     <main class="page-shell">
@@ -151,6 +158,11 @@
             return;
           }
           status.textContent = `Signed in as ${result.profile.display_name}. Review the queue below.`;
+          const adminAccount = document.getElementById('adminAccount');
+          adminAccount.hidden = false;
+          document.getElementById('adminName').textContent = result.profile.display_name;
+          document.getElementById('adminRole').textContent = `${result.profile.role} · ${result.email || 'verified account'}`;
+          document.getElementById('adminAvatar').textContent = result.profile.display_name.slice(0, 1).toUpperCase();
           const sheetRows = await window.TTMBackend.getSignerSheet();
           renderSheet(sheetRows.length ? sheetRows : [defaultRow()]);
           const signerCards = result.signers.map((signer) => `
@@ -235,6 +247,15 @@
           await loadQueue();
         } catch (error) {
           status.textContent = `Save failed: ${error.message}`;
+        }
+      });
+
+      document.getElementById('signOut').addEventListener('click', async () => {
+        try {
+          await window.TTMBackend.signOut();
+          window.location.href = 'account.html';
+        } catch (error) {
+          status.textContent = `Sign out failed: ${error.message}`;
         }
       });
 
