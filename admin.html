@@ -82,17 +82,17 @@
       function renderSheet(rows) {
         sheetBody.innerHTML = rows.map((row, index) => `
           <tr data-index="${index}">
-            <td><input data-field="name" value="${escapeHtml(row.name)}" placeholder="Name" /></td>
-            <td><input data-field="category" value="${escapeHtml(row.category)}" placeholder="Sports" /></td>
-            <td><input data-field="subcategory" value="${escapeHtml(row.subcategory)}" placeholder="Baseball" /></td>
-            <td><select data-field="record_status"><option value="draft" ${row.record_status === 'draft' ? 'selected' : ''}>Draft</option><option value="pending" ${row.record_status === 'pending' ? 'selected' : ''}>Pending</option><option value="published" ${row.record_status === 'published' ? 'selected' : ''}>Published</option><option value="needs_review" ${row.record_status === 'needs_review' ? 'selected' : ''}>Needs review</option></select></td>
-            <td><input type="number" data-field="signal_score" min="0" max="100" value="${row.signal_score || 0}" /></td>
-            <td><input type="number" data-field="typical_wait_min" min="0" value="${row.typical_wait_min || 0}" /></td>
-            <td><input type="number" data-field="typical_wait_max" min="0" value="${row.typical_wait_max || 0}" /></td>
-            <td><select data-field="public_contact_type"><option value="official" ${row.public_contact_type === 'official' ? 'selected' : ''}>Official</option><option value="agency" ${row.public_contact_type === 'agency' ? 'selected' : ''}>Agency</option><option value="team" ${row.public_contact_type === 'team' ? 'selected' : ''}>Team</option><option value="venue" ${row.public_contact_type === 'venue' ? 'selected' : ''}>Venue</option><option value="publisher" ${row.public_contact_type === 'publisher' ? 'selected' : ''}>Publisher</option><option value="institution" ${row.public_contact_type === 'institution' ? 'selected' : ''}>Institution</option></select></td>
-            <td><input data-field="public_contact_url" value="${escapeHtml(row.public_contact_url || '')}" placeholder="https://..." /></td>
-            <td><input data-field="public_contact_verified_at" value="${escapeHtml(row.public_contact_verified_at || '')}" placeholder="2026-09-22" /></td>
-            <td><textarea data-field="note" rows="2" placeholder="Collector note">${escapeHtml(row.note || '')}</textarea></td>
+            <td data-label="Name"><input data-field="name" value="${escapeHtml(row.name)}" placeholder="Name" /></td>
+            <td data-label="Category"><input data-field="category" value="${escapeHtml(row.category)}" placeholder="Sports" /></td>
+            <td data-label="Subcategory"><input data-field="subcategory" value="${escapeHtml(row.subcategory)}" placeholder="Baseball" /></td>
+            <td data-label="Status"><select data-field="record_status"><option value="draft" ${row.record_status === 'draft' ? 'selected' : ''}>Draft</option><option value="pending" ${row.record_status === 'pending' ? 'selected' : ''}>Pending</option><option value="published" ${row.record_status === 'published' ? 'selected' : ''}>Published</option><option value="needs_review" ${row.record_status === 'needs_review' ? 'selected' : ''}>Needs review</option></select></td>
+            <td data-label="Signal"><input type="number" data-field="signal_score" min="0" max="100" value="${row.signal_score || 0}" /></td>
+            <td data-label="Wait min"><input type="number" data-field="typical_wait_min" min="0" value="${row.typical_wait_min || 0}" /></td>
+            <td data-label="Wait max"><input type="number" data-field="typical_wait_max" min="0" value="${row.typical_wait_max || 0}" /></td>
+            <td data-label="Contact type"><select data-field="public_contact_type"><option value="official" ${row.public_contact_type === 'official' ? 'selected' : ''}>Official</option><option value="agency" ${row.public_contact_type === 'agency' ? 'selected' : ''}>Agency</option><option value="team" ${row.public_contact_type === 'team' ? 'selected' : ''}>Team</option><option value="venue" ${row.public_contact_type === 'venue' ? 'selected' : ''}>Venue</option><option value="publisher" ${row.public_contact_type === 'publisher' ? 'selected' : ''}>Publisher</option><option value="institution" ${row.public_contact_type === 'institution' ? 'selected' : ''}>Institution</option></select></td>
+            <td data-label="Contact URL"><input data-field="public_contact_url" value="${escapeHtml(row.public_contact_url || '')}" placeholder="https://..." /></td>
+            <td data-label="Verified"><input data-field="public_contact_verified_at" value="${escapeHtml(row.public_contact_verified_at || '')}" placeholder="2026-09-22" /></td>
+            <td data-label="Notes"><textarea data-field="note" rows="2" placeholder="Collector note">${escapeHtml(row.note || '')}</textarea></td>
           </tr>`).join('');
       }
 
