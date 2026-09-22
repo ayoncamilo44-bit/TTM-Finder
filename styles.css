@@ -812,6 +812,35 @@ img { max-width: 100%; display: block; }
   flex-wrap: wrap;
   gap: 8px;
 }
+.paste-panel {
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(124, 198, 255, 0.04);
+}
+.paste-panel summary {
+  cursor: pointer;
+  color: var(--blue);
+  font-weight: 700;
+}
+.paste-panel p {
+  max-width: 760px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+.paste-panel textarea {
+  display: block;
+  width: 100%;
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid rgba(160, 185, 220, 0.18);
+  border-radius: 10px;
+  background: rgba(10, 17, 26, 0.8);
+  color: var(--ink);
+  font: inherit;
+}
 .sheet-wrap {
   overflow-x: auto;
 }

@@ -24,9 +24,17 @@
             <h2>Signer spreadsheet</h2>
             <div class="sheet-actions">
               <button class="button secondary" type="button" id="addSignerRow">Add row</button>
+              <button class="button secondary" type="button" id="downloadTemplate">Download template</button>
+              <button class="button secondary" type="button" id="exportSignerSheet">Export list</button>
               <button class="button" type="button" id="saveSignerSheet">Save sheet</button>
             </div>
           </div>
+          <details class="paste-panel">
+            <summary>Paste a list from anywhere</summary>
+            <p>Use one signer per line, or paste comma-separated rows with this order: name, category, subcategory, status, signal, wait min, wait max, contact type, contact URL, verified date, notes.</p>
+            <textarea id="bulkPaste" rows="5" placeholder="Mickey Mantle, Sports, Baseball, draft, 82, 18, 35, official, https://example.com, 2026-09-22, Verify before publishing"></textarea>
+            <button class="button secondary" type="button" id="importBulkPaste">Add pasted rows</button>
+          </details>
           <div class="sheet-wrap">
             <table class="sheet-table" aria-label="Signer spreadsheet">
               <thead>
@@ -96,6 +104,38 @@
           </tr>`).join('');
       }
 
+      function readSheetRows() {
+        return Array.from(sheetBody.querySelectorAll('tr')).map((row) => {
+          const record = {};
+          row.querySelectorAll('[data-field]').forEach((field) => {
+            record[field.dataset.field] = field.value;
+          });
+          return record;
+        });
+      }
+
+      function parseCsvLine(line) {
+        const values = [];
+        let value = '';
+        let quoted = false;
+        for (let index = 0; index < line.length; index += 1) {
+          const character = line[index];
+          if (character === '"' && line[index + 1] === '"' && quoted) {
+            value += '"';
+            index += 1;
+          } else if (character === '"') {
+            quoted = !quoted;
+          } else if (character === ',' && !quoted) {
+            values.push(value.trim());
+            value = '';
+          } else {
+            value += character;
+          }
+        }
+        values.push(value.trim());
+        return values;
+      }
+
       async function loadQueue() {
         if (!window.TTMBackend || !window.TTMBackend.enabled) {
           status.textContent = 'Supabase is not connected. Add supabase-config.js before using moderation.';
@@ -134,27 +174,57 @@
       }
 
       document.getElementById('addSignerRow').addEventListener('click', async () => {
-        const rows = Array.from(sheetBody.querySelectorAll('tr')).map((row) => {
-          const cells = row.querySelectorAll('[data-field]');
-          const record = { id: '' };
-          cells.forEach((cell) => {
-            const field = cell.dataset.field;
-            record[field] = cell.tagName === 'SELECT' || cell.tagName === 'TEXTAREA' || cell.type === 'number' ? cell.value : cell.value;
-          });
-          return record;
-        });
+        const rows = readSheetRows();
         rows.push(defaultRow());
         renderSheet(rows);
       });
 
-      document.getElementById('saveSignerSheet').addEventListener('click', async () => {
-        const rows = Array.from(sheetBody.querySelectorAll('tr')).map((row) => {
-          const record = {};
-          row.querySelectorAll('[data-field]').forEach((field) => {
-            record[field.dataset.field] = field.value;
+      document.getElementById('importBulkPaste').addEventListener('click', () => {
+        const input = document.getElementById('bulkPaste');
+        const lines = input.value.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+        const rows = readSheetRows().filter((row) => row.name && row.name.trim());
+        lines.forEach((line) => {
+          const values = parseCsvLine(line);
+          if (!values[0] || values[0].toLowerCase() === 'name') return;
+          rows.push({
+            ...defaultRow(),
+            name: values[0],
+            category: values[1] || 'Sports',
+            subcategory: values[2] || 'Baseball',
+            record_status: values[3] || 'draft',
+            signal_score: values[4] || 0,
+            typical_wait_min: values[5] || 0,
+            typical_wait_max: values[6] || 0,
+            public_contact_type: values[7] || 'official',
+            public_contact_url: values[8] || '',
+            public_contact_verified_at: values[9] || '',
+            note: values.slice(10).join(', ')
           });
-          return record;
-        }).filter((record) => record.name && record.name.trim());
+        });
+        renderSheet(rows);
+        input.value = '';
+        status.textContent = `Added ${lines.length} pasted row(s). Review them, then click Save sheet.`;
+      });
+
+      function downloadCsv(filename, rows) {
+        const columns = ['name', 'category', 'subcategory', 'record_status', 'signal_score', 'typical_wait_min', 'typical_wait_max', 'public_contact_type', 'public_contact_url', 'public_contact_verified_at', 'note'];
+        const csv = [columns.join(','), ...rows.map((row) => columns.map((column) => `"${String(row[column] || '').replace(/"/g, '""')}"`).join(','))].join('\n');
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+        link.download = filename;
+        link.click();
+        URL.revokeObjectURL(link.href);
+      }
+
+      document.getElementById('downloadTemplate').addEventListener('click', () => {
+        downloadCsv('ttm-finder-signer-template.csv', [defaultRow()]);
+      });
+      document.getElementById('exportSignerSheet').addEventListener('click', () => {
+        downloadCsv('ttm-finder-signers.csv', readSheetRows());
+      });
+
+      document.getElementById('saveSignerSheet').addEventListener('click', async () => {
+        const rows = readSheetRows().filter((record) => record.name && record.name.trim());
         try {
           const result = await window.TTMBackend.saveSignerSheet(rows);
           status.textContent = `Saved ${result.count} signer row(s) to Supabase.`;
