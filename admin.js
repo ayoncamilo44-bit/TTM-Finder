@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnAutoOrganize = document.getElementById("btn-auto-organize");
   const btnKeepRaw = document.getElementById("btn-keep-raw");
   const btnAddRow = document.getElementById("btn-add-row");
+  const btnClearAll = document.getElementById("btn-clear-all");
   const btnSaveLive = document.getElementById("btn-save-live");
   const gridBody = document.getElementById("grid-body");
 
@@ -139,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderGridRows(signers) {
     if (!gridBody) return;
-    gridBody.innerHTML = "";
+    gridBody.innerHTML = ""; // Clear existing rows completely
     signers.forEach((s) => {
       addGridRow(s.name, s.category, s.status, s.notes);
     });
@@ -164,6 +165,12 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btnAddRow) {
     btnAddRow.addEventListener("click", () => {
       addGridRow("New Signer", "Sports", "Pending", "");
+    });
+  }
+
+  if (btnClearAll) {
+    btnClearAll.addEventListener("click", () => {
+      if (gridBody) gridBody.innerHTML = "";
     });
   }
 
