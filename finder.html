@@ -1,1 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TTM Information Finder - Signer Catalog & Main Venue Hubs</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }
+    .container { max-width: 1150px; margin: 0 auto; padding: 1.5rem 1rem; }
+    
+    /* Header & Navigation Toolbar */
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid #334155; padding-bottom: 1rem; flex-wrap: wrap; gap: 1rem; }
+    .brand-title { margin: 0; font-size: 1.6rem; color: #38bdf8; font-weight: 800; }
+    .brand-subtitle { margin: 0; color: #94a3b8; font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+    
+    .nav-links { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+    .nav-links a { color: #cbd5e1; text-decoration: none; font-weight: 600; font-size: 0.92rem; padding: 0.4rem 0.6rem; border-radius: 6px; transition: all 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: #38bdf8; background: #1e293b; }
 
+    /* Hero Banner */
+    .hero-banner { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 1px solid #334155; border-radius: 12px; padding: 2rem; margin-bottom: 2rem; text-align: center; }
+    .hero-banner h2 { margin: 0 0 0.5rem 0; color: #38bdf8; font-size: 1.8rem; }
+    .hero-banner p { color: #cbd5e1; margin: 0 auto 1.5rem auto; max-width: 700px; font-size: 0.95rem; line-height: 1.5; }
+
+    /* Search & Filter Bar */
+    .search-section { display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 2rem; }
+    .search-input { width: 100%; max-width: 450px; padding: 0.85rem 1.2rem; background: #0f172a; border: 1px solid #38bdf8; border-radius: 25px; color: #fff; font-size: 1rem; }
+    .filter-btn { background: #1e293b; border: 1px solid #334155; color: #cbd5e1; padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-size: 0.85rem; }
+    .filter-btn.active, .filter-btn:hover { background: #0284c7; color: white; border-color: #38bdf8; }
+
+    /* Main Section Layout */
+    .section-title { font-size: 1.3rem; color: #38bdf8; margin: 2rem 0 1rem 0; display: flex; align-items: center; gap: 0.5rem; }
+    
+    /* Grid Layout for Directory */
+    .directory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.25rem; }
+    .info-card { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s; }
+    .info-card:hover { transform: translateY(-3px); border-color: #0284c7; }
+    .card-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem; }
+    .card-title { margin: 0; font-size: 1.1rem; color: #f8fafc; font-weight: bold; }
+    .card-badge { background: #0284c7; color: #fff; font-size: 0.7rem; font-weight: bold; padding: 0.2rem 0.55rem; border-radius: 10px; text-transform: uppercase; }
+    .card-address { background: #0f172a; border: 1px solid #334155; padding: 0.65rem; border-radius: 6px; font-size: 0.82rem; color: #38bdf8; margin: 0.75rem 0; font-family: monospace; white-space: pre-wrap; }
+
+    /* Quick Resources Grid */
+    .resource-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .resource-box { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center; }
+    .resource-box h4 { margin: 0 0 0.4rem 0; color: #38bdf8; font-size: 1rem; }
+    .resource-box p { color: #94a3b8; font-size: 0.8rem; margin: 0; line-height: 1.4; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div>
+        <h1 class="brand-title">TTM Finder</h1>
+        <p class="brand-subtitle">GLOBAL SIGNER ATLAS &amp; COLLECTOR DIRECTORY</p>
+      </div>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="finder.html" class="active">🔍 Information Finder</a>
+        <a href="success.html">🏆 Successes</a>
+        <a href="letter-writer.html">✍️ Letter Writer</a>
+        <a href="admin.html">📂 Finder's Console</a>
+      </nav>
+    </header>
+
+    <!-- Hero Banner -->
+    <div class="hero-banner">
+      <h2>🔍 Information &amp; Address Finder Hub</h2>
+      <p>Need inspiration or an address for your next TTM request? Browse our catalog of known signers, major sports venue hubs, and entertainment agency mailing desks below.</p>
+      
+      <!-- Live Search Input -->
+      <div class="search-section">
+        <input type="text" id="finderSearch" class="search-input" placeholder="🔍 Search signers, teams, venues, or sports...">
+      </div>
+
+      <!-- Quick Category Filter Buttons -->
+      <div style="display: flex; justify-content: center; gap: 0.5rem; flex-wrap: wrap;">
+        <button class="filter-btn active" onclick="filterCatalog('ALL', this)">All Catalog</button>
+        <button class="filter-btn" onclick="filterCatalog('NFL', this)">🏈 NFL Teams</button>
+        <button class="filter-btn" onclick="filterCatalog('MLB', this)">⚾ MLB Teams</button>
+        <button class="filter-btn" onclick="filterCatalog('NBA', this)">🏀 NBA / WNBA</button>
+        <button class="filter-btn" onclick="filterCatalog('Signers', this)">✍️ Proven Signers</button>
+        <button class="filter-btn" onclick="filterCatalog('Entertainment', this)">🎬 Film &amp; TV</button>
+      </div>
+    </div>
+
+    <!-- How to Locate Addresses Section -->
+    <div class="section-title">💡 How to Find Fan Mail Addresses</div>
+    <div class="resource-grid">
+      <div class="resource-box">
+        <h4>🏟️ Stadium &amp; Venue Mail</h4>
+        <p>Send during active playing seasons to team facility or stadium addresses marked <em>"Attn: Fan Mail / Player Name"</em>.</p>
+      </div>
+      <div class="resource-box">
+        <h4>🏢 Corporate &amp; Agency Desks</h4>
+        <p>For retired legends or actors, look up their management agencies, private foundations, or public companies.</p>
+      </div>
+      <div class="resource-box">
+        <h4>✉️ SASE Prep Best Practice</h4>
+        <p>Always include a Self-Addressed Stamped Envelope (SASE) and a handwritten index card or personalized note.</p>
+      </div>
+      <div class="resource-box">
+        <h4>📜 Public Directory Search</h4>
+        <p>Cross-reference player team rosters, sports press releases, and production company mailing offices.</p>
+      </div>
+    </div>
+
+    <!-- Searchable Directory Catalog Grid -->
+    <div class="section-title">📍 Signer Catalog &amp; Main Venue Hubs</div>
+    <div id="catalogGrid" class="directory-grid">
+      <!-- Generated via JS -->
+    </div>
+
+  </div>
+
+  <footer style="margin-top: 4rem; border-top: 1px solid #334155; padding: 2rem 1rem; color: #94a3b8; font-size: 0.8rem; text-align: center;">
+    TTM Finder • Independent Autograph Reference &amp; Fan Mail Hub Directory
+  </footer>
+
+  <script>
+    const catalogData = [
+      {
+        name: "Los Angeles Rams Facility",
+        category: "NFL",
+        type: "Main Team Hub",
+        address: "c/o Los Angeles Rams\n21555 Oxnard St.\nWoodland Hills, CA 91367",
+        notes: "Primary training facility address for sending to active players & coaching staff during season."
+      },
+      {
+        name: "Jack Youngblood (HOF)",
+        category: "Signers",
+        type: "Pro Football HOF",
+        address: "P.O. Box 568234\nOrlando, FL 32835",
+        notes: "Legendary Rams defensive end. Known to be very gracious with TTM fan mail!"
+      },
+      {
+        name: "Derek Jeter",
+        category: "MLB",
+        type: "Baseball Legend",
+        address: "c/o The Players Tribune\n1700 Broadway, 29th Floor\nNew York, NY 10019",
+        notes: "Great response history via corporate and foundation desks."
+      },
+      {
+        name: "New York Yankees Facility",
+        category: "MLB",
+        type: "Main Team Hub",
+        address: "c/o New York Yankees\n1 E. 161st St.\nBronx, NY 10451",
+        notes: "Main stadium venue hub. Best sent during Spring Training or regular season."
+      },
+      {
+        name: "Pau Gasol",
+        category: "NBA",
+        type: "Basketball Legend",
+        address: "c/o Gasolic Ventures / Gasol Foundation\n24310 Moulton Pkwy, Suite O\nLaguna Woods, CA 92637",
+        notes: "Lakers 2x Champion. Accepts fan mail through his foundation address."
+      },
+      {
+        name: "Mario Andretti",
+        category: "Signers",
+        type: "Motorsports Legend",
+        address: "c/o Andretti Autosport\n7615 Zionsville Rd.\nIndianapolis, IN 46268",
+        notes: "World Champion racing driver with incredible turnaround times!"
+      },
+      {
+        name: "Mark Hamill",
+        category: "Entertainment",
+        type: "Movie & TV Icon",
+        address: "c/o Studio Fan Mail Desk\nLos Angeles, CA",
+        notes: "Star Wars legend. Periodically signs through production agency desks."
+      },
+      {
+        name: "Frank Tanana",
+        category: "Signers",
+        type: "MLB Pitching Great",
+        address: "c/o Public Ministry Office\nDetroit Tigers Alumni Desk",
+        notes: "Known to sign cards and include inspirational notes on returns."
+      }
+    ];
+
+    function renderCatalog(list) {
+      const grid = document.getElementById('catalogGrid');
+      if (list.length === 0) {
+        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #94a3b8; padding: 2rem;">No signers or venues found matching your search. Try another keyword!</div>`;
+        return;
+      }
+
+      grid.innerHTML = list.map(item => `
+        <div class="info-card">
+          <div>
+            <div class="card-header">
+              <h3 class="card-title">${item.name}</h3>
+              <span class="card-badge">${item.category}</span>
+            </div>
+            <div style="font-size: 0.78rem; color: #38bdf8; font-weight: 600; margin-bottom: 0.4rem;">${item.type}</div>
+            <div class="card-address">${item.address}</div>
+            <p style="color: #94a3b8; font-size: 0.82rem; margin: 0; line-height: 1.4;">${item.notes}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Search Filtering
+    document.getElementById('finderSearch').addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      const filtered = catalogData.filter(item => 
+        item.name.toLowerCase().includes(query) ||
+        item.category.toLowerCase().includes(query) ||
+        item.type.toLowerCase().includes(query) ||
+        item.address.toLowerCase().includes(query) ||
+        item.notes.toLowerCase().includes(query)
+      );
+      renderCatalog(filtered);
+    });
+
+    // Category Filter Buttons
+    function filterCatalog(cat, element) {
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      element.classList.add('active');
+
+      if (cat === 'ALL') {
+        renderCatalog(catalogData);
+      } else {
+        const filtered = catalogData.filter(item => item.category === cat);
+        renderCatalog(filtered);
+      }
+    }
+
+    // Initial Render
+    document.addEventListener('DOMContentLoaded', () => renderCatalog(catalogData));
+  </script>
+</body>
+</html>
