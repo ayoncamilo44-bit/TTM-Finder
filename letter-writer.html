@@ -3,63 +3,112 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TTM Finder - Letter Writer</title>
-  <link rel="stylesheet" href="style.css">
+  <title>3x5 Index Card Letter Writer - TTM Generator</title>
   <style>
-    body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }
-    .container { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
-    .card { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; }
-    .form-group { margin-bottom: 1.25rem; }
-    label { display: block; font-size: 0.875rem; font-weight: bold; color: #94a3b8; margin-bottom: 0.5rem; }
-    input, select, textarea { width: 100%; padding: 0.75rem; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #fff; font-size: 0.95rem; box-sizing: border-box; }
-    input:focus, select:focus, textarea:focus { outline: none; border-color: #38bdf8; }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; padding: 1.5rem; min-height: 100vh; }
     
-    /* Interactive Editable Textarea */
-    textarea.preview-box {
-      width: 100%;
-      min-height: 250px;
-      background: #0f172a;
-      border: 1px dashed #38bdf8;
-      border-radius: 8px;
-      padding: 1.25rem;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 0.95rem;
-      color: #e2e8f0;
-      line-height: 1.6;
-      margin-top: 1rem;
-      box-sizing: border-box;
-      resize: vertical;
-    }
-    textarea.preview-box:focus {
-      border-style: solid;
-      border-color: #38bdf8;
-      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
-    }
+    .container { max-width: 1200px; margin: 0 auto; }
 
-    .btn-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-    .btn { display: inline-block; padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: bold; cursor: pointer; border: none; font-size: 0.9rem; text-decoration: none; }
+    header { border-bottom: 1px solid #334155; padding-bottom: 1rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    h1 { font-size: 1.5rem; color: #38bdf8; display: flex; align-items: center; gap: 0.5rem; }
+    .subtitle { font-size: 0.8rem; color: #94a3b8; margin-top: 0.25rem; }
+
+    /* Layout Split Grid */
+    .workbench-grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: 1.5rem; align-items: start; }
+    @media (max-width: 900px) { .workbench-grid { grid-template-columns: 1fr; } }
+
+    /* Form & Controls Panel */
+    .panel { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 1.25rem; }
+    .panel-title { font-size: 1rem; color: #38bdf8; font-weight: bold; margin-bottom: 1rem; border-bottom: 1px solid #334155; padding-bottom: 0.5rem; }
+
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.35rem; font-weight: 600; }
+    .form-control { width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 0.55rem; border-radius: 6px; font-size: 0.85rem; }
+    .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+    textarea.form-control { resize: vertical; min-height: 110px; font-family: inherit; line-height: 1.4; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+    /* Character & Line Counters */
+    .counter-bar { display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8; margin-top: 0.25rem; }
+    .counter-bar.warning { color: #facc15; font-weight: bold; }
+    .counter-bar.exceeded { color: #f87171; font-weight: bold; }
+
+    /* Buttons */
+    .btn-group { display: flex; gap: 0.5rem; margin-top: 1.25rem; }
+    .btn { padding: 0.6rem 1rem; border-radius: 6px; font-weight: bold; font-size: 0.85rem; cursor: pointer; border: none; transition: background 0.2s; display: inline-flex; align-items: center; gap: 0.4rem; }
     .btn-primary { background: #0284c7; color: white; }
     .btn-primary:hover { background: #0369a1; }
-    .btn-secondary { background: #334155; color: white; }
+    .btn-secondary { background: #334155; color: #cbd5e1; }
     .btn-secondary:hover { background: #475569; }
 
-    /* Print Formatting: Prints ONLY the letter when pressing Print */
+    /* 3x5 Index Card Live Preview Canvas */
+    .preview-container { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    
+    /* Exact 5" x 3" ratio canvas (Scale: 100px per inch -> 500px x 300px) */
+    .index-card {
+      width: 500px;
+      height: 300px;
+      background: #fefcf0; /* Warm paper index card tone */
+      color: #1e293b;
+      border-radius: 4px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      position: relative;
+      padding: 35px 25px 20px 55px; /* Left padding creates margin space */
+      box-sizing: border-box;
+      overflow: hidden;
+      /* Blue horizontal notebook lines + Red margin line */
+      background-image: 
+        linear-gradient(to right, rgba(239, 68, 68, 0.4) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(59, 130, 246, 0.2) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 24px;
+      background-position: 45px 0, 0 32px;
+      transition: all 0.2s ease;
+    }
+
+    .index-card-content {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      font-size: 0.92rem;
+      line-height: 24px; /* Matches blue ruling lines */
+      word-wrap: break-word;
+    }
+
+    /* Font Styles */
+    .font-script { font-family: 'Brush Script MT', 'Caveat', cursive; font-size: 1.15rem; }
+    .font-serif { font-family: 'Georgia', 'Times New Roman', serif; }
+    .font-sans { font-family: 'Arial', sans-serif; }
+    .font-mono { font-family: 'Courier New', monospace; font-size: 0.85rem; }
+
+    .card-header-line { display: flex; justify-content: space-between; font-weight: bold; }
+    .card-body-text { flex: 1; margin-top: 4px; white-space: pre-wrap; }
+    .card-footer-line { text-align: right; font-weight: bold; }
+
+    /* Print Setup for Physical 3x5 Cards */
     @media print {
-      body { background-color: #ffffff; color: #000000; }
-      header, .card:first-of-type, .btn-group, h2, label, span { display: none !important; }
-      .container { max-width: 100%; margin: 0; padding: 0; }
-      .card { border: none; background: transparent; padding: 0; }
-      textarea.preview-box {
-        border: none;
-        background: transparent;
-        color: #000000;
-        font-size: 12pt;
-        padding: 0;
+      body { background: white; padding: 0; }
+      header, .panel, .btn-group, .subtitle, .counter-bar { display: none !important; }
+      .container { max-width: none; margin: 0; }
+      .workbench-grid { display: block; }
+      .preview-container { margin: 0; }
+      
+      @page {
+        size: 5in 3in;
         margin: 0;
-        width: 100%;
-        height: auto;
+      }
+
+      .index-card {
+        width: 5in !important;
+        height: 3in !important;
+        box-shadow: none !important;
+        border: none !important;
+        border-radius: 0 !important;
+        page-break-after: always;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
       }
     }
   </style>
@@ -67,145 +116,216 @@
 <body>
 
   <div class="container">
-    <header style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+    <header>
       <div>
-        <h1 style="margin:0; font-size: 1.8rem; color: #38bdf8;">TTM Letter Writer</h1>
-        <p style="margin:0; color: #94a3b8; font-size: 0.9rem;">REQUEST TEMPLATE GENERATOR FOR COLLECTORS</p>
+        <h1>✍️ 3x5 Index Card Letter Writer</h1>
+        <div class="subtitle">Generate personal, perfectly formatted handwritten-style notes for TTM autograph requests.</div>
       </div>
-      <a href="index.html" style="color: #38bdf8; text-decoration: none; font-weight: bold;">← Back to Directory</a>
+      <div class="btn-group" style="margin-top:0;">
+        <button class="btn btn-secondary" onclick="resetForm()">🔄 Reset</button>
+        <button class="btn btn-primary" onclick="window.print()">🖨️ Print Index Card</button>
+      </div>
     </header>
 
-    <div class="card">
-      <h2 style="margin-top:0; font-size: 1.25rem;">1. Customize Your Request Details</h2>
+    <div class="workbench-grid">
       
-      <div class="grid-2">
-        <div class="form-group">
-          <label for="signerName">Signer's Name</label>
-          <input type="text" id="signerName" placeholder="e.g., Jack Youngblood" value="Jack Youngblood">
-        </div>
+      <!-- Input Controls Panel -->
+      <div class="panel">
+        <div class="panel-title">Note Controls</div>
         
         <div class="form-group">
-          <label for="templateSelect">Template Style</label>
-          <select id="templateSelect">
-            <option value="indexCard">Classic 3x5 Index Card Note (Short & Respectful)</option>
-            <option value="setCollector">Set Collector / Vintage Card Request</option>
-            <option value="customGift">Custom Card / Personal Gift Inclusion</option>
+          <label>Preset Quick Templates</label>
+          <select id="templateSelect" class="form-control" onchange="applyTemplate()">
+            <option value="classic">Classic Fan Autograph Request</option>
+            <option value="custom">Custom Card Gift Note</option>
+            <option value="vintage">Vintage Set Collector Project</option>
+            <option value="blank">Custom / Blank Slate</option>
           </select>
         </div>
-      </div>
 
-      <div class="grid-2">
-        <div class="form-group">
-          <label for="itemDescription">Item Enclosed</label>
-          <input type="text" id="itemDescription" placeholder="e.g., 1985 Topps trading card" value="trading card">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date</label>
+            <input type="text" id="noteDate" class="form-control" oninput="updateCard()">
+          </div>
+          <div class="form-group">
+            <label>Recipient (Signer Name)</label>
+            <input type="text" id="noteRecipient" class="form-control" placeholder="e.g. Mr. Youngblood" oninput="updateCard()">
+          </div>
         </div>
 
         <div class="form-group">
-          <label for="favoriteMemory">Personal Highlight / Memory</label>
-          <input type="text" id="favoriteMemory" placeholder="e.g., watching your 1979 postseason run" value="your incredible Hall of Fame career">
+          <label>Letter Body Text</label>
+          <textarea id="noteBody" class="form-control" placeholder="Write your letter here..." oninput="updateCard()"></textarea>
+          <div class="counter-bar" id="counterBar">
+            <span id="charCount">0 / 260 Chars</span>
+            <span id="lineCount">0 / 7 Lines</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Sign-Off Phrase</label>
+            <input type="text" id="noteSignoff" class="form-control" value="Best regards," oninput="updateCard()">
+          </div>
+          <div class="form-group">
+            <label>Your Name (Sender)</label>
+            <input type="text" id="noteSender" class="form-control" placeholder="e.g. Camilo Ayon" oninput="updateCard()">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Font Script Style</label>
+            <select id="fontStyle" class="form-control" onchange="updateCard()">
+              <option value="font-script">Handwritten Cursive</option>
+              <option value="font-serif" selected>Classic Serif (Georgia)</option>
+              <option value="font-sans">Clean Sans-Serif</option>
+              <option value="font-mono">Typewriter Monospace</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Show Index Card Lines</label>
+            <select id="lineToggle" class="form-control" onchange="toggleLines()">
+              <option value="on">Blue/Red Index Lines ON</option>
+              <option value="off">Plain White Card</option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Live 3x5 Card Preview Canvas -->
+      <div class="preview-container">
+        <div style="font-size:0.75rem; color:#94a3b8; text-transform:uppercase; font-weight:bold; margin-bottom:0.75rem; letter-spacing:1px;">
+          Live 3" x 5" Index Card Canvas Preview
+        </div>
+
+        <div class="index-card font-serif" id="indexCard">
+          <div class="index-card-content">
+            <div class="card-header-line">
+              <span id="cardRecipient">Dear Mr. Youngblood,</span>
+              <span id="cardDate">Sep 23, 2026</span>
+            </div>
+            
+            <div class="card-body-text" id="cardBody">I have been a huge fan of your legendary career for years. I would be deeply honored if you would kindly sign the enclosed card for my personal collection. Thank you for your time and generosity!</div>
+            
+            <div class="card-footer-line">
+              <span id="cardSignoff">Best regards,</span> <span id="cardSender">Camilo Ayon</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="form-group">
-        <label for="senderName">Your Name / Signature</label>
-        <input type="text" id="senderName" placeholder="Your Name" value="A Fellow Collector">
-      </div>
-    </div>
-
-    <!-- Editable Note Box -->
-    <div class="card">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
-        <div>
-          <h2 style="margin:0; font-size: 1.25rem;">2. Generated Note (Click Inside Box to Edit)</h2>
-          <span style="color: #94a3b8; font-size: 0.8rem;">You can type, edit, or delete any text directly inside the box.</span>
-        </div>
-        <div class="btn-group">
-          <button id="btnCopy" class="btn btn-primary">📋 Copy Text</button>
-          <button id="btnDownload" class="btn btn-secondary">💾 Save .txt</button>
-          <button id="btnPrint" class="btn btn-secondary">🖨️ Print Note</button>
-        </div>
-      </div>
-      
-      <textarea id="letterPreview" class="preview-box" spellcheck="true">Loading template...</textarea>
     </div>
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const signerNameInput = document.getElementById("signerName");
-      const templateSelect = document.getElementById("templateSelect");
-      const itemDescriptionInput = document.getElementById("itemDescription");
-      const favoriteMemoryInput = document.getElementById("favoriteMemory");
-      const senderNameInput = document.getElementById("senderName");
-      const letterPreview = document.getElementById("letterPreview");
-      const btnCopy = document.getElementById("btnCopy");
-      const btnDownload = document.getElementById("btnDownload");
-      const btnPrint = document.getElementById("btnPrint");
-
-      function updatePreview() {
-        const signer = signerNameInput.value.trim() || "[Signer Name]";
-        const item = itemDescriptionInput.value.trim() || "[item]";
-        const memory = favoriteMemoryInput.value.trim() || "[personal memory]";
-        const sender = senderNameInput.value.trim() || "[Your Name]";
-        const style = templateSelect.value;
-
-        let output = "";
-
-        if (style === "indexCard") {
-          output = `Dear ${signer},\n\nThank you for taking a moment to read this note. I have always admired ${memory} and greatly appreciate your dedication to the game.\n\nIf you have time, I would be honored if you could sign the enclosed ${item}. I have included a self-addressed stamped envelope for your convenience.\n\nThank you for your time and kindness!\n\nBest regards,\n${sender}`;
-        } else if (style === "setCollector") {
-          output = `Dear ${signer},\n\nI am currently working on completing a personal card collection celebrating legendary careers like yours. I've always respected ${memory}.\n\nI would be deeply grateful if you could sign the enclosed ${item} to help complete this piece of my collection. A self-addressed stamped envelope (SASE) is enclosed for easy return.\n\nThank you for your generosity to sports fans and collectors over the years.\n\nSincerely,\n${sender}`;
-        } else if (style === "customGift") {
-          output = `Dear ${signer},\n\nI am writing to share how much I appreciated ${memory}. As a creative hobby, I designed a custom item enclosed here as a personal gift for you to keep.\n\nIf you are willing, I also included a second ${item} that I would love for you to sign and return in the enclosed envelope.\n\nThank you so much for your time, inspiration, and willingness to share with fans.\n\nWarmest regards,\n${sender}`;
-        }
-
-        letterPreview.value = output;
+    // Templates
+    const templates = {
+      classic: {
+        recipient: "Mr. Youngblood",
+        body: "I have been a huge fan of your legendary career for years. I would be deeply honored if you would kindly sign the enclosed card for my personal collection. Thank you for your time and generosity!",
+        signoff: "Best regards,",
+        sender: "Camilo Ayon"
+      },
+      custom: {
+        recipient: "Mr. Everett",
+        body: "Enclosed is a custom trading card I personally designed for you as a small gift, along with one for my binder. Thank you for all the incredible memories on the field over the years!",
+        signoff: "With respect,",
+        sender: "Camilo Ayon"
+      },
+      vintage: {
+        recipient: "Sir",
+        body: "I am currently working on completing a vintage set collection project. It would mean the world to have your autographed card added to my master binder. Thank you for signing for fans!",
+        signoff: "Sincerely,",
+        sender: "Camilo Ayon"
+      },
+      blank: {
+        recipient: "",
+        body: "",
+        signoff: "Sincerely,",
+        sender: ""
       }
+    };
 
-      [signerNameInput, templateSelect, itemDescriptionInput, favoriteMemoryInput, senderNameInput].forEach(el => {
-        el.addEventListener("input", updatePreview);
-        el.addEventListener("change", updatePreview);
-      });
+    function init() {
+      // Set today's date formatted
+      const today = new Date();
+      const options = { month: 'short', day: 'numeric', year: 'numeric' };
+      document.getElementById('noteDate').value = today.toLocaleDateString('en-US', options);
+      
+      applyTemplate();
+    }
 
-      // Copy Button
-      btnCopy.addEventListener("click", () => {
-        navigator.clipboard.writeText(letterPreview.value).then(() => {
-          btnCopy.textContent = "✅ Copied!";
-          setTimeout(() => { btnCopy.textContent = "📋 Copy Text"; }, 2000);
-        });
-      });
+    function applyTemplate() {
+      const type = document.getElementById('templateSelect').value;
+      const t = templates[type];
+      
+      if (t) {
+        document.getElementById('noteRecipient').value = t.recipient;
+        document.getElementById('noteBody').value = t.body;
+        document.getElementById('noteSignoff').value = t.signoff;
+        document.getElementById('noteSender').value = t.sender;
+        updateCard();
+      }
+    }
 
-      // Save .txt File Button
-      btnDownload.addEventListener("click", () => {
-        const signer = signerNameInput.value.trim() || "signer";
-        const textBlob = new Blob([letterPreview.value], { type: "text/plain;charset=utf-8" });
-        const downloadAnchor = document.createElement("a");
-        downloadAnchor.href = URL.createObjectURL(textBlob);
-        downloadAnchor.download = `TTM_Letter_${signer.replace(/\s+/g, "_")}.txt`;
-        document.body.appendChild(downloadAnchor);
-        downloadAnchor.click();
-        downloadAnchor.remove();
-      });
+    function updateCard() {
+      const recipient = document.getElementById('noteRecipient').value.trim();
+      const date = document.getElementById('noteDate').value.trim();
+      const body = document.getElementById('noteBody').value;
+      const signoff = document.getElementById('noteSignoff').value.trim();
+      const sender = document.getElementById('noteSender').value.trim();
+      const fontClass = document.getElementById('fontStyle').value;
 
-      // Print Button
-      btnPrint.addEventListener("click", () => {
-        window.print();
-      });
+      // Update Card Preview Text
+      document.getElementById('cardRecipient').textContent = recipient ? `Dear ${recipient},` : '';
+      document.getElementById('cardDate').textContent = date;
+      document.getElementById('cardBody').textContent = body;
+      document.getElementById('cardSignoff').textContent = signoff;
+      document.getElementById('cardSender').textContent = sender;
 
-      updatePreview();
-    });
+      // Update Font
+      const card = document.getElementById('indexCard');
+      card.className = `index-card ${fontClass}`;
+
+      // Character & Line Limit Guards
+      const charCount = body.length;
+      const lineCount = body.split('\n').length + Math.floor(charCount / 42); // Approx lines
+      const counterBar = document.getElementById('counterBar');
+
+      document.getElementById('charCount').textContent = `${charCount} / 260 Chars`;
+      document.getElementById('lineCount').textContent = `${lineCount} / 7 Lines`;
+
+      if (charCount > 260 || lineCount > 7) {
+        counterBar.className = 'counter-bar exceeded';
+      } else if (charCount > 210 || lineCount > 5) {
+        counterBar.className = 'counter-bar warning';
+      } else {
+        counterBar.className = 'counter-bar';
+      }
+    }
+
+    function toggleLines() {
+      const val = document.getElementById('lineToggle').value;
+      const card = document.getElementById('indexCard');
+      if (val === 'off') {
+        card.style.backgroundImage = 'none';
+      } else {
+        card.style.backgroundImage = `
+          linear-gradient(to right, rgba(239, 68, 68, 0.4) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(59, 130, 246, 0.2) 1px, transparent 1px)
+        `;
+      }
+    }
+
+    function resetForm() {
+      document.getElementById('templateSelect').value = 'blank';
+      applyTemplate();
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
 </html>
-<!-- BEFORE -->
-<a href="admin.html">⚙️ Admin Console</a>
-
-<!-- AFTER -->
-<a href="admin.html">📂 Finder's Console</a>
-<nav class="nav-links">
-  <a href="index.html">Home</a>
-  <a href="finder.html">🔍 Information Finder</a>
-  <a href="success.html">🏆 Successes</a>
-  <a href="letter-writer.html">✍️ Letter Writer</a>
-  <a href="admin.html">📂 Finder's Console</a>
-</nav>
