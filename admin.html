@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TTM Finder - Admin & Collector Console</title>
+  <title>TTM Finder - Finder's Console</title>
   <link rel="stylesheet" href="style.css">
   <style>
     body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }
@@ -11,9 +11,9 @@
     
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid #334155; padding-bottom: 1rem; flex-wrap: wrap; gap: 1rem; }
     .brand-title { margin: 0; font-size: 1.6rem; color: #38bdf8; font-weight: 800; }
-    .nav-links { display: flex; gap: 1.2rem; align-items: center; }
-    .nav-links a { color: #cbd5e1; text-decoration: none; font-weight: 600; font-size: 0.95rem; }
-    .nav-links a:hover, .nav-links a.active { color: #38bdf8; }
+    .nav-links { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+    .nav-links a { color: #cbd5e1; text-decoration: none; font-weight: 600; font-size: 0.92rem; padding: 0.4rem 0.6rem; border-radius: 6px; }
+    .nav-links a:hover, .nav-links a.active { color: #38bdf8; background: #1e293b; }
 
     .admin-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 1.75rem; margin-bottom: 2rem; }
     .form-group { margin-bottom: 1.25rem; }
@@ -42,15 +42,15 @@
   <div class="container">
     <header>
       <div>
-        <h1 class="brand-title">TTM Admin Console</h1>
-        <p style="margin:0; color:#94a3b8; font-size:0.8rem;">GLOBAL ENTRY &amp; LOCAL STORAGE MANAGER</p>
+        <h1 class="brand-title">Finder's Console</h1>
+        <p style="margin:0; color:#94a3b8; font-size:0.8rem;">PERSONAL RETURN TRACKER &amp; LOCAL STORAGE</p>
       </div>
       <nav class="nav-links">
         <a href="index.html">Home</a>
-        <a href="index.html#directory">Directory</a>
-        <a href="success.html">Successes</a>
-        <a href="letter-writer.html">Letter Writer</a>
-        <a href="admin.html" class="active">Admin</a>
+        <a href="finder.html">🔍 Information Finder</a>
+        <a href="success.html">🏆 Successes</a>
+        <a href="letter-writer.html">✍️ Letter Writer</a>
+        <a href="admin.html" class="active">📂 Finder's Console</a>
       </nav>
     </header>
 
@@ -85,7 +85,8 @@
                 <option value="OTHER">✨ Custom / Other Sport or Niche...</option>
               </optgroup>
             </select>
-            <!-- Custom Category Text Input (Triggers if OTHER selected) -->
+
+            <!-- Custom Category Input Box -->
             <input type="text" id="customCategoryInput" class="form-control" placeholder="Type custom sport/category name..." style="display: none; margin-top: 0.5rem; border-color: #38bdf8;">
           </div>
 
@@ -138,7 +139,7 @@
 
   </div>
 
-  <footer style="margin-top: 3rem; border-top: 1px solid #334155; padding: 1.5rem 1rem; color: #94a3b8; font-size: 0.8rem; text-align: center;">
+  <footer style="margin-top: 4rem; border-top: 1px solid #334155; padding: 1.5rem 1rem; color: #94a3b8; font-size: 0.8rem; text-align: center;">
     TTM Finder • Independent Autograph &amp; Fan Mail Reference Directory
   </footer>
 
@@ -252,9 +253,3 @@
   </script>
 </body>
 </html>
-<!-- BEFORE -->
-<h1 class="brand-title">TTM Admin Console</h1>
-
-<!-- AFTER -->
-<h1 class="brand-title">Finder's Console</h1>
-<p style="margin:0; color:#94a3b8; font-size:0.8rem;">PERSONAL RETURN TRACKER & LOCAL STORAGE</p>
