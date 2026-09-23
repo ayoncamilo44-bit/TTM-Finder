@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,11 +15,53 @@
     input:focus, select:focus, textarea:focus { outline: none; border-color: #38bdf8; }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
-    .preview-box { background: #0f172a; border: 1px dashed #38bdf8; border-radius: 8px; padding: 1.25rem; font-family: 'Courier New', Courier, monospace; color: #e2e8f0; white-space: pre-wrap; line-height: 1.6; margin-top: 1rem; min-height: 150px; }
+    
+    /* Interactive Editable Textarea */
+    textarea.preview-box {
+      width: 100%;
+      min-height: 250px;
+      background: #0f172a;
+      border: 1px dashed #38bdf8;
+      border-radius: 8px;
+      padding: 1.25rem;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.95rem;
+      color: #e2e8f0;
+      line-height: 1.6;
+      margin-top: 1rem;
+      box-sizing: border-box;
+      resize: vertical;
+    }
+    textarea.preview-box:focus {
+      border-style: solid;
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+    }
+
+    .btn-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
     .btn { display: inline-block; padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: bold; cursor: pointer; border: none; font-size: 0.9rem; text-decoration: none; }
     .btn-primary { background: #0284c7; color: white; }
     .btn-primary:hover { background: #0369a1; }
     .btn-secondary { background: #334155; color: white; }
+    .btn-secondary:hover { background: #475569; }
+
+    /* Print Formatting: Prints ONLY the text area when you press Print */
+    @media print {
+      body { background-color: #ffffff; color: #000000; }
+      header, .card:first-of-type, .btn-group, h2, label { display: none !important; }
+      .container { max-width: 100%; margin: 0; padding: 0; }
+      .card { border: none; background: transparent; padding: 0; }
+      textarea.preview-box {
+        border: none;
+        background: transparent;
+        color: #000000;
+        font-size: 12pt;
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        height: auto;
+      }
+    }
   </style>
 </head>
 <body>
@@ -71,14 +112,21 @@
       </div>
     </div>
 
-    <!-- Live Preview Box -->
+    <!-- Editable Preview Box -->
     <div class="card">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h2 style="margin:0; font-size: 1.25rem;">2. Generated Note Preview</h2>
-        <button id="btnCopy" class="btn btn-primary">📋 Copy Note Text</button>
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+        <div>
+          <h2 style="margin:0; font-size: 1.25rem;">2. Generated Note (Click Below to Edit Directly)</h2>
+          <span style="color: #94a3b8; font-size: 0.8rem;">You can freely edit, add, or delete text inside the box before printing.</span>
+        </div>
+        <div class="btn-group">
+          <button id="btnCopy" class="btn btn-primary">📋 Copy Text</button>
+          <button id="btnDownload" class="btn btn-secondary">💾 Save .txt</button>
+          <button id="btnPrint" class="btn btn-secondary">🖨️ Print Note</button>
+        </div>
       </div>
       
-      <div id="letterPreview" class="preview-box">Loading template...</div>
+      <textarea id="letterPreview" class="preview-box" spellcheck="true">Loading template...</textarea>
     </div>
   </div>
 
@@ -91,6 +139,8 @@
       const senderNameInput = document.getElementById("senderName");
       const letterPreview = document.getElementById("letterPreview");
       const btnCopy = document.getElementById("btnCopy");
+      const btnDownload = document.getElementById("btnDownload");
+      const btnPrint = document.getElementById("btnPrint");
 
       function updatePreview() {
         const signer = signerNameInput.value.trim() || "[Signer Name]";
@@ -109,24 +159,41 @@
           output = `Dear ${signer},\n\nI am writing to share how much I appreciated ${memory}. As a creative hobby, I designed a custom item enclosed here as a personal gift for you to keep.\n\nIf you are willing, I also included a second ${item} that I would love for you to sign and return in the enclosed envelope.\n\nThank you so much for your time, inspiration, and willingness to share with fans.\n\nWarmest regards,\n${sender}`;
         }
 
-        letterPreview.textContent = output;
+        letterPreview.value = output;
       }
 
-      // Input listeners for live updates
+      // Update text automatically when form inputs change
       [signerNameInput, templateSelect, itemDescriptionInput, favoriteMemoryInput, senderNameInput].forEach(el => {
         el.addEventListener("input", updatePreview);
         el.addEventListener("change", updatePreview);
       });
 
-      // Copy button function
+      // 1. Copy Button
       btnCopy.addEventListener("click", () => {
-        navigator.clipboard.writeText(letterPreview.textContent).then(() => {
+        navigator.clipboard.writeText(letterPreview.value).then(() => {
           btnCopy.textContent = "✅ Copied!";
-          setTimeout(() => { btnCopy.textContent = "📋 Copy Note Text"; }, 2000);
+          setTimeout(() => { btnCopy.textContent = "📋 Copy Text"; }, 2000);
         });
       });
 
-      // Initial render
+      // 2. Download .txt File Button
+      btnDownload.addEventListener("click", () => {
+        const signer = signerNameInput.value.trim() || "signer";
+        const textBlob = new Blob([letterPreview.value], { type: "text/plain;charset=utf-8" });
+        const downloadAnchor = document.createElement("a");
+        downloadAnchor.href = URL.createObjectURL(textBlob);
+        downloadAnchor.download = `TTM_Letter_${signer.replace(/\s+/g, "_")}.txt`;
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+      });
+
+      // 3. Print Button
+      btnPrint.addEventListener("click", () => {
+        window.print();
+      });
+
+      // Initial template build
       updatePreview();
     });
   </script>
