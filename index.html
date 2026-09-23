@@ -3,439 +3,181 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TTM Finder - Global Signer Atlas &amp; Autograph Directory</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Collector Workbench - Master Hub</title>
   <style>
-    body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }
-    .container { max-width: 1150px; margin: 0 auto; padding: 1.5rem 1rem; }
-    
-    /* Header & Navigation Toolbar */
-    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid #334155; padding-bottom: 1rem; flex-wrap: wrap; gap: 1rem; }
-    .brand-title { margin: 0; font-size: 1.6rem; color: #38bdf8; font-weight: 800; letter-spacing: -0.5px; }
-    .brand-subtitle { margin: 0; color: #94a3b8; font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
-    
-    .nav-links { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
-    .nav-links a, .dropdown-btn { color: #cbd5e1; text-decoration: none; font-weight: 600; font-size: 0.92rem; background: none; border: none; cursor: pointer; padding: 0.4rem 0.6rem; border-radius: 6px; transition: all 0.2s; }
-    .nav-links a:hover, .dropdown:hover .dropdown-btn { color: #38bdf8; background: #1e293b; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background-color: #0b1120; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; display: flex; flex-direction: column; height: 100vh; overflow: hidden; position: relative; }
 
-    /* Consolidated Dropdown Menus */
-    .dropdown { position: relative; display: inline-block; }
-    .dropdown-content { display: none; position: absolute; top: 100%; left: 0; background-color: #1e293b; min-width: 210px; box-shadow: 0px 8px 24px rgba(0,0,0,0.6); border: 1px solid #334155; border-radius: 8px; z-index: 100; padding: 0.5rem 0; margin-top: 0.2rem; }
-    .dropdown-content a { color: #cbd5e1; padding: 0.55rem 1rem; text-decoration: none; display: block; font-size: 0.85rem; font-weight: 500; }
-    .dropdown-content a:hover { background-color: #0284c7; color: white; }
-    .dropdown:hover .dropdown-content { display: block; }
-    .dropdown-header { font-size: 0.7rem; font-weight: bold; text-transform: uppercase; color: #38bdf8; padding: 0.4rem 1rem 0.2rem 1rem; letter-spacing: 0.5px; }
-
-    /* Auth & Profile Section */
-    .user-auth-area { display: flex; align-items: center; gap: 0.75rem; }
-    .signin-btn { background: #0284c7; color: white; border: 1px solid #38bdf8; padding: 0.4rem 1rem; border-radius: 20px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
-    .signin-btn:hover { background: #0369a1; }
-    .user-badge { display: flex; align-items: center; gap: 0.5rem; background: #1e293b; border: 1px solid #334155; padding: 0.35rem 0.85rem; border-radius: 20px; font-size: 0.85rem; }
-    .status-dot { width: 8px; height: 8px; background-color: #4ade80; border-radius: 50%; box-shadow: 0 0 6px #4ade80; }
-
-    /* Category Quick Tabs */
-    .showcase-tabs { display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-    .tab-btn { background: #1e293b; border: 1px solid #334155; color: #94a3b8; padding: 0.45rem 1.1rem; border-radius: 20px; font-weight: bold; cursor: pointer; transition: all 0.2s; font-size: 0.85rem; }
-    .tab-btn.active, .tab-btn:hover { background: #0284c7; color: white; border-color: #38bdf8; }
-
-    /* 3D Flip Card Showcase */
-    .showcase-stage { perspective: 1000px; display: flex; justify-content: center; margin-bottom: 2.5rem; }
-    .flip-card { width: 320px; height: 430px; cursor: pointer; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); position: relative; }
-    .flip-card.flipped { transform: rotateY(180deg); }
-
-    .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); overflow: hidden; border: 1px solid #334155; box-sizing: border-box; }
-    .card-front { background: #1e293b; display: flex; flex-direction: column; }
-    .card-back { background: #0284c7; color: white; transform: rotateY(180deg); padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; }
-
-    .card-badge { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.7); color: #38bdf8; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; border: 1px solid #38bdf8; }
-    .card-img-wrapper { height: 250px; width: 100%; background: #0f172a; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-    .card-img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
-    .card-details { padding: 1rem; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; background: #1e293b; }
-
-    /* Directory Search & Grid */
-    .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
-    .search-input { padding: 0.75rem; background: #1e293b; border: 1px solid #334155; border-radius: 6px; color: #fff; width: 300px; font-size: 0.95rem; }
-    .signer-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
-    .signer-card { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem; }
-    .signer-category { background: #0284c7; color: #fff; font-size: 0.7rem; font-weight: bold; padding: 0.2rem 0.5rem; border-radius: 10px; display: inline-block; text-transform: uppercase; }
-
-    /* Print Studio Modal Styles */
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
-    .modal-overlay.active { display: flex; }
-    .modal-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 1.5rem; max-width: 650px; width: 90%; color: #f8fafc; }
-    .print-preview-box { background: #ffffff; color: #000000; padding: 1.25rem; border-radius: 6px; font-family: 'Courier New', Courier, monospace; margin: 1rem 0; min-height: 140px; border: 1px dashed #cbd5e1; }
-    
-    /* Direct Printer Styling */
-    @media print {
-      body * { visibility: hidden; }
-      #printableArea, #printableArea * { visibility: visible; }
-      #printableArea { position: absolute; left: 0; top: 0; width: 100%; color: #000000; background: #ffffff; padding: 20px; font-family: Georgia, serif; }
+    /* =========================================================
+       Ambient Floating Cards Background (Faded & Drifting)
+       ========================================================= */
+    .ambient-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+      opacity: 0.06; /* Faded so it never interferes with text/prompts */
     }
+
+    .floating-card {
+      position: absolute;
+      width: 140px;
+      height: 196px; /* 2.5 x 3.5 Aspect Ratio */
+      border: 2px solid #38bdf8;
+      border-radius: 8px;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(15, 23, 42, 0.8) 100%);
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 10px;
+      transform: rotate(-12deg);
+      filter: blur(0.5px);
+    }
+
+    /* Simulated Autograph Script & Photo Frame Inside Card */
+    .card-photo-box { width: 100%; height: 60%; background: rgba(255, 255, 255, 0.1); border-radius: 4px; }
+    .card-sig-line { 
+      font-family: 'Brush Script MT', cursive, sans-serif; 
+      font-size: 1.2rem; 
+      color: #38bdf8; 
+      text-align: center; 
+      transform: rotate(-5deg); 
+      letter-spacing: 1px;
+    }
+
+    /* Drift Animation Schedules */
+    .card-1 { top: 15%; left: -180px; animation: floatRight 38s linear infinite; }
+    .card-2 { top: 55%; left: -180px; animation: floatRight 48s linear infinite 12s; transform: rotate(15deg); }
+    .card-3 { top: 30%; right: -180px; animation: floatLeft 42s linear infinite 5s; transform: rotate(-8deg); }
+    .card-4 { top: 75%; right: -180px; animation: floatLeft 52s linear infinite 22s; transform: rotate(20deg); }
+
+    @keyframes floatRight {
+      0% { transform: translateX(0) translateY(0) rotate(-12deg); }
+      50% { transform: translateX(60vw) translateY(-30px) rotate(5deg); }
+      100% { transform: translateX(115vw) translateY(10px) rotate(-10deg); }
+    }
+
+    @keyframes floatLeft {
+      0% { transform: translateX(0) translateY(0) rotate(15deg); }
+      50% { transform: translateX(-60vw) translateY(40px) rotate(-5deg); }
+      100% { transform: translateX(-115vw) translateY(-20px) rotate(12deg); }
+    }
+
+    /* =========================================================
+       Master UI Layout Controls
+       ========================================================= */
+    header { 
+      background: rgba(15, 23, 42, 0.95); 
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid #334155; 
+      padding: 0.75rem 1.5rem; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      flex-wrap: wrap; 
+      gap: 1rem; 
+      z-index: 10; 
+    }
+    
+    .brand { display: flex; align-items: center; gap: 0.75rem; }
+    .brand-logo { background: #0284c7; color: white; font-weight: 900; font-size: 1.1rem; padding: 0.4rem 0.6rem; border-radius: 6px; letter-spacing: 1px; }
+    .brand-title { font-size: 1.1rem; font-weight: bold; color: #f8fafc; }
+    .brand-subtitle { font-size: 0.75rem; color: #64748b; }
+
+    nav.tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .tab-btn { background: #1e293b; border: 1px solid #334155; color: #94a3b8; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 0.4rem; }
+    .tab-btn:hover { background: #334155; color: #f8fafc; }
+    .tab-btn.active { background: #0284c7; color: #ffffff; border-color: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.25); }
+
+    .popout-btn { background: transparent; border: 1px solid #334155; color: #94a3b8; padding: 0.4rem 0.6rem; border-radius: 6px; font-size: 0.75rem; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 0.3rem; }
+    .popout-btn:hover { color: #38bdf8; border-color: #38bdf8; }
+
+    main { flex: 1; position: relative; background: transparent; z-index: 5; }
+    iframe { width: 100%; height: 100%; border: none; background: transparent; }
+
+    .frame-loader { position: absolute; inset: 0; background: #0f172a; display: flex; justify-content: center; align-items: center; color: #38bdf8; font-size: 0.9rem; font-weight: bold; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; z-index: 6; }
+    .frame-loader.active { opacity: 1; pointer-events: auto; }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <header>
+  <!-- Ambient Faded Background (Floating Cards & Signatures) -->
+  <div class="ambient-bg">
+    <div class="floating-card card-1">
+      <div class="card-photo-box"></div>
+      <div class="card-sig-line">Authentic</div>
+    </div>
+    <div class="floating-card card-2">
+      <div class="card-photo-box"></div>
+      <div class="card-sig-line">Vintage #85</div>
+    </div>
+    <div class="floating-card card-3">
+      <div class="card-photo-box"></div>
+      <div class="card-sig-line">Hall of Fame</div>
+    </div>
+    <div class="floating-card card-4">
+      <div class="card-photo-box"></div>
+      <div class="card-sig-line">Signed TTM</div>
+    </div>
+  </div>
+
+  <!-- Master Top Navigation -->
+  <header>
+    <div class="brand">
+      <div class="brand-logo">TTM</div>
       <div>
-        <h1 class="brand-title">TTM Finder</h1>
-        <p class="brand-subtitle">GLOBAL SIGNER ATLAS &amp; COLLECTOR DIRECTORY</p>
-      </div>
-
-      <!-- Navigation Toolbar with Dropdowns -->
-      <nav class="nav-links">
-        <a href="index.html">Home</a>
-        <a href="finder.html">🔍 Information Finder</a>
-        
-        <!-- Global Sports Dropdown -->
-        <div class="dropdown">
-          <button class="dropdown-btn">🏈 Sports ▾</button>
-          <div class="dropdown-content">
-            <div class="dropdown-header">North American</div>
-            <a href="#directory" onclick="filterCategory('Football')">🏈 Football (NFL)</a>
-            <a href="#directory" onclick="filterCategory('Baseball')">⚾ Baseball (MLB)</a>
-            <a href="#directory" onclick="filterCategory('Basketball')">🏀 Basketball (NBA)</a>
-            <a href="#directory" onclick="filterCategory('Hockey')">🏒 Hockey (NHL)</a>
-            <div class="dropdown-header">Global &amp; Olympic</div>
-            <a href="#directory" onclick="filterCategory('Soccer')">⚽ Soccer (Global Football)</a>
-            <a href="#directory" onclick="filterCategory('Racing')">🏎️ Racing &amp; Motorsports</a>
-            <a href="#directory" onclick="filterCategory('Golf & Tennis')">🎾 Golf &amp; Tennis</a>
-            <a href="#directory" onclick="filterCategory('Combat')">🥊 Boxing &amp; MMA</a>
-            <a href="#directory" onclick="filterCategory('Winter')">🎿 Skiing &amp; Winter Sports</a>
-            <a href="#directory" onclick="filterCategory('Rugby & Cricket')">🏏 Cricket &amp; Rugby</a>
-          </div>
-        </div>
-
-        <!-- Entertainment & Media Dropdown -->
-        <div class="dropdown">
-          <button class="dropdown-btn">🎬 Entertainment ▾</button>
-          <div class="dropdown-content">
-            <a href="#directory" onclick="filterCategory('Movies')">🎬 Movies &amp; Film</a>
-            <a href="#directory" onclick="filterCategory('TV')">📺 Television &amp; Streaming</a>
-            <a href="#directory" onclick="filterCategory('Music')">🎸 Music Artists</a>
-            <a href="#directory" onclick="filterCategory('Voice')">🎙️ Voice &amp; Stage Actors</a>
-            <a href="#directory" onclick="filterCategory('Authors')">📚 Authors &amp; Creators</a>
-          </div>
-        </div>
-
-        <a href="success.html">🏆 Successes</a>
-        <a href="letter-writer.html">✍️ Letter Writer</a>
-        <a href="admin.html">📂 Finder's Console</a>
-      </nav>
-
-      <!-- Auth State Badge -->
-      <div class="user-auth-area">
-        <div id="loggedOutState">
-          <button class="signin-btn" onclick="toggleSignIn(true)">Sign in</button>
-        </div>
-        <div id="loggedInState" style="display: none;">
-          <div class="user-badge">
-            <span class="status-dot"></span>
-            <span>Collector</span>
-            <button onclick="toggleSignIn(false)" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-size:0.75rem;">(Sign Out)</button>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <!-- Category Tabs -->
-    <div class="showcase-tabs">
-      <button class="tab-btn active" onclick="switchCategory('sports', this)">🏈 Football</button>
-      <button class="tab-btn" onclick="switchCategory('baseball', this)">⚾ Baseball</button>
-      <button class="tab-btn" onclick="switchCategory('basketball', this)">🏀 Basketball</button>
-      <button class="tab-btn" onclick="switchCategory('racing', this)">🏎️ Racing</button>
-      <button class="tab-btn" onclick="switchCategory('movies', this)">🎬 Movies</button>
-    </div>
-
-    <!-- 3D Interactive Flip Showcase -->
-    <div class="showcase-stage">
-      <div id="showcaseCard" class="flip-card" onclick="this.classList.toggle('flipped')">
-        
-        <!-- Front Side -->
-        <div class="card-face card-front">
-          <span id="showcaseCategoryBadge" class="card-badge">Football</span>
-          <div class="card-img-wrapper">
-            <img id="showcaseImg" src="https://images.unsplash.com/photo-1566577739112-5180d4bf9390?auto=format&amp;fit=crop&amp;w=600&amp;q=80" alt="Signer Preview">
-          </div>
-          <div class="card-details">
-            <div>
-              <h3 id="showcaseName" style="margin: 0; font-size: 1.25rem; color: #f8fafc;">Jack Youngblood</h3>
-              <p id="showcaseSub" style="color: #38bdf8; font-size: 0.85rem; margin: 0.2rem 0 0 0;">LA Rams #85 • Pro Football HOF</p>
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem;">
-              <span style="font-size: 0.75rem; color: #94a3b8;">Status: <strong style="color: #4ade80;">Active Signer</strong></span>
-              <span style="font-size: 0.8rem; color: #38bdf8; font-weight: bold;">Click to Flip 🔄</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Back Side (Success Stats) -->
-        <div class="card-face card-back">
-          <div>
-            <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9;">Verified Return Showcase</span>
-            <h2 id="showcaseBackName" style="margin: 0.5rem 0 1rem 0; font-size: 1.4rem;">Jack Youngblood</h2>
-            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.2); margin-bottom: 1rem;">
-            <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">⏱️ <strong>Turnaround:</strong> <span id="showcaseTime">14 Days</span></p>
-            <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">✉️ <strong>Enclosure:</strong> <span id="showcaseEnclosure">1985 Topps Card + 3x5 Index Note</span></p>
-            <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">✍️ <strong>Inscribed:</strong> <span id="showcaseInscribed">HOF '01</span></p>
-            <p style="font-size: 0.85rem; line-height: 1.4; opacity: 0.9; margin-top: 1rem; font-style: italic;" id="showcaseNote">
-              "Signed cleanly in blue Sharpie. Returned via SASE with a nice personal handwritten note!"
-            </p>
-          </div>
-          <div style="text-align: center; font-size: 0.8rem; opacity: 0.8;">
-            Click to flip back
-          </div>
-        </div>
-
+        <div class="brand-title">Collector Workbench</div>
+        <div class="brand-subtitle">Unified Suite for Autographs, Checklists &amp; Printing</div>
       </div>
     </div>
 
-    <!-- Search Bar & Controls -->
-    <div class="controls" id="directory">
-      <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search signers by name or category...">
-      <div style="color: #94a3b8; font-size: 0.85rem;" id="activeCategoryFilter">
-        Showing all global categories
-      </div>
-    </div>
+    <nav class="tabs">
+      <button class="tab-btn active" onclick="switchModule('finder.html', this)">
+        <span>🎯</span> Master Tracker
+      </button>
+      <button class="tab-btn" onclick="switchModule('binder-tool.html', this)">
+        <span>📋</span> Binder &amp; Set Mapper
+      </button>
+      <button class="tab-btn" onclick="switchModule('letter-writer.html', this)">
+        <span>✍️</span> 3x5 Index Writer
+      </button>
+      <button class="tab-btn" onclick="switchModule('card-printer.html', this)">
+        <span>🖼️</span> Custom Card Printer
+      </button>
+    </nav>
 
-    <!-- Signers Grid -->
-    <div id="signerGrid" class="signer-grid">
-      <!-- Loaded dynamically via JS -->
-    </div>
-  </div>
+    <a id="popoutLink" href="finder.html" target="_blank" class="popout-btn" title="Open active module in a new browser tab">
+      <span>↗</span> Standalone Tab
+    </a>
+  </header>
 
-  <!-- Print Studio Modal -->
-  <div id="printStudioModal" class="modal-overlay">
-    <div class="modal-card">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <h3 style="margin: 0; color: #38bdf8;">🖨️ TTM Prep &amp; Print Studio</h3>
-        <button onclick="closePrintStudio()" style="background: none; border: none; color: #94a3b8; font-size: 1.2rem; cursor: pointer;">✕</button>
-      </div>
-
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-        <div>
-          <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 0.3rem;">Your Return Address:</label>
-          <textarea id="userReturnAddr" rows="3" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 0.5rem; border-radius: 6px; font-size: 0.85rem;" oninput="updatePrintPreview()"></textarea>
-        </div>
-        <div>
-          <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 0.3rem;">Recipient (Athlete):</label>
-          <input type="text" id="signerPrintName" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 0.5rem; border-radius: 6px; font-size: 0.85rem; margin-bottom: 0.5rem;" oninput="updatePrintPreview()">
-          <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 0.3rem;">Short 3x5 Note Text:</label>
-          <input type="text" id="signerPrintNote" value="Thank you for taking the time to sign! Best wishes always." style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 0.5rem; border-radius: 6px; font-size: 0.85rem;" oninput="updatePrintPreview()">
-        </div>
-      </div>
-
-      <!-- Live Printable Area Preview -->
-      <label style="font-size: 0.8rem; color: #38bdf8; font-weight: bold;">3x5 Index Note / Sheet Preview:</label>
-      <div id="printableArea" class="print-preview-box">
-        <!-- Live preview injected via JavaScript -->
-      </div>
-
-      <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem;">
-        <button onclick="closePrintStudio()" style="background: #334155; color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600;">Cancel</button>
-        <button onclick="window.print()" style="background: #0284c7; color: #fff; border: none; padding: 0.5rem 1.25rem; border-radius: 6px; cursor: pointer; font-weight: 600;">🖨️ Print Now</button>
-      </div>
-    </div>
-  </div>
-
-  <footer style="margin-top: 4rem; border-top: 1px solid #334155; padding: 2rem 1rem 3rem 1rem; color: #94a3b8; font-size: 0.8rem; line-height: 1.5; text-align: center;">
-    <div style="max-width: 900px; margin: 0 auto;">
-      <p style="margin-bottom: 0.75rem;">
-        <strong style="color: #cbd5e1;">TTM Finder</strong> • Independent Autograph &amp; Fan Mail Collector Directory
-      </p>
-      <p style="margin-bottom: 1rem; color: #64748b;">
-        <strong>Disclaimer:</strong> TTM Finder is a community reference platform created strictly for hobbyists and autograph collectors. This site is not affiliated with, endorsed by, or connected to the NFL, MLB, NBA, NHL, FIFA, SAG-AFTRA, or any official sports league, team, or entertainment organization. All trademarks, player names, and team references remain the property of their respective owners.
-      </p>
-      <p style="margin-bottom: 1rem; color: #64748b;">
-        <strong>Privacy &amp; Fair Use:</strong> TTM Finder does not store, trade, or publish confidential personal contact details or private home addresses. Public fan mail venues and team office addresses are compiled from public community logs for educational and respectful fan engagement.
-      </p>
-      <div style="margin-top: 1.5rem; color: #475569;">
-        © 2026 TTM Finder. Built by Collectors, for Collectors.
-      </div>
-    </div>
-  </footer>
+  <!-- Module Display Window -->
+  <main>
+    <div class="frame-loader" id="loader">Loading Module...</div>
+    <iframe id="workspaceFrame" src="finder.html" onload="hideLoader()"></iframe>
+  </main>
 
   <script>
-    function toggleSignIn(isSignedIn) {
-      document.getElementById('loggedOutState').style.display = isSignedIn ? 'none' : 'block';
-      document.getElementById('loggedInState').style.display = isSignedIn ? 'block' : 'none';
-      if(isSignedIn) {
-        localStorage.setItem('ttm_user_signed_in', 'true');
-      } else {
-        localStorage.removeItem('ttm_user_signed_in');
-      }
-    }
+    const iframe = document.getElementById('workspaceFrame');
+    const loader = document.getElementById('loader');
+    const popoutLink = document.getElementById('popoutLink');
 
-    if(localStorage.getItem('ttm_user_signed_in') === 'true') {
-      toggleSignIn(true);
-    }
+    function switchModule(fileUrl, buttonEl) {
+      if (iframe.src.endsWith(fileUrl)) return;
 
-    const showcaseData = {
-      sports: {
-        category: "Football",
-        name: "Jack Youngblood",
-        sub: "LA Rams #85 • Pro Football HOF",
-        img: "https://images.unsplash.com/photo-1566577739112-5180d4bf9390?auto=format&fit=crop&w=600&q=80",
-        time: "14 Days",
-        enclosure: "1985 Topps Card + 3x5 Index Note",
-        inscribed: "HOF '01",
-        note: '"Signed cleanly in blue Sharpie. Returned via SASE with a nice handwritten note!"'
-      },
-      baseball: {
-        category: "Baseball",
-        name: "Derek Jeter",
-        sub: "New York Yankees • Baseball HOF",
-        img: "https://images.unsplash.com/photo-1508802913122-dc3586026816?auto=format&fit=crop&w=600&q=80",
-        time: "21 Days",
-        enclosure: "Rookie Era Card + SASE",
-        inscribed: "Captain #2",
-        note: '"Great signer through foundation and venue mail!"'
-      },
-      basketball: {
-        category: "Basketball",
-        name: "Pau Gasol",
-        sub: "LA Lakers Legend • 2x Champion",
-        img: "https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=600&q=80",
-        time: "18 Days",
-        enclosure: "Index Note + SASE",
-        inscribed: "Best Wishes",
-        note: '"Signed promptly via Gasol Foundation office address."'
-      },
-      racing: {
-        category: "Motorsports",
-        name: "Mario Andretti",
-        sub: "F1 & IndyCar World Champion",
-        img: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=600&q=80",
-        time: "9 Days",
-        enclosure: "Hero Card + SASE",
-        inscribed: "1978 F1 Champ",
-        note: '"Lightning fast return time. Signed cleanly in fine point pen."'
-      },
-      movies: {
-        category: "Movies",
-        name: "Mark Hamill",
-        sub: "Star Wars • Voice & Stage Icon",
-        img: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=600&q=80",
-        time: "28 Days",
-        enclosure: "8x10 Photo + SASE",
-        inscribed: "May The Force Be With You",
-        note: '"Awesome return! Signed with custom Luke Skywalker inscription."'
-      }
-    };
+      loader.classList.add('active');
 
-    function switchCategory(key, element) {
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      element.classList.add('active');
+      buttonEl.classList.add('active');
 
-      const card = document.getElementById('showcaseCard');
-      const data = showcaseData[key];
-
-      card.classList.remove('flipped');
-
-      setTimeout(() => {
-        document.getElementById('showcaseCategoryBadge').textContent = data.category;
-        document.getElementById('showcaseImg').src = data.img;
-        document.getElementById('showcaseName').textContent = data.name;
-        document.getElementById('showcaseSub').textContent = data.sub;
-        document.getElementById('showcaseBackName').textContent = data.name;
-        document.getElementById('showcaseTime').textContent = data.time;
-        document.getElementById('showcaseEnclosure').textContent = data.enclosure;
-        document.getElementById('showcaseInscribed').textContent = data.inscribed;
-        document.getElementById('showcaseNote').textContent = data.note;
-      }, 200);
+      popoutLink.href = fileUrl;
+      iframe.src = fileUrl;
     }
 
-    let signersData = [];
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const grid = document.getElementById("signerGrid");
-      const searchInput = document.getElementById("searchInput");
-
-      // Load return address from Local Storage
-      const savedReturn = localStorage.getItem('ttm_return_address') || "Your Name\n123 Collector Lane\nYour City, CA 90000";
-      document.getElementById('userReturnAddr').value = savedReturn;
-
-      fetch("signers.json")
-        .then(res => res.json())
-        .then(data => {
-          signersData = data;
-          renderGrid(signersData);
-        })
-        .catch(() => {
-          signersData = [
-            { name: "Jack Youngblood", category: "Football", status: "Active", notes: "Pro Football HOF defensive end." },
-            { name: "Derek Jeter", category: "Baseball", status: "Active", notes: "Yankees Captain, signs via Players Tribune." },
-            { name: "Pau Gasol", category: "Basketball", status: "Active", notes: "Lakers 2x Champion, signs via Gasol Foundation." },
-            { name: "Mario Andretti", category: "Racing", status: "Active", notes: "World Champion driver, lightning fast TTM signer." },
-            { name: "Mark Hamill", category: "Movies", status: "Active", notes: "Star Wars legend, signs via production desks." }
-          ];
-          renderGrid(signersData);
-        });
-
-      function renderGrid(list) {
-        grid.innerHTML = list.map(item => `
-          <div class="signer-card">
-            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
-              <h4 style="margin: 0; font-size: 1.1rem; color: #f8fafc;">${item.name}</h4>
-              <span class="signer-category">${item.category || 'Directory'}</span>
-            </div>
-            <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.4; margin: 0 0 0.75rem 0;">${item.notes || 'Public directory record.'}</p>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
-              <div style="font-size: 0.75rem; color: #4ade80; font-weight: bold;">Status: ${item.status || 'Active'}</div>
-              <button onclick="openPrintStudio('${item.name.replace(/'/g, "\\'")}')" style="background: #1e293b; border: 1px solid #38bdf8; color: #38bdf8; padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer; font-weight: 600;">🖨️ Print Note</button>
-            </div>
-          </div>
-        `).join('');
-      }
-
-      searchInput.addEventListener("input", (e) => {
-        const query = e.target.value.toLowerCase();
-        const filtered = signersData.filter(s => 
-          s.name.toLowerCase().includes(query) || 
-          (s.category && s.category.toLowerCase().includes(query)) ||
-          (s.notes && s.notes.toLowerCase().includes(query))
-        );
-        renderGrid(filtered);
-      });
-    });
-
-    function filterCategory(cat) {
-      document.getElementById('activeCategoryFilter').textContent = `Filtering by: ${cat}`;
-      const searchInput = document.getElementById("searchInput");
-      searchInput.value = cat;
-      searchInput.dispatchEvent(new Event('input'));
-    }
-
-    // Print Studio Modal Control Functions
-    function openPrintStudio(name) {
-      document.getElementById('signerPrintName').value = name;
-      updatePrintPreview();
-      document.getElementById('printStudioModal').classList.add('active');
-    }
-
-    function closePrintStudio() {
-      document.getElementById('printStudioModal').classList.remove('active');
-    }
-
-    function updatePrintPreview() {
-      const returnAddr = document.getElementById('userReturnAddr').value;
-      const signerName = document.getElementById('signerPrintName').value;
-      const customNote = document.getElementById('signerPrintNote').value;
-
-      localStorage.setItem('ttm_return_address', returnAddr);
-
-      const previewHtml = `
-        <div style="font-size: 11px; line-height: 1.3; margin-bottom: 20px;">
-          ${returnAddr.replace(/\n/g, '<br>')}
-        </div>
-        <div style="font-size: 14px; line-height: 1.5; text-align: left; margin-left: 10px;">
-          <strong>Dear ${signerName},</strong><br><br>
-          ${customNote}<br><br>
-          <em>Thank you for your time and for being so great to fans!</em>
-        </div>
-      `;
-      
-      document.getElementById('printableArea').innerHTML = previewHtml;
+    function hideLoader() {
+      loader.classList.remove('active');
     }
   </script>
 </body>
