@@ -3,90 +3,230 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TTM Finder - Moderation Console</title>
+  <title>TTM Finder - Admin & Collector Console</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    body { background-color: #0f172a; color: #fff; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }
-    .admin-container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
-    .drop-zone { border: 2px dashed #4a5568; background: #1a202c; border-radius: 8px; padding: 2rem; text-align: center; cursor: pointer; margin-bottom: 1.5rem; transition: border-color 0.2s; }
-    .drop-zone:hover { border-color: #63b3ed; }
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-    .modal-overlay.hidden { display: none; }
-    .modal-card { background: #2d3748; padding: 2rem; border-radius: 10px; max-width: 500px; width: 90%; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-    .modal-buttons { display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; }
-    .btn { padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: bold; cursor: pointer; border: none; }
-    .btn-primary { background: #3182ce; color: white; }
-    .btn-secondary { background: #4a5568; color: white; }
-    .btn-danger { background: #e53e3e; color: white; }
-    .btn-success { background: #38a169; color: white; }
-    .grid-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-    .interactive-table { width: 100%; border-collapse: collapse; background: #2d3748; border-radius: 8px; overflow: hidden; }
-    .interactive-table th, .interactive-table td { padding: 0.75rem 1rem; border-bottom: 1px solid #4a5568; text-align: left; }
-    .interactive-table th { background: #1a202c; color: #a0aec0; font-size: 0.85rem; text-transform: uppercase; }
-    .interactive-table td[contenteditable="true"]:focus { background: #4a5568; outline: 2px solid #63b3ed; border-radius: 4px; }
-    .drag-handle { cursor: grab; color: #a0aec0; text-align: center; width: 30px; }
+    body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }
+    .container { max-width: 900px; margin: 0 auto; padding: 1.5rem 1rem; }
+    
+    /* Navigation Bar */
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid #334155; padding-bottom: 1rem; flex-wrap: wrap; gap: 1rem; }
+    .brand-title { margin: 0; font-size: 1.6rem; color: #38bdf8; font-weight: 800; }
+    .nav-links { display: flex; gap: 1.2rem; align-items: center; }
+    .nav-links a { color: #cbd5e1; text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+    .nav-links a:hover, .nav-links a.active { color: #38bdf8; }
+
+    /* Admin Form Styling */
+    .admin-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 1.75rem; margin-bottom: 2rem; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; font-weight: bold; font-size: 0.9rem; margin-bottom: 0.4rem; color: #38bdf8; }
+    .form-control { width: 100%; padding: 0.75rem; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #fff; font-size: 0.95rem; box-sizing: border-box; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+
+    /* Drag & Drop Zone */
+    .drop-zone { border: 2px dashed #38bdf8; background: #0f172a; border-radius: 8px; padding: 1.5rem; text-align: center; cursor: pointer; transition: background 0.2s; color: #94a3b8; }
+    .drop-zone:hover { background: #1a2536; }
+    .drop-zone img { max-height: 120px; margin-top: 0.5rem; border-radius: 6px; border: 1px solid #334155; }
+
+    /* Action Buttons */
+    .btn-submit { background: #0284c7; color: white; border: none; padding: 0.85rem 1.5rem; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; width: 100%; transition: background 0.2s; }
+    .btn-submit:hover { background: #0369a1; }
+
+    /* Saved Items Table */
+    .table-container { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 1.25rem; }
+    .item-list { width: 100%; border-collapse: collapse; text-align: left; }
+    .item-list th, .item-list td { padding: 0.75rem; border-bottom: 1px solid #334155; font-size: 0.9rem; }
+    .item-list th { color: #38bdf8; }
+    .btn-delete { background: #ef4444; color: white; border: none; padding: 0.35rem 0.75rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+    .badge { background: #0284c7; color: white; padding: 0.2rem 0.5rem; border-radius: 10px; font-size: 0.75rem; font-weight: bold; }
   </style>
 </head>
 <body>
 
-  <div class="admin-container">
-    <header style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+  <div class="container">
+    <header>
       <div>
-        <h1 style="margin:0; font-size: 1.8rem;">TTM Finder</h1>
-        <p style="margin:0; color: #94a3b8; font-size: 0.9rem;">MODERATION CONSOLE &amp; DIRECTORY MANAGER</p>
+        <h1 class="brand-title">TTM Admin Console</h1>
+        <p style="margin:0; color:#94a3b8; font-size:0.8rem;">EASY ENTRY &amp; LOCAL STORAGE MANAGER</p>
       </div>
-      <a href="index.html" style="color: #63b3ed; text-decoration: none;">← Back home</a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="index.html#directory">Directory</a>
+        <a href="success.html">Successes</a>
+        <a href="letter-writer.html">Letter Writer</a>
+        <a href="admin.html" class="active">Admin</a>
+      </nav>
     </header>
 
-    <!-- Drag & Drop Dropzone -->
-    <div id="drop-zone" class="drop-zone">
-      <div style="font-size: 1.2rem; margin-bottom: 0.5rem;">📄 <strong>Drag &amp; Drop your TTM file here</strong></div>
-      <div style="color: #a0aec0; font-size: 0.9rem;">Or click here to select a file from your computer.</div>
+    <!-- Simple Add Form -->
+    <div class="admin-card">
+      <h2 style="margin-top:0; color:#f8fafc; font-size:1.3rem;">➕ Add New Signer / Success Return</h2>
+      <form id="signerForm">
+        
+        <div class="form-row">
+          <!-- Category Selection -->
+          <div class="form-group">
+            <label for="category">Category / Sport</label>
+            <select id="category" class="form-control" required>
+              <option value="🏈 Football">🏈 Football</option>
+              <option value="⚾ Baseball">⚾ Baseball</option>
+              <option value="🏀 Basketball">🏀 Basketball</option>
+              <option value="🎬 Movies & TV">🎬 Movies &amp; TV</option>
+              <option value="🏎️ Racing">🏎️ Racing</option>
+            </select>
+          </div>
+
+          <!-- Signer Name -->
+          <div class="form-group">
+            <label for="signerName">Signer Name / Title</label>
+            <input type="text" id="signerName" class="form-control" placeholder="e.g. Jack Youngblood" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <!-- Turnaround Time -->
+          <div class="form-group">
+            <label for="turnaround">Turnaround Time</label>
+            <input type="text" id="turnaround" class="form-control" placeholder="e.g. 14 Days" required>
+          </div>
+
+          <!-- Inscription or Details -->
+          <div class="form-group">
+            <label for="inscription">Inscription / Notes</label>
+            <input type="text" id="inscription" class="form-control" placeholder="e.g. Inscribed HOF '01 / Blue Sharpie">
+          </div>
+        </div>
+
+        <!-- Drag & Drop Photo Area -->
+        <div class="form-group">
+          <label>Attach Photo / Proof (Drag &amp; Drop)</label>
+          <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click();">
+            📁 Click or Drag &amp; Drop an image here
+            <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="previewFile(this.files[0])">
+            <div id="previewArea"></div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit">💾 Save Entry To Storage</button>
+      </form>
     </div>
 
-    <!-- Toolbar -->
-    <div class="grid-toolbar">
-      <div style="display: flex; gap: 0.5rem;">
-        <button id="btn-add-row" class="btn btn-secondary">+ Add Row</button>
-        <button id="btn-clear-all" class="btn btn-danger">🗑️ Clear Table</button>
-      </div>
-      <div>
-        <button id="btn-save-live" class="btn btn-success">💾 Save Clean Directory</button>
-      </div>
+    <!-- Saved Items Listing (Simplified Table) -->
+    <div class="table-container">
+      <h3 style="margin-top:0; color:#f8fafc;">📁 Your Saved Entries (<span id="savedCount">0</span>)</h3>
+      <table class="item-list">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Name</th>
+            <th>Turnaround</th>
+            <th>Notes</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="savedTableBody">
+          <!-- Items will populate dynamically here -->
+        </tbody>
+      </table>
     </div>
 
-    <!-- Interactive Grid Table -->
-    <table class="interactive-table">
-      <thead>
+  </div>
+
+  <script>
+    let currentImageData = "";
+
+    // Drag & Drop Handlers
+    const dropZone = document.getElementById('dropZone');
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.style.background = '#1e293b';
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.style.background = '#0f172a';
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.style.background = '#0f172a';
+      if (e.dataTransfer.files.length > 0) {
+        previewFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    function previewFile(file) {
+      if (!file || !file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        currentImageData = e.target.result;
+        document.getElementById('previewArea').innerHTML = `<br><img src="${currentImageData}" alt="Preview">`;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Storage Management Logic
+    function getStoredSigners() {
+      return JSON.parse(localStorage.getItem('ttm_saved_entries') || '[]');
+    }
+
+    function renderSavedTable() {
+      const items = getStoredSigners();
+      const tbody = document.getElementById('savedTableBody');
+      document.getElementById('savedCount').textContent = items.length;
+
+      if (items.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">No saved entries yet. Fill out the form above to add one!</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = items.map((item, index) => `
         <tr>
-          <th style="width: 30px;"></th>
-          <th>Signer Name</th>
-          <th>Category</th>
-          <th>Status</th>
-          <th>Collector Notes &amp; Details</th>
-          <th style="width: 80px;">Action</th>
+          <td><span class="badge">${item.category}</span></td>
+          <td><strong>${item.name}</strong></td>
+          <td>${item.turnaround}</td>
+          <td style="color:#cbd5e1;">${item.inscription || 'N/A'}</td>
+          <td><button class="btn-delete" onclick="deleteEntry(${index})">Delete</button></td>
         </tr>
-      </thead>
-      <tbody id="grid-body">
-        <!-- Rows load dynamically here -->
-      </tbody>
-    </table>
-  </div>
+      `).join('');
+    }
 
-  <!-- Smart Cleanup Popup Modal -->
-  <div id="organize-modal" class="modal-overlay hidden">
-    <div class="modal-card">
-      <h3 style="margin-top:0; font-size: 1.3rem;">✨ Clean &amp; Organize File?</h3>
-      <p style="color: #cbd5e0; font-size: 0.95rem; line-height: 1.5;">
-        We detected CSV rows or notes. Click below to automatically scrub street addresses and organize signers cleanly into the table!
-      </p>
-      <div class="modal-buttons">
-        <button id="btn-auto-organize" class="btn btn-primary">Yes, Clean &amp; Organize</button>
-        <button id="btn-keep-raw" class="btn btn-secondary">Import As-Is</button>
-      </div>
-    </div>
-  </div>
+    function deleteEntry(index) {
+      const items = getStoredSigners();
+      items.splice(index, 1);
+      localStorage.setItem('ttm_saved_entries', JSON.stringify(items));
+      renderSavedTable();
+    }
 
-  <script src="admin.js"></script>
+    // Save Form Handler
+    document.getElementById('signerForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const newEntry = {
+        category: document.getElementById('category').value,
+        name: document.getElementById('signerName').value,
+        turnaround: document.getElementById('turnaround').value,
+        inscription: document.getElementById('inscription').value,
+        image: currentImageData,
+        dateAdded: new Date().toLocaleDateString()
+      };
+
+      const items = getStoredSigners();
+      items.unshift(newEntry);
+      localStorage.setItem('ttm_saved_entries', JSON.stringify(items));
+
+      // Reset Form
+      document.getElementById('signerForm').reset();
+      document.getElementById('previewArea').innerHTML = '';
+      currentImageData = "";
+
+      renderSavedTable();
+      alert('✅ Entry saved successfully to local storage!');
+    });
+
+    // Initialize Table on Load
+    document.addEventListener('DOMContentLoaded', renderSavedTable);
+  </script>
 </body>
 </html>
