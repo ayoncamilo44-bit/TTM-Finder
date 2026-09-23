@@ -277,3 +277,177 @@
   </script>
 </body>
 </html>
+<script>
+    const baseCatalogData = [
+      {
+        name: "Billy Idol",
+        category: "Music",
+        type: "Rock Icon & Musician",
+        address: "c/o Cyberpunk / BFI Management Desk\nLos Angeles, CA",
+        notes: "Punk rock legend. Accepts fan mail and autographs via tour venues and management desks."
+      },
+      {
+        name: "Los Angeles Rams Facility",
+        category: "NFL",
+        type: "Main Team Venue Hub",
+        address: "c/o Los Angeles Rams\n21555 Oxnard St.\nWoodland Hills, CA 91367",
+        notes: "Primary training facility address for sending to active players & coaching staff during season."
+      },
+      {
+        name: "Jack Youngblood (HOF)",
+        category: "NFL",
+        type: "Pro Football HOF Legend",
+        address: "P.O. Box 568234\nOrlando, FL 32835",
+        notes: "Legendary LA Rams defensive end #85. Extremely gracious with TTM requests."
+      },
+      {
+        name: "Terry Bradshaw (HOF)",
+        category: "NFL",
+        type: "Pittsburgh Steelers Great",
+        address: "P.O. Box 1790\nGainesville, TX 76241",
+        notes: "4x Super Bowl Champion quarterback & broadcast analyst."
+      },
+      {
+        name: "Jerome Bettis (HOF)",
+        category: "NFL",
+        type: "Rams / Steelers Star",
+        address: "c/o Jerome Bettis Enterprises\n512 N. Main St.\nRoyal Oak, MI 48067",
+        notes: "'The Bus' signs through his official business office."
+      },
+      {
+        name: "Derek Jeter",
+        category: "MLB",
+        type: "Baseball HOF Legend",
+        address: "c/o The Players Tribune\n1700 Broadway, 29th Floor\nNew York, NY 10019",
+        notes: "Yankees Captain. Signs through foundation and corporate media desks."
+      },
+      {
+        name: "New York Yankees Facility",
+        category: "MLB",
+        type: "Main Team Venue Hub",
+        address: "c/o New York Yankees\n1 E. 161st St.\nBronx, NY 10451",
+        notes: "Main stadium address for active roster players and coaching staff."
+      },
+      {
+        name: "Randy Johnson (HOF)",
+        category: "MLB",
+        type: "Baseball HOF Pitcher",
+        address: "10645 Tatum Blvd. #C200-520\nPhoenix, AZ 85028",
+        notes: "300-game winner & Cy Young Legend."
+      },
+      {
+        name: "Chipper Jones (HOF)",
+        category: "MLB",
+        type: "Atlanta Braves Legend",
+        address: "c/o Major League Bowhunter\nSportsman Channel, Denver, CO 80204",
+        notes: "Braves Hall of Fame third baseman."
+      },
+      {
+        name: "Pau Gasol",
+        category: "NBA",
+        type: "Basketball Champion",
+        address: "c/o Gasolic Ventures / Gasol Foundation\n24310 Moulton Pkwy, Suite O\nLaguna Woods, CA 92637",
+        notes: "Lakers 2x Champion. Accepts fan mail through his foundation office."
+      },
+      {
+        name: "Brent Barry",
+        category: "NBA",
+        type: "Spurs / SuperSonics Legend",
+        address: "114 Champion Trail\nSan Antonio, TX 78258",
+        notes: "Slam Dunk Champion & NBA executive."
+      },
+      {
+        name: "Mario Andretti",
+        category: "Racing",
+        type: "Motorsports World Champ",
+        address: "c/o Andretti Autosport\n7615 Zionsville Rd.\nIndianapolis, IN 46268",
+        notes: "F1 and IndyCar legend with fast return times."
+      },
+      {
+        name: "Mark Hamill",
+        category: "Film & TV",
+        type: "Movie & Voice Icon",
+        address: "c/o Studio Fan Mail Desk\nLos Angeles, CA",
+        notes: "Star Wars icon. Periodically signs through production agency desks."
+      }
+    ];
+
+    // Load extra items added via admin.html / Finder's Console
+    function getStoredConsoleItems() {
+      const saved = JSON.parse(localStorage.getItem('ttm_saved_entries') || '[]');
+      return saved.map(item => ({
+        name: item.name,
+        category: item.category.replace(/^[^\w\s]+/, '').trim() || "Console Entry",
+        type: "Personal Tracker Entry",
+        address: item.inscription || "Saved via Finder Console",
+        notes: `Turnaround: ${item.turnaround}`
+      }));
+    }
+
+    // Combine base catalog + user console items
+    function getCombinedCatalog() {
+      return [...getStoredConsoleItems(), ...baseCatalogData];
+    }
+
+    function renderCatalog(list) {
+      const grid = document.getElementById('catalogGrid');
+      if (list.length === 0) {
+        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #94a3b8; padding: 2rem;">No signers or venues found matching your search. Try another keyword!</div>`;
+        return;
+      }
+
+      grid.innerHTML = list.map(item => `
+        <div class="info-card">
+          <div>
+            <div class="card-header">
+              <h3 class="card-title">${item.name}</h3>
+              <span class="card-badge">${item.category}</span>
+            </div>
+            <div style="font-size: 0.78rem; color: #38bdf8; font-weight: 600; margin-bottom: 0.4rem;">${item.type}</div>
+            <div class="card-address">${item.address}</div>
+            <p style="color: #94a3b8; font-size: 0.82rem; margin: 0; line-height: 1.4;">${item.notes}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    const searchInput = document.getElementById('finderSearch');
+    
+    function performSearch() {
+      const currentCatalog = getCombinedCatalog();
+      const query = searchInput.value.toLowerCase().trim();
+      
+      if (!query) {
+        renderCatalog(currentCatalog);
+        return;
+      }
+      
+      const filtered = currentCatalog.filter(item => 
+        item.name.toLowerCase().includes(query) ||
+        item.category.toLowerCase().includes(query) ||
+        item.type.toLowerCase().includes(query) ||
+        item.address.toLowerCase().includes(query) ||
+        item.notes.toLowerCase().includes(query)
+      );
+      renderCatalog(filtered);
+    }
+
+    searchInput.addEventListener('input', performSearch);
+
+    function filterCatalog(cat, element) {
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      element.classList.add('active');
+
+      const currentCatalog = getCombinedCatalog();
+      if (cat === 'ALL') {
+        searchInput.value = '';
+        renderCatalog(currentCatalog);
+      } else {
+        searchInput.value = '';
+        const filtered = currentCatalog.filter(item => item.category.toLowerCase().includes(cat.toLowerCase()));
+        renderCatalog(filtered);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', performSearch);
+  </script>
