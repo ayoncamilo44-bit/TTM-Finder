@@ -9,6 +9,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnSaveLive = document.getElementById("btn-save-live");
   const gridBody = document.getElementById("grid-body");
 
+  // --- AUTOMATED ADDRESS SCRUBBER (PRIVACY PROTECTION) ---
+  function sanitizePrivacy(text) {
+    if (!text) return "";
+    return text
+      // Strip physical street addresses (e.g., 32472 Cook Ln, 5308 Woodnote Ln, 823 Sand Wagon Cir)
+      .replace(/\b\d+\s+[A-Za-z0-9\s\.\']+(Ln|Ln\.|Street|St|St\.|Circle|Cir|Cir\.|Way|Road|Rd|Rd\.|Avenue|Ave|Ave\.|Boulevard|Blvd|Blvd\.|Drive|Dr|Dr\.|Court|Ct|Ct\.|Place|Pl|Pl\.|Parkway|Pkwy|Pkwy\.|Box\s+\d+)\b,?/gi, "")
+      // Strip ZIP codes
+      .replace(/\b\d{5}(-\d{4})?\b,?/g, "")
+      // Clean up leftover double commas or awkward spacing
+      .replace(/\s+,/g, ",")
+      .replace(/,\s*,/g, ",")
+      .replace(/^[\s,]+|[\s,]+$/g, "")
+      .trim();
+  }
+
   // 1. File Drag & Drop Handling
   if (dropZone) {
     dropZone.addEventListener("dragover", (e) => {
@@ -31,7 +46,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // File picker on click
     dropZone.addEventListener("click", () => {
       const input = document.createElement("input");
       input.type = "file";
@@ -48,11 +62,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 2. Screen Paste Handling
+  // 2. Paste Handling
   document.addEventListener("paste", (e) => {
-    // Don't trigger if actively editing inside a grid cell
     if (document.activeElement && document.activeElement.isContentEditable) return;
-
     const pasteData = (e.clipboardData || window.clipboardData).getData("text");
     if (pasteData) {
       e.preventDefault();
@@ -60,108 +72,80 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 3. Inspect Incoming Data for Formatting Errors
   function processIncomingText(rawText) {
     pendingImportText = rawText;
-    const isMessy =
-      rawText.includes("•") ||
-      rawText.includes("â€¢") ||
-      rawText.includes("Cards:") ||
-      rawText.includes("Status:") ||
-      rawText.includes("- ");
-
-    if (isMessy && organizeModal) {
+    if (organizeModal) {
       organizeModal.classList.remove("hidden");
     } else {
-      parseAndRenderRaw(rawText);
+      parseAndRenderScrubbed(rawText);
     }
   }
 
-  // 4. Modal Cleanup Button Handlers
   if (btnAutoOrganize) {
     btnAutoOrganize.addEventListener("click", () => {
       if (organizeModal) organizeModal.classList.add("hidden");
-      const cleanSigners = autoOrganizeText(pendingImportText);
-      renderGridRows(cleanSigners);
+      parseAndRenderScrubbed(pendingImportText);
     });
   }
 
   if (btnKeepRaw) {
     btnKeepRaw.addEventListener("click", () => {
       if (organizeModal) organizeModal.classList.add("hidden");
-      parseAndRenderRaw(pendingImportText);
+      parseAndRenderScrubbed(pendingImportText);
     });
   }
 
-  // 5. Automatic Cleanup Engine (Merges bullet lines into single signer entries)
-  function autoOrganizeText(text) {
+  // 3. Scrubbing & Parsing Core Function
+  function parseAndRenderScrubbed(text) {
     const lines = text.split("\n");
     const signers = [];
-    let currentSigner = null;
 
     lines.forEach((line) => {
       let trimmed = line.replace(/â€¢/g, "").replace(/•/g, "").trim();
       if (!trimmed) return;
 
-      const isNoteLine =
-        trimmed.startsWith("-") ||
-        trimmed.startsWith("Cards:") ||
-        trimmed.startsWith("Status:") ||
-        trimmed.startsWith("Note:");
+      // Ignore header rows
+      if (trimmed.toLowerCase().startsWith("name,") || trimmed.toLowerCase().startsWith("signer name")) return;
 
-      if (isNoteLine && currentSigner) {
-        currentSigner.notes += (currentSigner.notes ? " | " : "") + trimmed;
+      let name = "";
+      let notes = "";
+
+      if (trimmed.includes(",")) {
+        const parts = trimmed.split(",");
+        name = parts[0].trim();
+        // Scrub physical address strings from all remaining columns
+        const rawDetails = parts.slice(1).join(", ");
+        notes = sanitizePrivacy(rawDetails);
       } else if (trimmed.includes("\t")) {
-        const cols = trimmed.split("\t");
-        currentSigner = {
-          name: cols[0] || "",
-          category: cols[1] || "Sports",
-          status: cols[3] || "Published",
-          notes: cols.slice(4).join(" ") || ""
-        };
-        signers.push(currentSigner);
+        const parts = trimmed.split("\t");
+        name = parts[0].trim();
+        notes = sanitizePrivacy(parts.slice(1).join(" "));
       } else {
-        currentSigner = {
-          name: trimmed,
+        name = sanitizePrivacy(trimmed);
+      }
+
+      if (name) {
+        signers.push({
+          name: name,
           category: "Sports",
-          status: "Published",
-          notes: ""
-        };
-        signers.push(currentSigner);
+          status: notes.toLowerCase().includes("returned") ? "Returned" : "Pending",
+          notes: notes
+        });
       }
     });
 
-    return signers;
-  }
-
-  function parseAndRenderRaw(text) {
-    const lines = text.split("\n");
-    const signers = lines
-      .map((line) => line.trim())
-      .filter(Boolean)
-      .map((line) => {
-        const parts = line.split("\t");
-        return {
-          name: parts[0] || line,
-          category: parts[1] || "Sports",
-          status: parts[3] || "Draft",
-          notes: parts.slice(4).join(" ") || ""
-        };
-      });
     renderGridRows(signers);
   }
 
-  // 6. Interactive Visual Grid Generator
   function renderGridRows(signers) {
     if (!gridBody) return;
     gridBody.innerHTML = "";
-
     signers.forEach((s) => {
       addGridRow(s.name, s.category, s.status, s.notes);
     });
   }
 
-  function addGridRow(name = "", category = "Sports", status = "Published", notes = "") {
+  function addGridRow(name = "", category = "Sports", status = "Pending", notes = "") {
     if (!gridBody) return;
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -177,10 +161,9 @@ document.addEventListener("DOMContentLoaded", () => {
     gridBody.appendChild(tr);
   }
 
-  // 7. Grid Toolbar Functions
   if (btnAddRow) {
     btnAddRow.addEventListener("click", () => {
-      addGridRow("New Signer", "Sports", "Published", "");
+      addGridRow("New Signer", "Sports", "Pending", "");
     });
   }
 
@@ -201,7 +184,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-      // Creates a clean download file (signers.json)
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
       const downloadAnchor = document.createElement("a");
       downloadAnchor.setAttribute("href", dataStr);
@@ -210,7 +192,7 @@ document.addEventListener("DOMContentLoaded", () => {
       downloadAnchor.click();
       downloadAnchor.remove();
 
-      alert("Clean dataset generated as 'signers.json'! Upload or replace this file in your repository to update your live directory.");
+      alert("Clean public dataset generated! Replace signers.json in your repository to update the live site.");
     });
   }
 });
