@@ -45,8 +45,9 @@
 
     <!-- Toolbar -->
     <div class="grid-toolbar">
-      <div>
+      <div style="display: flex; gap: 0.5rem;">
         <button id="btn-add-row" class="btn btn-secondary">+ Add Row</button>
+        <button id="btn-clear-all" class="btn btn-danger">🗑️ Clear Table</button>
       </div>
       <div>
         <button id="btn-save-live" class="btn btn-success">💾 Save Clean Directory</button>
@@ -76,7 +77,7 @@
     <div class="modal-card">
       <h3 style="margin-top:0; font-size: 1.3rem;">✨ Clean &amp; Organize File?</h3>
       <p style="color: #cbd5e0; font-size: 0.95rem; line-height: 1.5;">
-        We detected bullet points and multi-line notes in your paste/file. Would you like to automatically merge those details into single signer profiles?
+        We detected CSV rows or notes. Click below to automatically scrub street addresses and organize signers cleanly into the table!
       </p>
       <div class="modal-buttons">
         <button id="btn-auto-organize" class="btn btn-primary">Yes, Clean &amp; Organize</button>
