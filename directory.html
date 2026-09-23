@@ -306,7 +306,38 @@
           </select>
         </div>
 
-        <!-- Status Filter -->
+        <!-- Status Filter -->function exportDirectoryCSV() {
+  const headers = ["ID", "Name", "Sport", "Team", "Address Type", "Status", "Turnaround", "Fee", "Card Limit", "Warning", "Address", "Intel"];
+  
+  const rows = ttmDirectory.map(player => [
+    player.id,
+    `"${(player.name || '').replace(/"/g, '""')}"`,
+    `"${(player.sport || '').replace(/"/g, '""')}"`,
+    `"${(player.team || '').replace(/"/g, '""')}"`,
+    `"${(player.type || '').replace(/"/g, '""')}"`,
+    `"${(player.status || '').replace(/"/g, '""')}"`,
+    `"${(player.turnaround || '').replace(/"/g, '""')}"`,
+    `"${(player.fee || '').replace(/"/g, '""')}"`,
+    `"${(player.cardLimit || '').replace(/"/g, '""')}"`,
+    `"${(player.warning || '').replace(/"/g, '""')}"`,
+    `"${(player.address || '').replace(/\n/g, ' | ').replace(/"/g, '""')}"`,
+    `"${(player.intel || '').replace(/"/g, '""')}"`
+  ]);
+
+  const csvString = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
+
+  const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  
+  link.setAttribute('href', url);
+  link.setAttribute('download', `ttm_addresses_${new Date().toISOString().slice(0, 10)}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  showToast("CSV file exported successfully!");
+}
         <div class="col-md-3">
           <select id="statusFilter" class="form-select form-select-sm" onchange="filterDirectory()">
             <option value="ALL">All Return Statuses</option>
