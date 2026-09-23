@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TTM Finder - Set Checklist &amp; Binder Layout Tool</title>
+  <style>
+    body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 1.5rem; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    
+    header { border-bottom: 1px solid #334155; padding-bottom: 1rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    h1 { margin: 0; font-size: 1.5rem; color: #38bdf8; }
+    
+    /* Summary Stats Bar */
+    .stats-bar { display: flex; gap: 1.5rem; background: #1e293b; padding: 1rem; border-radius: 8px; border: 1px solid #334155; margin-bottom: 1.5rem; justify-content: space-around; flex-wrap: wrap; }
+    .stat-item { text-align: center; }
+    .stat-val { font-size: 1.4rem; font-weight: bold; color: #38bdf8; }
+    .stat-label { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* Layout Split: 9-Pocket Visualizer + Checklist */
+    .workbench { display: grid; grid-template-columns: 380px 1fr; gap: 1.5rem; align-items: start; }
+    @media (max-width: 900px) { .workbench { grid-template-columns: 1fr; } }
+
+    /* 9-Pocket Binder Page Visualizer */
+    .binder-page-container { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 1.25rem; }
+    .binder-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .page-nav-btn { background: #0284c7; border: none; color: white; padding: 0.35rem 0.75rem; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85rem; }
+    .page-nav-btn:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
+
+    .grid-9pocket { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; background: rgba(15, 23, 42, 0.6); padding: 0.5rem; border-radius: 8px; border: 2px solid #334155; }
+    .pocket-slot { background: #0f172a; border: 1px dashed #475569; border-radius: 6px; aspect-ratio: 2.5 / 3.5; display: flex; flex-direction: column; justify-content: space-between; padding: 0.4rem; box-sizing: border-box; font-size: 0.7rem; transition: all 0.2s; position: relative; }
+    .pocket-slot.filled { background: #1e293b; border: 1px solid #38bdf8; box-shadow: inset 0 0 8px rgba(56, 189, 248, 0.15); }
+    .pocket-slot.missing { background: #1a1016; border: 1px dashed #ef4444; }
+    .slot-num { font-size: 0.65rem; color: #64748b; font-weight: bold; }
+    .slot-card-num { font-weight: bold; color: #38bdf8; font-size: 0.75rem; }
+    .slot-card-name { font-size: 0.68rem; color: #cbd5e1; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .slot-status { font-size: 0.6rem; font-weight: bold; border-radius: 3px; padding: 1px 3px; width: max-content; }
+    .status-have { background: #166534; color: #4ade80; }
+    .status-need { background: #991b1b; color: #fca5a5; }
+
+    /* Checklist Table Section */
+    .checklist-container { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 1.25rem; }
+    .checklist-controls { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .filter-btn-group { display: flex; gap: 0.3rem; }
+    .filter-btn { background: #0f172a; border: 1px solid #334155; color: #94a3b8; padding: 0.3rem 0.7rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+    .filter-btn.active { background: #0284c7; color: white; border-color: #38bdf8; font-weight: bold; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th { text-align: left; padding: 0.6rem 0.5rem; border-bottom: 2px solid #334155; color: #94a3b8; font-size: 0.75rem; text-transform: uppercase; }
+    td { padding: 0.55rem 0.5rem; border-bottom: 1px solid #334155; color: #cbd5e1; }
+    tr:hover { background: rgba(51, 65, 85, 0.3); }
+
+    .checkbox-cell { width: 30px; text-align: center; }
+    .checkbox-cell input { cursor: pointer; accent-color: #0284c7; transform: scale(1.15); }
+    .action-btn { background: #0f172a; border: 1px solid #38bdf8; color: #38bdf8; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer; }
+    .export-btn { background: #166534; color: #4ade80; border: 1px solid #22c55e; padding: 0.4rem 0.8rem; border-radius: 6px; font-weight: bold; font-size: 0.8rem; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div>
+        <h1>📋 Set Checklist &amp; 9-Pocket Binder Mapper</h1>
+        <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.2rem;">Map your set layout, locate page slots, and generate missing card lists.</div>
+      </div>
+      <button class="export-btn" onclick="exportMissingCSV()">📥 Export Missing Cards (CSV)</button>
+    </header>
+
+    <!-- Stat Highlights -->
+    <div class="stats-bar">
+      <div class="stat-item">
+        <div class="stat-val" id="statTotal">0</div>
+        <div class="stat-label">Total Set Size</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val" id="statAcquired" style="color: #4ade80;">0</div>
+        <div class="stat-label">Acquired Cards</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val" id="statMissing" style="color: #fca5a5;">0</div>
+        <div class="stat-label">Need / Missing</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val" id="statPages">0</div>
+        <div class="stat-label">Pages Required</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val" id="statPct" style="color: #38bdf8;">0%</div>
+        <div class="stat-label">Completion</div>
+      </div>
+    </div>
+
+    <div class="workbench">
+      
+      <!-- 3x3 Binder Page Visualizer -->
+      <div class="binder-page-container">
+        <div class="binder-header">
+          <button class="page-nav-btn" id="prevPageBtn" onclick="changePage(-1)">◀ Prev</button>
+          <div style="font-weight: bold; font-size: 0.95rem; color: #f8fafc;" id="pageIndicator">Page 1</div>
+          <button class="page-nav-btn" id="nextPageBtn" onclick="changePage(1)">Next ▶</button>
+        </div>
+
+        <div class="grid-9pocket" id="binderGrid">
+          <!-- 9 pockets generated dynamically -->
+        </div>
+
+        <div style="font-size: 0.72rem; color: #64748b; margin-top: 0.8rem; text-align: center;">
+          Standard 9-Pocket Layout (Top-Left to Bottom-Right)
+        </div>
+      </div>
+
+      <!-- Interactive Checklist Table -->
+      <div class="checklist-container">
+        <div class="checklist-controls">
+          <div class="filter-btn-group">
+            <button class="filter-btn active" onclick="setFilter('all', this)">All Cards</button>
+            <button class="filter-btn" onclick="setFilter('have', this)">Acquired</button>
+            <button class="filter-btn" onclick="setFilter('need', this)">Missing</button>
+          </div>
+          <input type="text" id="checklistSearch" placeholder="🔍 Search card # or player..." style="background: #0f172a; border: 1px solid #334155; color: white; padding: 0.35rem 0.6rem; border-radius: 4px; font-size: 0.85rem;" oninput="renderChecklist()">
+        </div>
+
+        <div style="max-height: 480px; overflow-y: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th class="checkbox-cell">Have</th>
+                <th>Card #</th>
+                <th>Player Name</th>
+                <th>Team / Details</th>
+                <th>Binder Spot</th>
+              </tr>
+            </thead>
+            <tbody id="checklistTableBody">
+              <!-- Cards rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Sample Starter Set Data (Default 18 cards to span 2 pages)
+    let setCards = [
+      { num: "1", name: "Jack Youngblood", team: "Los Angeles Rams", acquired: true },
+      { num: "2", name: "Jim Everett", team: "Los Angeles Rams", acquired: true },
+      { num: "3", name: "Henry Ellard", team: "Los Angeles Rams", acquired: false },
+      { num: "4", name: "Eric Dickerson", team: "Los Angeles Rams", acquired: true },
+      { num: "5", name: "Jackie Slater", team: "Los Angeles Rams", acquired: false },
+      { num: "6", name: "Flipper Anderson", team: "Los Angeles Rams", acquired: true },
+      { num: "7", name: "Kevin Greene", team: "Los Angeles Rams", acquired: false },
+      { num: "8", name: "Dennis Harrah", team: "Los Angeles Rams", acquired: true },
+      { num: "9", name: "Nolan Cromwell", team: "Los Angeles Rams", acquired: true },
+      { num: "10", name: "LeRoy Irvin", team: "Los Angeles Rams", acquired: false },
+      { num: "11", name: "Tom Newberry", team: "Los Angeles Rams", acquired: true },
+      { num: "12", name: "Doug Smith", team: "Los Angeles Rams", acquired: false },
+      { num: "13", name: "Greg Bell", team: "Los Angeles Rams", acquired: false },
+      { num: "14", name: "Ron Brown", team: "Los Angeles Rams", acquired: true },
+      { num: "15", name: "Mike Lansford", team: "Los Angeles Rams", acquired: true },
+      { num: "16", name: "Dale Hatcher", team: "Los Angeles Rams", acquired: false },
+      { num: "17", name: "Irv Pankey", team: "Los Angeles Rams", acquired: true },
+      { num: "18", name: "Mel Owens", team: "Los Angeles Rams", acquired: false }
+    ];
+
+    let currentPage = 1;
+    let currentFilter = 'all';
+
+    function initTool() {
+      updateStats();
+      renderBinderPage();
+      renderChecklist();
+    }
+
+    function updateStats() {
+      const total = setCards.length;
+      const acquired = setCards.filter(c => c.acquired).length;
+      const missing = total - acquired;
+      const pages = Math.ceil(total / 9) || 1;
+      const pct = total > 0 ? Math.round((acquired / total) * 100) : 0;
+
+      document.getElementById('statTotal').textContent = total;
+      document.getElementById('statAcquired').textContent = acquired;
+      document.getElementById('statMissing').textContent = missing;
+      document.getElementById('statPages').textContent = pages;
+      document.getElementById('statPct').textContent = `${pct}%`;
+    }
+
+    function renderBinderPage() {
+      const grid = document.getElementById('binderGrid');
+      grid.innerHTML = '';
+
+      const totalPages = Math.ceil(setCards.length / 9) || 1;
+      document.getElementById('pageIndicator').textContent = `Page ${currentPage} of ${totalPages}`;
+      document.getElementById('prevPageBtn').disabled = currentPage === 1;
+      document.getElementById('nextPageBtn').disabled = currentPage >= totalPages;
+
+      const startIndex = (currentPage - 1) * 9;
+
+      for (let pocketSlot = 1; pocketSlot <= 9; pocketSlot++) {
+        const cardIndex = startIndex + (pocketSlot - 1);
+        const card = setCards[cardIndex];
+
+        const slotDiv = document.createElement('div');
+        
+        if (card) {
+          const isHave = card.acquired;
+          slotDiv.className = `pocket-slot ${isHave ? 'filled' : 'missing'}`;
+          slotDiv.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="slot-num">Slot #${pocketSlot}</span>
+              <span class="slot-status ${isHave ? 'status-have' : 'status-need'}">${isHave ? 'HAVE' : 'NEED'}</span>
+            </div>
+            <div>
+              <div class="slot-card-num">#${card.num}</div>
+              <div class="slot-card-name" title="${card.name}">${card.name}</div>
+            </div>
+          `;
+        } else {
+          slotDiv.className = 'pocket-slot';
+          slotDiv.innerHTML = `
+            <span class="slot-num">Slot #${pocketSlot}</span>
+            <div style="color: #475569; text-align: center; font-size: 0.65rem; margin-top: 1rem;">Empty Slot</div>
+          `;
+        }
+
+        grid.appendChild(slotDiv);
+      }
+    }
+
+    function renderChecklist() {
+      const tbody = document.getElementById('checklistTableBody');
+      const searchQuery = document.getElementById('checklistSearch').value.toLowerCase();
+      tbody.innerHTML = '';
+
+      setCards.forEach((card, index) => {
+        const matchesFilter = 
+          currentFilter === 'all' || 
+          (currentFilter === 'have' && card.acquired) || 
+          (currentFilter === 'need' && !card.acquired);
+
+        const matchesSearch = 
+          card.name.toLowerCase().includes(searchQuery) || 
+          card.num.toLowerCase().includes(searchQuery) ||
+          card.team.toLowerCase().includes(searchQuery);
+
+        if (matchesFilter && matchesSearch) {
+          const pageNum = Math.floor(index / 9) + 1;
+          const slotNum = (index % 9) + 1;
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="checkbox-cell">
+              <input type="checkbox" ${card.acquired ? 'checked' : ''} onchange="toggleCard(${index})">
+            </td>
+            <td style="font-weight: bold; color: #38bdf8;">#${card.num}</td>
+            <td style="font-weight: 600;">${card.name}</td>
+            <td style="color: #94a3b8; font-size: 0.8rem;">${card.team}</td>
+            <td>
+              <button class="action-btn" onclick="jumpToPage(${pageNum})">Pg ${pageNum} - Slot ${slotNum}</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        }
+      });
+    }
+
+    function toggleCard(index) {
+      setCards[index].acquired = !setCards[index].acquired;
+      updateStats();
+      renderBinderPage();
+      renderChecklist();
+    }
+
+    function changePage(delta) {
+      const totalPages = Math.ceil(setCards.length / 9) || 1;
+      currentPage = Math.min(Math.max(1, currentPage + delta), totalPages);
+      renderBinderPage();
+    }
+
+    function jumpToPage(pageNum) {
+      currentPage = pageNum;
+      renderBinderPage();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function setFilter(filterType, element) {
+      currentFilter = filterType;
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      element.classList.add('active');
+      renderChecklist();
+    }
+
+    function exportMissingCSV() {
+      const missingCards = setCards.filter(c => !c.acquired);
+      if (missingCards.length === 0) {
+        alert("You have acquired every card in this set!");
+        return;
+      }
+
+      let csvContent = "data:text/csv;charset=utf-8,Card Number,Player Name,Team,Status\n";
+      missingCards.forEach(c => {
+        csvContent += `"${c.num}","${c.name}","${c.team}","Missing"\n`;
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "missing_cards_checklist.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    document.addEventListener("DOMContentLoaded", initTool);
+  </script>
+</body>
+</html>
