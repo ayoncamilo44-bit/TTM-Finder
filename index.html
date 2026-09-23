@@ -58,6 +58,19 @@
     .signer-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
     .signer-card { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem; }
     .signer-category { background: #0284c7; color: #fff; font-size: 0.7rem; font-weight: bold; padding: 0.2rem 0.5rem; border-radius: 10px; display: inline-block; text-transform: uppercase; }
+
+    /* Print Studio Modal Styles */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
+    .modal-overlay.active { display: flex; }
+    .modal-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 1.5rem; max-width: 650px; width: 90%; color: #f8fafc; }
+    .print-preview-box { background: #ffffff; color: #000000; padding: 1.25rem; border-radius: 6px; font-family: 'Courier New', Courier, monospace; margin: 1rem 0; min-height: 140px; border: 1px dashed #cbd5e1; }
+    
+    /* Direct Printer Styling */
+    @media print {
+      body * { visibility: hidden; }
+      #printableArea, #printableArea * { visibility: visible; }
+      #printableArea { position: absolute; left: 0; top: 0; width: 100%; color: #000000; background: #ffffff; padding: 20px; font-family: Georgia, serif; }
+    }
   </style>
 </head>
 <body>
@@ -191,6 +204,40 @@
     </div>
   </div>
 
+  <!-- Print Studio Modal -->
+  <div id="printStudioModal" class="modal-overlay">
+    <div class="modal-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3 style="margin: 0; color: #38bdf8;">🖨️ TTM Prep &amp; Print Studio</h3>
+        <button onclick="closePrintStudio()" style="background: none; border: none; color: #94a3b8; font-size: 1.2rem; cursor: pointer;">✕</button>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 0.3rem;">Your Return Address:</label>
+          <textarea id="userReturnAddr" rows="3" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 0.5rem; border-radius: 6px; font-size: 0.85rem;" oninput="updatePrintPreview()"></textarea>
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 0.3rem;">Recipient (Athlete):</label>
+          <input type="text" id="signerPrintName" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 0.5rem; border-radius: 6px; font-size: 0.85rem; margin-bottom: 0.5rem;" oninput="updatePrintPreview()">
+          <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 0.3rem;">Short 3x5 Note Text:</label>
+          <input type="text" id="signerPrintNote" value="Thank you for taking the time to sign! Best wishes always." style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 0.5rem; border-radius: 6px; font-size: 0.85rem;" oninput="updatePrintPreview()">
+        </div>
+      </div>
+
+      <!-- Live Printable Area Preview -->
+      <label style="font-size: 0.8rem; color: #38bdf8; font-weight: bold;">3x5 Index Note / Sheet Preview:</label>
+      <div id="printableArea" class="print-preview-box">
+        <!-- Live preview injected via JavaScript -->
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem;">
+        <button onclick="closePrintStudio()" style="background: #334155; color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600;">Cancel</button>
+        <button onclick="window.print()" style="background: #0284c7; color: #fff; border: none; padding: 0.5rem 1.25rem; border-radius: 6px; cursor: pointer; font-weight: 600;">🖨️ Print Now</button>
+      </div>
+    </div>
+  </div>
+
   <footer style="margin-top: 4rem; border-top: 1px solid #334155; padding: 2rem 1rem 3rem 1rem; color: #94a3b8; font-size: 0.8rem; line-height: 1.5; text-align: center;">
     <div style="max-width: 900px; margin: 0 auto;">
       <p style="margin-bottom: 0.75rem;">
@@ -304,6 +351,10 @@
       const grid = document.getElementById("signerGrid");
       const searchInput = document.getElementById("searchInput");
 
+      // Load return address from Local Storage
+      const savedReturn = localStorage.getItem('ttm_return_address') || "Your Name\n123 Collector Lane\nYour City, CA 90000";
+      document.getElementById('userReturnAddr').value = savedReturn;
+
       fetch("signers.json")
         .then(res => res.json())
         .then(data => {
@@ -329,7 +380,10 @@
               <span class="signer-category">${item.category || 'Directory'}</span>
             </div>
             <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.4; margin: 0 0 0.75rem 0;">${item.notes || 'Public directory record.'}</p>
-            <div style="font-size: 0.75rem; color: #4ade80; font-weight: bold;">Status: ${item.status || 'Active'}</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+              <div style="font-size: 0.75rem; color: #4ade80; font-weight: bold;">Status: ${item.status || 'Active'}</div>
+              <button onclick="openPrintStudio('${item.name.replace(/'/g, "\\'")}')" style="background: #1e293b; border: 1px solid #38bdf8; color: #38bdf8; padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer; font-weight: 600;">🖨️ Print Note</button>
+            </div>
           </div>
         `).join('');
       }
@@ -350,6 +404,38 @@
       const searchInput = document.getElementById("searchInput");
       searchInput.value = cat;
       searchInput.dispatchEvent(new Event('input'));
+    }
+
+    // Print Studio Modal Control Functions
+    function openPrintStudio(name) {
+      document.getElementById('signerPrintName').value = name;
+      updatePrintPreview();
+      document.getElementById('printStudioModal').classList.add('active');
+    }
+
+    function closePrintStudio() {
+      document.getElementById('printStudioModal').classList.remove('active');
+    }
+
+    function updatePrintPreview() {
+      const returnAddr = document.getElementById('userReturnAddr').value;
+      const signerName = document.getElementById('signerPrintName').value;
+      const customNote = document.getElementById('signerPrintNote').value;
+
+      localStorage.setItem('ttm_return_address', returnAddr);
+
+      const previewHtml = `
+        <div style="font-size: 11px; line-height: 1.3; margin-bottom: 20px;">
+          ${returnAddr.replace(/\n/g, '<br>')}
+        </div>
+        <div style="font-size: 14px; line-height: 1.5; text-align: left; margin-left: 10px;">
+          <strong>Dear ${signerName},</strong><br><br>
+          ${customNote}<br><br>
+          <em>Thank you for your time and for being so great to fans!</em>
+        </div>
+      `;
+      
+      document.getElementById('printableArea').innerHTML = previewHtml;
     }
   </script>
 </body>
