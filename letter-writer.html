@@ -1,1 +1,134 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TTM Finder - Letter Writer</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }
+    .container { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+    .card { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .form-group { margin-bottom: 1.25rem; }
+    label { display: block; font-size: 0.875rem; font-weight: bold; color: #94a3b8; margin-bottom: 0.5rem; }
+    input, select, textarea { width: 100%; padding: 0.75rem; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #fff; font-size: 0.95rem; box-sizing: border-box; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: #38bdf8; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
+    .preview-box { background: #0f172a; border: 1px dashed #38bdf8; border-radius: 8px; padding: 1.25rem; font-family: 'Courier New', Courier, monospace; color: #e2e8f0; white-space: pre-wrap; line-height: 1.6; margin-top: 1rem; min-height: 150px; }
+    .btn { display: inline-block; padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: bold; cursor: pointer; border: none; font-size: 0.9rem; text-decoration: none; }
+    .btn-primary { background: #0284c7; color: white; }
+    .btn-primary:hover { background: #0369a1; }
+    .btn-secondary { background: #334155; color: white; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h1 style="margin:0; font-size: 1.8rem; color: #38bdf8;">TTM Letter Writer</h1>
+        <p style="margin:0; color: #94a3b8; font-size: 0.9rem;">REQUEST TEMPLATE GENERATOR FOR COLLECTORS</p>
+      </div>
+      <a href="index.html" style="color: #38bdf8; text-decoration: none; font-weight: bold;">← Back to Directory</a>
+    </header>
+
+    <div class="card">
+      <h2 style="margin-top:0; font-size: 1.25rem;">1. Customize Your Request Details</h2>
+      
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="signerName">Signer's Name</label>
+          <input type="text" id="signerName" placeholder="e.g., Jack Youngblood" value="Jack Youngblood">
+        </div>
+        
+        <div class="form-group">
+          <label for="templateSelect">Template Style</label>
+          <select id="templateSelect">
+            <option value="indexCard">Classic 3x5 Index Card Note (Short & Respectful)</option>
+            <option value="setCollector">Set Collector / Vintage Card Request</option>
+            <option value="customGift">Custom Card / Personal Gift Inclusion</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="itemDescription">Item Enclosed</label>
+          <input type="text" id="itemDescription" placeholder="e.g., 1985 Topps trading card" value="trading card">
+        </div>
+
+        <div class="form-group">
+          <label for="favoriteMemory">Personal Highlight / Memory</label>
+          <input type="text" id="favoriteMemory" placeholder="e.g., watching your 1979 postseason run" value="your incredible Hall of Fame career">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="senderName">Your Name / Signature</label>
+        <input type="text" id="senderName" placeholder="Your Name" value="A Fellow Collector">
+      </div>
+    </div>
+
+    <!-- Live Preview Box -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="margin:0; font-size: 1.25rem;">2. Generated Note Preview</h2>
+        <button id="btnCopy" class="btn btn-primary">📋 Copy Note Text</button>
+      </div>
+      
+      <div id="letterPreview" class="preview-box">Loading template...</div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const signerNameInput = document.getElementById("signerName");
+      const templateSelect = document.getElementById("templateSelect");
+      const itemDescriptionInput = document.getElementById("itemDescription");
+      const favoriteMemoryInput = document.getElementById("favoriteMemory");
+      const senderNameInput = document.getElementById("senderName");
+      const letterPreview = document.getElementById("letterPreview");
+      const btnCopy = document.getElementById("btnCopy");
+
+      function updatePreview() {
+        const signer = signerNameInput.value.trim() || "[Signer Name]";
+        const item = itemDescriptionInput.value.trim() || "[item]";
+        const memory = favoriteMemoryInput.value.trim() || "[personal memory]";
+        const sender = senderNameInput.value.trim() || "[Your Name]";
+        const style = templateSelect.value;
+
+        let output = "";
+
+        if (style === "indexCard") {
+          output = `Dear ${signer},\n\nThank you for taking a moment to read this note. I have always admired ${memory} and greatly appreciate your dedication to the game.\n\nIf you have time, I would be honored if you could sign the enclosed ${item}. I have included a self-addressed stamped envelope for your convenience.\n\nThank you for your time and kindness!\n\nBest regards,\n${sender}`;
+        } else if (style === "setCollector") {
+          output = `Dear ${signer},\n\nI am currently working on completing a personal card collection celebrating legendary careers like yours. I've always respected ${memory}.\n\nI would be deeply grateful if you could sign the enclosed ${item} to help complete this piece of my collection. A self-addressed stamped envelope (SASE) is enclosed for easy return.\n\nThank you for your generosity to sports fans and collectors over the years.\n\nSincerely,\n${sender}`;
+        } else if (style === "customGift") {
+          output = `Dear ${signer},\n\nI am writing to share how much I appreciated ${memory}. As a creative hobby, I designed a custom item enclosed here as a personal gift for you to keep.\n\nIf you are willing, I also included a second ${item} that I would love for you to sign and return in the enclosed envelope.\n\nThank you so much for your time, inspiration, and willingness to share with fans.\n\nWarmest regards,\n${sender}`;
+        }
+
+        letterPreview.textContent = output;
+      }
+
+      // Input listeners for live updates
+      [signerNameInput, templateSelect, itemDescriptionInput, favoriteMemoryInput, senderNameInput].forEach(el => {
+        el.addEventListener("input", updatePreview);
+        el.addEventListener("change", updatePreview);
+      });
+
+      // Copy button function
+      btnCopy.addEventListener("click", () => {
+        navigator.clipboard.writeText(letterPreview.textContent).then(() => {
+          btnCopy.textContent = "✅ Copied!";
+          setTimeout(() => { btnCopy.textContent = "📋 Copy Note Text"; }, 2000);
+        });
+      });
+
+      // Initial render
+      updatePreview();
+    });
+  </script>
+</body>
+</html>
