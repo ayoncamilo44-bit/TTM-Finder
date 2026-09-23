@@ -1,265 +1,41 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="TTM Finder moderation dashboard." />
-    <title>TTM Finder | Moderation</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <header class="site-header">
-      <div class="container header-inner">
-        <a class="brand" href="index.html" aria-label="TTM Finder home"><span class="brand-mark">T</span><span>TTM <em>Finder</em><small>Moderation console</small></span></a>
-        <div class="admin-header-actions">
-          <a class="button secondary" href="index.html">Back home</a>
-          <div class="admin-account" id="adminAccount" hidden>
-            <span class="admin-avatar" id="adminAvatar">A</span>
-            <span><strong id="adminName">Admin</strong><small id="adminRole">Administrator</small></span>
-            <button class="button secondary" type="button" id="signOut">Sign out</button>
-          </div>
-        </div>
-      </div>
-    </header>
-    <main class="page-shell">
-      <div class="container">
-        <p class="eyebrow">Staff only</p>
-        <h1>Moderation console</h1>
-        <p id="adminStatus" class="lead">Checking your staff access…</p>
-        <section class="sheet-panel">
-          <div class="sheet-toolbar">
-            <h2>Signer spreadsheet</h2>
-            <div class="sheet-actions">
-              <button class="button secondary" type="button" id="addSignerRow">Add row</button>
-              <button class="button secondary" type="button" id="downloadTemplate">Download template</button>
-              <button class="button secondary" type="button" id="exportSignerSheet">Export list</button>
-              <button class="button" type="button" id="saveSignerSheet">Save sheet</button>
-            </div>
-          </div>
-          <details class="paste-panel">
-            <summary>Paste a list from anywhere</summary>
-            <p>Use one signer per line, or paste comma-separated rows with this order: name, category, genre, status, signed, wait min, wait max, wait unit, contact type, contact URL, verified date, notes.</p>
-            <textarea id="bulkPaste" rows="5" placeholder="Mickey Mantle, Sports, Baseball, draft, unknown, 2, 5, weeks, official, https://example.com, 2026-09-22, Verify before publishing"></textarea>
-            <button class="button secondary" type="button" id="importBulkPaste">Add pasted rows</button>
-          </details>
-          <div class="sheet-wrap">
-            <table class="sheet-table" aria-label="Signer spreadsheet">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Category</th>
-                  <th>Genre</th>
-                  <th>Status</th>
-                  <th>Signed?</th>
-                  <th>Wait from</th>
-                  <th>Wait to</th>
-                  <th>Wait unit</th>
-                  <th>Contact type</th>
-                  <th>Contact URL</th>
-                  <th>Verified</th>
-                  <th>Notes</th>
-                </tr>
-              </thead>
-              <tbody id="signerSheetBody"></tbody>
-            </table>
-          </div>
-        </section>
-        <div id="queue" class="admin-queue" aria-live="polite"></div>
-      </div>
-    </main>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
-    <script src="supabase-client.js"></script>
-    <script>
-      const status = document.getElementById('adminStatus');
-      const queue = document.getElementById('queue');
-      const sheetBody = document.getElementById('signerSheetBody');
-      const defaultRow = () => ({
-        id: '',
-        name: '',
-        category: 'Sports',
-        subcategory: 'Baseball',
-        record_status: 'draft',
-        response_status: 'unverified',
-        signed_status: 'unknown',
-        typical_wait_min: 0,
-        typical_wait_max: 0,
-        wait_unit: 'days',
-        public_contact_type: 'official',
-        public_contact_label: '',
-        public_contact_url: '',
-        public_contact_verified_at: '',
-        note: '',
-        source_notes: ''
-      });
-      const escapeHtml = (value) => String(value || '').replace(/[&<>"']/g, (character) => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
-      }[character]));
+<!-- Drag and Drop Target Area -->
+<div id="drop-zone" class="drop-zone">
+  <div class="drop-message">
+    📄 <strong>Drag & Drop your TTM file here</strong>, or paste text anywhere on this screen.
+    <br><small>Supports Excel, CSV, or raw bulleted collector logs.</small>
+  </div>
+</div>
 
-      function renderSheet(rows) {
-        sheetBody.innerHTML = rows.map((row, index) => `
-          <tr data-index="${index}">
-            <td data-label="Name"><input data-field="name" value="${escapeHtml(row.name)}" placeholder="Name" /></td>
-            <td data-label="Category"><select data-field="category"><option value="Sports" ${row.category === 'Sports' ? 'selected' : ''}>Sports</option><option value="Film & TV" ${row.category === 'Film & TV' ? 'selected' : ''}>Film & TV</option><option value="Music" ${row.category === 'Music' ? 'selected' : ''}>Music</option><option value="Arts & Authors" ${row.category === 'Arts & Authors' ? 'selected' : ''}>Arts & Authors</option></select></td>
-            <td data-label="Genre"><select data-field="subcategory"><option value="Baseball" ${row.subcategory === 'Baseball' ? 'selected' : ''}>Baseball</option><option value="Football" ${row.subcategory === 'Football' ? 'selected' : ''}>Football</option><option value="Basketball" ${row.subcategory === 'Basketball' ? 'selected' : ''}>Basketball</option><option value="Actors" ${row.subcategory === 'Actors' ? 'selected' : ''}>Actors</option><option value="Musicians" ${row.subcategory === 'Musicians' ? 'selected' : ''}>Musicians</option><option value="Authors" ${row.subcategory === 'Authors' ? 'selected' : ''}>Authors</option><option value="Other" ${row.subcategory === 'Other' ? 'selected' : ''}>Other</option></select></td>
-            <td data-label="Status"><select data-field="record_status"><option value="draft" ${row.record_status === 'draft' ? 'selected' : ''}>Draft</option><option value="pending" ${row.record_status === 'pending' ? 'selected' : ''}>Pending</option><option value="published" ${row.record_status === 'published' ? 'selected' : ''}>Published</option><option value="needs_review" ${row.record_status === 'needs_review' ? 'selected' : ''}>Needs review</option></select></td>
-            <td data-label="Signed?"><select data-field="signed_status"><option value="unknown" ${row.signed_status === 'unknown' ? 'selected' : ''}>Unknown</option><option value="yes" ${row.signed_status === 'yes' ? 'selected' : ''}>Yes</option><option value="no" ${row.signed_status === 'no' ? 'selected' : ''}>No</option></select></td>
-            <td data-label="Wait from"><input type="number" data-field="typical_wait_min" min="0" value="${row.typical_wait_min || 0}" /></td>
-            <td data-label="Wait to"><input type="number" data-field="typical_wait_max" min="0" value="${row.typical_wait_max || 0}" /></td>
-            <td data-label="Wait unit"><select data-field="wait_unit"><option value="days" ${row.wait_unit === 'days' ? 'selected' : ''}>Days</option><option value="weeks" ${row.wait_unit === 'weeks' ? 'selected' : ''}>Weeks</option><option value="months" ${row.wait_unit === 'months' ? 'selected' : ''}>Months</option></select></td>
-            <td data-label="Contact type"><select data-field="public_contact_type"><option value="official" ${row.public_contact_type === 'official' ? 'selected' : ''}>Official</option><option value="agency" ${row.public_contact_type === 'agency' ? 'selected' : ''}>Agency</option><option value="team" ${row.public_contact_type === 'team' ? 'selected' : ''}>Team</option><option value="venue" ${row.public_contact_type === 'venue' ? 'selected' : ''}>Venue</option><option value="publisher" ${row.public_contact_type === 'publisher' ? 'selected' : ''}>Publisher</option><option value="institution" ${row.public_contact_type === 'institution' ? 'selected' : ''}>Institution</option></select></td>
-            <td data-label="Contact URL"><input data-field="public_contact_url" value="${escapeHtml(row.public_contact_url || '')}" placeholder="https://..." /></td>
-            <td data-label="Verified"><input data-field="public_contact_verified_at" value="${escapeHtml(row.public_contact_verified_at || '')}" placeholder="2026-09-22" /></td>
-            <td data-label="Notes"><textarea data-field="note" rows="2" placeholder="Collector note">${escapeHtml(row.note || '')}</textarea></td>
-          </tr>`).join('');
-      }
+<!-- Smart Cleanup Modal (Appears when messy text is detected) -->
+<div id="organize-modal" class="modal hidden">
+  <div class="modal-content">
+    <h3>✨ Formatting Assistant</h3>
+    <p>We noticed bullet points and multi-line notes in your upload. Would you like us to automatically group those details under each signer's profile?</p>
+    <div class="modal-actions">
+      <button id="btn-auto-organize" class="btn-primary">Yes, Clean & Organize</button>
+      <button id="btn-keep-raw" class="btn-secondary">Import As-Is</button>
+    </div>
+  </div>
+</div>
 
-      function readSheetRows() {
-        return Array.from(sheetBody.querySelectorAll('tr')).map((row) => {
-          const record = {};
-          row.querySelectorAll('[data-field]').forEach((field) => {
-            record[field.dataset.field] = field.value;
-          });
-          return record;
-        });
-      }
+<!-- Interactive Visual Grid -->
+<div class="grid-toolbar">
+  <button id="btn-add-row">+ Add Empty Row</button>
+  <button id="btn-save-live" class="btn-success">💾 Publish Clean Directory</button>
+</div>
 
-      function parseCsvLine(line) {
-        const values = [];
-        let value = '';
-        let quoted = false;
-        for (let index = 0; index < line.length; index += 1) {
-          const character = line[index];
-          if (character === '"' && line[index + 1] === '"' && quoted) {
-            value += '"';
-            index += 1;
-          } else if (character === '"') {
-            quoted = !quoted;
-          } else if (character === ',' && !quoted) {
-            values.push(value.trim());
-            value = '';
-          } else {
-            value += character;
-          }
-        }
-        values.push(value.trim());
-        return values;
-      }
-
-      async function loadQueue() {
-        if (!window.TTMBackend || !window.TTMBackend.enabled) {
-          status.textContent = 'Supabase is not connected. Add supabase-config.js before using moderation.';
-          return;
-        }
-        try {
-          const result = await window.TTMBackend.getStaffQueue();
-          if (!result.authorized) {
-            status.textContent = 'This account does not have moderator access. Set its profile role to admin or moderator.';
-            return;
-          }
-          status.textContent = `Signed in as ${result.profile.display_name}. Review the queue below.`;
-          const adminAccount = document.getElementById('adminAccount');
-          adminAccount.hidden = false;
-          document.getElementById('adminName').textContent = result.profile.display_name;
-          document.getElementById('adminRole').textContent = `${result.profile.role} · ${result.email || 'verified account'}`;
-          document.getElementById('adminAvatar').textContent = result.profile.display_name.slice(0, 1).toUpperCase();
-          const sheetRows = await window.TTMBackend.getSignerSheet();
-          renderSheet(sheetRows.length ? sheetRows : [defaultRow()]);
-          const signerCards = result.signers.map((signer) => `
-            <article class="card moderation-card">
-              <div><span class="profile-label">Signer record · ${escapeHtml(signer.record_status)}</span><h2>${escapeHtml(signer.name)}</h2><p>${escapeHtml(signer.category)} · ${escapeHtml(signer.subcategory)}</p><p>${escapeHtml(signer.source_notes || 'No source notes supplied.')}</p></div>
-              <div class="moderation-actions"><button class="button" data-table="signers" data-id="${signer.id}" data-status="published">Publish</button><button class="button secondary" data-table="signers" data-id="${signer.id}" data-status="removed">Reject</button></div>
-            </article>`).join('');
-          const reportCards = result.reports.map((report) => `
-            <article class="card moderation-card">
-              <div><span class="profile-label">Collector report · pending</span><h2>${escapeHtml(report.signers && report.signers.name)}</h2><p>${escapeHtml(report.item_type)} · ${escapeHtml(report.outcome)}</p><p>${escapeHtml(report.collector_note || 'No collector note supplied.')}</p></div>
-              <div class="moderation-actions"><button class="button" data-table="signer_reports" data-id="${report.id}" data-status="published">Approve</button><button class="button secondary" data-table="signer_reports" data-id="${report.id}" data-status="removed">Reject</button></div>
-            </article>`).join('');
-          queue.innerHTML = `<h2>Pending signer records</h2>${signerCards || '<p class="empty-state">No signer records need review.</p>'}<h2>Pending collector reports</h2>${reportCards || '<p class="empty-state">No reports need review.</p>'}`;
-          queue.querySelectorAll('[data-table]').forEach((button) => button.addEventListener('click', async () => {
-            button.disabled = true;
-            const reason = window.prompt('Add a short moderation reason:');
-            if (!reason || reason.length < 10) { button.disabled = false; return; }
-            try { await window.TTMBackend.moderate(button.dataset.table, button.dataset.id, button.dataset.status, reason); await loadQueue(); }
-            catch (error) { window.alert(error.message); button.disabled = false; }
-          }));
-        } catch (error) {
-          status.textContent = `Could not load moderation queue: ${error.message}`;
-        }
-      }
-
-      document.getElementById('addSignerRow').addEventListener('click', async () => {
-        const rows = readSheetRows();
-        rows.push(defaultRow());
-        renderSheet(rows);
-      });
-
-      document.getElementById('importBulkPaste').addEventListener('click', () => {
-        const input = document.getElementById('bulkPaste');
-        const lines = input.value.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-        const rows = readSheetRows().filter((row) => row.name && row.name.trim());
-        lines.forEach((line) => {
-          const values = parseCsvLine(line);
-          if (!values[0] || values[0].toLowerCase() === 'name') return;
-          rows.push({
-            ...defaultRow(),
-            name: values[0],
-            category: values[1] || 'Sports',
-            subcategory: values[2] || 'Baseball',
-            record_status: values[3] || 'draft',
-            signed_status: values[4] || 'unknown',
-            typical_wait_min: values[5] || 0,
-            typical_wait_max: values[6] || 0,
-            wait_unit: values[7] || 'days',
-            public_contact_type: values[8] || 'official',
-            public_contact_url: values[9] || '',
-            public_contact_verified_at: values[10] || '',
-            note: values.slice(11).join(', ')
-          });
-        });
-        renderSheet(rows);
-        input.value = '';
-        status.textContent = `Added ${lines.length} pasted row(s). Review them, then click Save sheet.`;
-      });
-
-      function downloadCsv(filename, rows) {
-        const columns = ['name', 'category', 'subcategory', 'record_status', 'signed_status', 'typical_wait_min', 'typical_wait_max', 'wait_unit', 'public_contact_type', 'public_contact_url', 'public_contact_verified_at', 'note'];
-        const csv = [columns.join(','), ...rows.map((row) => columns.map((column) => `"${String(row[column] || '').replace(/"/g, '""')}"`).join(','))].join('\n');
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
-        link.download = filename;
-        link.click();
-        URL.revokeObjectURL(link.href);
-      }
-
-      document.getElementById('downloadTemplate').addEventListener('click', () => {
-        downloadCsv('ttm-finder-signer-template.csv', [defaultRow()]);
-      });
-      document.getElementById('exportSignerSheet').addEventListener('click', () => {
-        downloadCsv('ttm-finder-signers.csv', readSheetRows());
-      });
-
-      document.getElementById('saveSignerSheet').addEventListener('click', async () => {
-        const rows = readSheetRows().map((record) => record.name && record.name.trim());
-        try {
-          const result = await window.TTMBackend.saveSignerSheet(rows);
-          status.textContent = `Saved ${result.count} signer row(s) to Supabase.`;
-          await loadQueue();
-        } catch (error) {
-          status.textContent = `Save failed: ${error.message}`;
-        }
-      });
-
-      document.getElementById('signOut').addEventListener('click', async () => {
-        try {
-          await window.TTMBackend.signOut();
-          window.location.href = 'account.html';
-        } catch (error) {
-          status.textContent = `Sign out failed: ${error.message}`;
-        }
-      });
-
-      loadQueue();
-    </script>
-  </body>
-</html>
+<table id="signer-grid" class="interactive-table">
+  <thead>
+    <tr>
+      <th></th><!-- Drag handle -->
+      <th>Signer Name</th>
+      <th>Category</th>
+      <th>Status</th>
+      <th>Collector Notes & Card Log</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody id="grid-body">
+    <!-- Clean rows render dynamically here -->
+  </tbody>
+</table>
