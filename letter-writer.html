@@ -45,10 +45,10 @@
     .btn-secondary { background: #334155; color: white; }
     .btn-secondary:hover { background: #475569; }
 
-    /* Print Formatting: Prints ONLY the text area when you press Print */
+    /* Print Formatting: Prints ONLY the letter when pressing Print */
     @media print {
       body { background-color: #ffffff; color: #000000; }
-      header, .card:first-of-type, .btn-group, h2, label { display: none !important; }
+      header, .card:first-of-type, .btn-group, h2, label, span { display: none !important; }
       .container { max-width: 100%; margin: 0; padding: 0; }
       .card { border: none; background: transparent; padding: 0; }
       textarea.preview-box {
@@ -112,12 +112,12 @@
       </div>
     </div>
 
-    <!-- Editable Preview Box -->
+    <!-- Editable Note Box -->
     <div class="card">
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
         <div>
-          <h2 style="margin:0; font-size: 1.25rem;">2. Generated Note (Click Below to Edit Directly)</h2>
-          <span style="color: #94a3b8; font-size: 0.8rem;">You can freely edit, add, or delete text inside the box before printing.</span>
+          <h2 style="margin:0; font-size: 1.25rem;">2. Generated Note (Click Inside Box to Edit)</h2>
+          <span style="color: #94a3b8; font-size: 0.8rem;">You can type, edit, or delete any text directly inside the box.</span>
         </div>
         <div class="btn-group">
           <button id="btnCopy" class="btn btn-primary">📋 Copy Text</button>
@@ -162,13 +162,12 @@
         letterPreview.value = output;
       }
 
-      // Update text automatically when form inputs change
       [signerNameInput, templateSelect, itemDescriptionInput, favoriteMemoryInput, senderNameInput].forEach(el => {
         el.addEventListener("input", updatePreview);
         el.addEventListener("change", updatePreview);
       });
 
-      // 1. Copy Button
+      // Copy Button
       btnCopy.addEventListener("click", () => {
         navigator.clipboard.writeText(letterPreview.value).then(() => {
           btnCopy.textContent = "✅ Copied!";
@@ -176,7 +175,7 @@
         });
       });
 
-      // 2. Download .txt File Button
+      // Save .txt File Button
       btnDownload.addEventListener("click", () => {
         const signer = signerNameInput.value.trim() || "signer";
         const textBlob = new Blob([letterPreview.value], { type: "text/plain;charset=utf-8" });
@@ -188,12 +187,11 @@
         downloadAnchor.remove();
       });
 
-      // 3. Print Button
+      // Print Button
       btnPrint.addEventListener("click", () => {
         window.print();
       });
 
-      // Initial template build
       updatePreview();
     });
   </script>
