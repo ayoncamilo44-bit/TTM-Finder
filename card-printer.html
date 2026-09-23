@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom Trading Card Grid Printer (2.5" x 3.5")</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; padding: 1.5rem; min-height: 100vh; }
+
+    .container { max-width: 1300px; margin: 0 auto; }
+
+    header { border-bottom: 1px solid #334155; padding-bottom: 1rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    h1 { font-size: 1.5rem; color: #38bdf8; display: flex; align-items: center; gap: 0.5rem; }
+    .subtitle { font-size: 0.8rem; color: #94a3b8; margin-top: 0.25rem; }
+
+    /* Layout Split */
+    .workbench-grid { display: grid; grid-template-columns: 320px 1fr; gap: 1.5rem; align-items: start; }
+    @media (max-width: 960px) { .workbench-grid { grid-template-columns: 1fr; } }
+
+    /* Control Panel */
+    .panel { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 1.25rem; }
+    .panel-title { font-size: 1rem; color: #38bdf8; font-weight: bold; margin-bottom: 1rem; border-bottom: 1px solid #334155; padding-bottom: 0.5rem; }
+
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.35rem; font-weight: 600; }
+    .form-control { width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 0.55rem; border-radius: 6px; font-size: 0.85rem; }
+    .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+    
+    .file-input-wrapper { position: relative; }
+    .file-input-wrapper input[type="file"] { display: none; }
+    .file-btn { display: block; width: 100%; text-align: center; background: #334155; color: #cbd5e1; padding: 0.55rem; border-radius: 6px; font-size: 0.8rem; font-weight: bold; cursor: pointer; border: 1px dashed #64748b; transition: all 0.2s; }
+    .file-btn:hover { background: #475569; color: white; border-color: #38bdf8; }
+
+    .btn-group { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+    .btn { padding: 0.6rem 1rem; border-radius: 6px; font-weight: bold; font-size: 0.85rem; cursor: pointer; border: none; transition: background 0.2s; display: inline-flex; align-items: center; gap: 0.4rem; }
+    .btn-primary { background: #0284c7; color: white; }
+    .btn-primary:hover { background: #0369a1; }
+    .btn-secondary { background: #334155; color: #cbd5e1; }
+    .btn-secondary:hover { background: #475569; }
+    .btn-success { background: #166534; color: #4ade80; border: 1px solid #22c55e; }
+    .btn-success:hover { background: #15803d; }
+
+    /* Print Preview Stage */
+    .sheet-stage { display: flex; flex-direction: column; align-items: center; justify-content: center; overflow-x: auto; padding-bottom: 2rem; }
+    .stage-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 8.5in; margin-bottom: 0.75rem; }
+    .stage-title { font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
+
+    /* 8.5" x 11" Letter Sheet Preview Scaling */
+    .print-sheet {
+      width: 8.5in;
+      height: 11in;
+      background: #ffffff;
+      color: #000;
+      padding: 0.5in;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      box-sizing: border-box;
+    }
+
+    /* 3x3 Card Grid (Exact 2.5in x 3.5in Cards) */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 2.5in);
+      grid-template-rows: repeat(3, 3.5in);
+      gap: 0;
+      border: 1px solid #e2e8f0;
+      position: relative;
+    }
+
+    /* Individual Card Slot */
+    .card-slot {
+      width: 2.5in;
+      height: 3.5in;
+      position: relative;
+      background: #f8fafc;
+      outline: 1px dashed #cbd5e1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .card-slot img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .card-slot-placeholder {
+      font-size: 0.7rem;
+      color: #94a3b8;
+      text-align: center;
+      padding: 0.5rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .card-slot.selected {
+      outline: 3px solid #0284c7;
+      z-index: 2;
+    }
+
+    /* Crop / Cut Marks */
+    .crop-mark {
+      position: absolute;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .crop-tl { top: -6px; left: -6px; width: 12px; height: 12px; border-top: 1px solid #000; border-left: 1px solid #000; }
+    .crop-tr { top: -6px; right: -6px; width: 12px; height: 12px; border-top: 1px solid #000; border-right: 1px solid #000; }
+    .crop-bl { bottom: -6px; left: -6px; width: 12px; height: 12px; border-bottom: 1px solid #000; border-left: 1px solid #000; }
+    .crop-br { bottom: -6px; right: -6px; width: 12px; height: 12px; border-bottom: 1px solid #000; border-right: 1px solid #000; }
+
+    .has-crop-marks .card-slot::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 1px solid rgba(0,0,0,0.15);
+      pointer-events: none;
+    }
+
+    /* Print Formatting Rules */
+    @media print {
+      body { background: white; padding: 0; }
+      header, .panel, .stage-bar, .btn-group, .subtitle { display: none !important; }
+      .container, .sheet-stage { max-width: none; width: 100%; margin: 0; padding: 0; display: block; }
+      .workbench-grid { display: block; }
+      
+      @page {
+        size: letter portrait;
+        margin: 0;
+      }
+
+      .print-sheet {
+        width: 8.5in !important;
+        height: 11in !important;
+        box-shadow: none !important;
+        padding: 0.25in 0.5in !important;
+        margin: 0 auto;
+        page-break-after: always;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .card-slot {
+        outline: none !important;
+      }
+
+      .card-slot.selected {
+        outline: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div>
+        <h1>🖼️ Custom Trading Card Grid Printer</h1>
+        <div class="subtitle">Format and print custom 2.5" x 3.5" card fronts and backs with crop cut marks.</div>
+      </div>
+      <div class="btn-group" style="margin-top:0;">
+        <button class="btn btn-secondary" onclick="clearSheet()">🗑️ Clear Grid</button>
+        <button class="btn btn-primary" onclick="window.print()">🖨️ Print Card Sheet</button>
+      </div>
+    </header>
+
+    <div class="workbench-grid">
+
+      <!-- Control Panel -->
+      <div class="panel">
+        <div class="panel-title">Card Slot Settings</div>
+
+        <div class="form-group">
+          <label>Active Side View</label>
+          <div class="btn-group" style="margin-top:0; margin-bottom: 0.75rem;">
+            <button id="btnViewFront" class="btn btn-primary" style="flex:1;" onclick="setSide('front')">Fronts</button>
+            <button id="btnViewBack" class="btn btn-secondary" style="flex:1;" onclick="setSide('back')">Backs</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Target Slot Selection</label>
+          <select id="slotSelector" class="form-control" onchange="selectSlotFromDropdown(this.value)">
+            <!-- Populated via JS -->
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Upload Image File</label>
+          <div class="file-input-wrapper">
+            <label for="imageFileInput" class="file-btn">📁 Choose Image (JPG / PNG)</label>
+            <input type="file" id="imageFileInput" accept="image/*" onchange="handleFileUpload(event)">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Or Image URL</label>
+          <input type="text" id="imageUrlInput" class="form-control" placeholder="https://..." oninput="applyImageUrl(this.value)">
+        </div>
+
+        <div class="form-group">
+          <label>Quick Fill Mode</label>
+          <button class="btn btn-secondary" style="width:100%;" onclick="fillAllWithActive()">Fill All Slots with Current Image</button>
+        </div>
+
+        <div class="panel-title" style="margin-top: 1.5rem;">Print & Layout Options</div>
+
+        <div class="form-group">
+          <label>Crop / Cut Guides</label>
+          <select id="cropToggle" class="form-control" onchange="toggleCropMarks(this.value)">
+            <option value="on">Corner Crop Marks ON</option>
+            <option value="off">Crop Marks OFF</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Mirrored Back Sheet (Double-Sided)</label>
+          <select id="mirrorBackToggle" class="form-control">
+            <option value="on">Auto Horizontal Flip (For duplex printing)</option>
+            <option value="off">Standard Grid Order</option>
+          </select>
+        </div>
+
+      </div>
+
+      <!-- Printable 8.5" x 11" Stage -->
+      <div class="sheet-stage">
+        <div class="stage-bar">
+          <span class="stage-title" id="stageLabel">Print Sheet Preview — Card Fronts (3x3 Grid)</span>
+          <span style="font-size:0.75rem; color:#94a3b8;">Sheet Size: 8.5" x 11" | Cards: 2.5" x 3.5"</span>
+        </div>
+
+        <div class="print-sheet">
+          <div class="card-grid has-crop-marks" id="cardGrid">
+            <!-- 9 Slots dynamically created -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // State: 9 Slots, each having front & back image sources
+    let currentSide = 'front'; // 'front' or 'back'
+    let selectedSlotIndex = 0;
+
+    const cardsData = Array.from({ length: 9 }, () => ({
+      front: '',
+      back: ''
+    }));
+
+    function init() {
+      populateDropdown();
+      renderGrid();
+    }
+
+    function populateDropdown() {
+      const select = document.getElementById('slotSelector');
+      select.innerHTML = '';
+      for (let i = 0; i < 9; i++) {
+        const row = Math.floor(i / 3) + 1;
+        const col = (i % 3) + 1;
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = `Slot #${i + 1} (Row ${row}, Col ${col})`;
+        select.appendChild(opt);
+      }
+    }
+
+    function renderGrid() {
+      const grid = document.getElementById('cardGrid');
+      grid.innerHTML = '';
+
+      for (let i = 0; i < 9; i++) {
+        // Handle horizontal mirror indexing for back printing if enabled
+        let actualIndex = i;
+        const mirrorEnabled = document.getElementById('mirrorBackToggle').value === 'on';
+        if (currentSide === 'back' && mirrorEnabled) {
+          const row = Math.floor(i / 3);
+          const col = i % 3;
+          actualIndex = (row * 3) + (2 - col); // Flip columns horizontally
+        }
+
+        const slotData = cardsData[actualIndex];
+        const imgSrc = currentSide === 'front' ? slotData.front : slotData.back;
+
+        const slotEl = document.createElement('div');
+        slotEl.className = `card-slot ${i === selectedSlotIndex ? 'selected' : ''}`;
+        slotEl.onclick = () => selectSlot(i);
+
+        if (imgSrc) {
+          const img = document.createElement('img');
+          img.src = imgSrc;
+          slotEl.appendChild(img);
+        } else {
+          const placeholder = document.createElement('div');
+          placeholder.className = 'card-slot-placeholder';
+          placeholder.innerHTML = `Slot #${actualIndex + 1}<br><span style="font-weight:normal; font-size:0.6rem;">${currentSide.toUpperCase()}</span>`;
+          slotEl.appendChild(placeholder);
+        }
+
+        // Add corner crop marks
+        const cropTL = document.createElement('div'); cropTL.className = 'crop-mark crop-tl';
+        const cropTR = document.createElement('div'); cropTR.className = 'crop-mark crop-tr';
+        const cropBL = document.createElement('div'); cropBL.className = 'crop-mark crop-bl';
+        const cropBR = document.createElement('div'); cropBR.className = 'crop-mark crop-br';
+        slotEl.appendChild(cropTL); slotEl.appendChild(cropTR);
+        slotEl.appendChild(cropBL); slotEl.appendChild(cropBR);
+
+        grid.appendChild(slotEl);
+      }
+
+      // Update URL input box value for currently selected slot
+      const currentImg = cardsData[selectedSlotIndex][currentSide];
+      document.getElementById('imageUrlInput').value = currentImg || '';
+    }
+
+    function selectSlot(index) {
+      selectedSlotIndex = index;
+      document.getElementById('slotSelector').value = index;
+      renderGrid();
+    }
+
+    function selectSlotFromDropdown(val) {
+      selectedSlotIndex = parseInt(val, 10);
+      renderGrid();
+    }
+
+    function setSide(side) {
+      currentSide = side;
+      document.getElementById('btnViewFront').className = side === 'front' ? 'btn btn-primary' : 'btn btn-secondary';
+      document.getElementById('btnViewBack').className = side === 'back' ? 'btn btn-primary' : 'btn btn-secondary';
+      document.getElementById('stageLabel').textContent = `Print Sheet Preview — Card ${side === 'front' ? 'Fronts' : 'Backs'} (3x3 Grid)`;
+      renderGrid();
+    }
+
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        cardsData[selectedSlotIndex][currentSide] = e.target.result;
+        renderGrid();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function applyImageUrl(url) {
+      cardsData[selectedSlotIndex][currentSide] = url.trim();
+      renderGrid();
+    }
+
+    function fillAllWithActive() {
+      const currentImg = cardsData[selectedSlotIndex][currentSide];
+      if (!currentImg) return alert("Select a slot with an image first!");
+      
+      for (let i = 0; i < 9; i++) {
+        cardsData[i][currentSide] = currentImg;
+      }
+      renderGrid();
+    }
+
+    function clearSheet() {
+      if (confirm("Clear all images on this grid?")) {
+        for (let i = 0; i < 9; i++) {
+          cardsData[i][currentSide] = '';
+        }
+        renderGrid();
+      }
+    }
+
+    function toggleCropMarks(val) {
+      const grid = document.getElementById('cardGrid');
+      if (val === 'on') {
+        grid.classList.add('has-crop-marks');
+      } else {
+        grid.classList.remove('has-crop-marks');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
