@@ -300,3 +300,95 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TTM Finder - Moderation Console</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { background-color: #0f172a; color: #fff; font-family: system-ui, sans-serif; margin: 0; padding: 0; }
+    .admin-container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+    .drop-zone { border: 2px dashed #4a5568; background: #1a202c; border-radius: 8px; padding: 2rem; text-align: center; cursor: pointer; margin-bottom: 1.5rem; transition: border-color 0.2s; }
+    .drop-zone:hover { border-color: #63b3ed; }
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+    .modal-overlay.hidden { display: none; }
+    .modal-card { background: #2d3748; padding: 2rem; border-radius: 10px; max-width: 500px; width: 90%; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+    .modal-buttons { display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; }
+    .btn { padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: bold; cursor: pointer; border: none; }
+    .btn-primary { background: #3182ce; color: white; }
+    .btn-secondary { background: #4a5568; color: white; }
+    .btn-danger { background: #e53e3e; color: white; }
+    .btn-success { background: #38a169; color: white; }
+    .grid-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .interactive-table { width: 100%; border-collapse: collapse; background: #2d3748; border-radius: 8px; overflow: hidden; }
+    .interactive-table th, .interactive-table td { padding: 0.75rem 1rem; border-bottom: 1px solid #4a5568; text-align: left; }
+    .interactive-table th { background: #1a202c; color: #a0aec0; font-size: 0.85rem; text-transform: uppercase; }
+    .interactive-table td[contenteditable="true"]:focus { background: #4a5568; outline: 2px solid #63b3ed; border-radius: 4px; }
+    .drag-handle { cursor: grab; color: #a0aec0; text-align: center; width: 30px; }
+  </style>
+</head>
+<body>
+
+  <div class="admin-container">
+    <header style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h1 style="margin:0; font-size: 1.8rem;">TTM Finder</h1>
+        <p style="margin:0; color: #94a3b8; font-size: 0.9rem;">MODERATION CONSOLE &amp; DIRECTORY MANAGER</p>
+      </div>
+      <a href="index.html" style="color: #63b3ed; text-decoration: none;">← Back home</a>
+    </header>
+
+    <!-- Drag & Drop Dropzone -->
+    <div id="drop-zone" class="drop-zone">
+      <div style="font-size: 1.2rem; margin-bottom: 0.5rem;">📄 <strong>Drag &amp; Drop your TTM file here</strong></div>
+      <div style="color: #a0aec0; font-size: 0.9rem;">Or click here to select a file from your computer.</div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="grid-toolbar">
+      <div style="display: flex; gap: 0.5rem;">
+        <button id="btn-add-row" class="btn btn-secondary">+ Add Row</button>
+        <button id="btn-clear-all" class="btn btn-danger">🗑️ Clear Table</button>
+      </div>
+      <div>
+        <button id="btn-save-live" class="btn btn-success">💾 Save Clean Directory</button>
+      </div>
+    </div>
+
+    <!-- Interactive Grid Table -->
+    <table class="interactive-table">
+      <thead>
+        <tr>
+          <th style="width: 30px;"></th>
+          <th>Signer Name</th>
+          <th>Category</th>
+          <th>Status</th>
+          <th>Collector Notes &amp; Details</th>
+          <th style="width: 80px;">Action</th>
+        </tr>
+      </thead>
+      <tbody id="grid-body">
+        <!-- Rows load dynamically here -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Smart Cleanup Popup Modal -->
+  <div id="organize-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <h3 style="margin-top:0; font-size: 1.3rem;">✨ Clean &amp; Organize File?</h3>
+      <p style="color: #cbd5e0; font-size: 0.95rem; line-height: 1.5;">
+        We detected CSV rows or notes. Click below to automatically scrub street addresses and organize signers cleanly into the table!
+      </p>
+      <div class="modal-buttons">
+        <button id="btn-auto-organize" class="btn btn-primary">Yes, Clean &amp; Organize</button>
+        <button id="btn-keep-raw" class="btn btn-secondary">Import As-Is</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
