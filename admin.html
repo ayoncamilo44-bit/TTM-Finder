@@ -1,41 +1,92 @@
-<!-- Drag and Drop Target Area -->
-<div id="drop-zone" class="drop-zone">
-  <div class="drop-message">
-    📄 <strong>Drag & Drop your TTM file here</strong>, or paste text anywhere on this screen.
-    <br><small>Supports Excel, CSV, or raw bulleted collector logs.</small>
-  </div>
-</div>
+let pendingImportText = "";
 
-<!-- Smart Cleanup Modal (Appears when messy text is detected) -->
-<div id="organize-modal" class="modal hidden">
-  <div class="modal-content">
-    <h3>✨ Formatting Assistant</h3>
-    <p>We noticed bullet points and multi-line notes in your upload. Would you like us to automatically group those details under each signer's profile?</p>
-    <div class="modal-actions">
-      <button id="btn-auto-organize" class="btn-primary">Yes, Clean & Organize</button>
-      <button id="btn-keep-raw" class="btn-secondary">Import As-Is</button>
-    </div>
-  </div>
-</div>
+// 1. Handle File Drag & Drop
+const dropZone = document.getElementById('drop-zone');
+dropZone.addEventListener('dragover', (e) => e.preventDefault());
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (event) => processIncomingText(event.target.result);
+    reader.readAsText(file);
+  }
+});
 
-<!-- Interactive Visual Grid -->
-<div class="grid-toolbar">
-  <button id="btn-add-row">+ Add Empty Row</button>
-  <button id="btn-save-live" class="btn-success">💾 Publish Clean Directory</button>
-</div>
+// 2. Handle Direct Page Paste
+document.addEventListener('paste', (e) => {
+  const pasteData = (e.clipboardData || window.clipboardData).getData('text');
+  if (pasteData) processIncomingText(pasteData);
+});
 
-<table id="signer-grid" class="interactive-table">
-  <thead>
-    <tr>
-      <th></th><!-- Drag handle -->
-      <th>Signer Name</th>
-      <th>Category</th>
-      <th>Status</th>
-      <th>Collector Notes & Card Log</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody id="grid-body">
-    <!-- Clean rows render dynamically here -->
-  </tbody>
-</table>
+// 3. Inspect Text & Prompt User
+function processIncomingText(rawText) {
+  pendingImportText = rawText;
+  
+  // Detect bullet points, symbol corruptions (â€¢), or multi-line notes
+  const isMessy = rawText.includes('•') || rawText.includes('â€¢') || rawText.includes('Cards:') || rawText.includes('Status:');
+
+  if (isMessy) {
+    // Show "Do you want to organize?" modal
+    document.getElementById('organize-modal').classList.remove('hidden');
+  } else {
+    // Clean import directly
+    renderGridRows(parseCleanCSV(rawText));
+  }
+}
+
+// 4. Automatic Cleanup Engine
+document.getElementById('btn-auto-organize').addEventListener('click', () => {
+  document.getElementById('organize-modal').classList.add('hidden');
+  
+  const lines = pendingImportText.split('\n');
+  const cleanSigners = [];
+  let currentSigner = null;
+
+  lines.forEach(line => {
+    // Clean UTF-8 corruptions and whitespace
+    let trimmed = line.replace(/â€¢/g, '').replace(/•/g, '').trim();
+    if (!trimmed) return;
+
+    // Check if line is a sub-detail (bullet point or note header)
+    const isDetailLine = trimmed.startsWith('-') || trimmed.startsWith('Cards:') || trimmed.startsWith('Status:');
+
+    if (isDetailLine && currentSigner) {
+      // Merge into current signer's notes instead of starting a new row
+      currentSigner.notes += (currentSigner.notes ? ' | ' : '') + trimmed;
+    } else {
+      // Create new clean signer object
+      currentSigner = {
+        name: trimmed.split('\t')[0] || trimmed,
+        category: 'Sports',
+        status: 'OFTEN RESPONDS',
+        notes: ''
+      };
+      cleanSigners.push(currentSigner);
+    }
+  });
+
+  renderGridRows(cleanSigners);
+});
+
+// 5. Render Editable Rows into the Visual Grid
+function renderGridRows(signers) {
+  const tbody = document.getElementById('grid-body');
+  tbody.innerHTML = ''; // Clear broken rows
+
+  signers.forEach((s, index) => {
+    const tr = document.createElement('tr');
+    tr.draggable = true; // Enables row dragging
+    tr.innerHTML = `
+      <td class="drag-handle">≡</td>
+      <td contenteditable="true">${s.name}</td>
+      <td contenteditable="true">${s.category || 'Sports'}</td>
+      <td contenteditable="true">${s.status || 'Draft'}</td>
+      <td contenteditable="true">${s.notes || ''}</td>
+      <td>
+        <button onclick="this.closest('tr').remove()" class="btn-delete">Delete</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
