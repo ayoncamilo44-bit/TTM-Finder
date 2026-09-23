@@ -1,1 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TTM Finder - Success Gallery</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1rem; }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid #334155; padding-bottom: 1rem; }
+    .nav-links { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .nav-links a { color: #38bdf8; text-decoration: none; font-weight: bold; font-size: 0.95rem; }
+    .nav-links a:hover { text-decoration: underline; }
 
+    /* Filter Bar */
+    .filter-bar { display: flex; gap: 0.5rem; margin-bottom: 2rem; flex-wrap: wrap; }
+    .filter-btn { background: #1e293b; border: 1px solid #334155; color: #94a3b8; padding: 0.5rem 1rem; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 0.875rem; }
+    .filter-btn.active, .filter-btn:hover { background: #0284c7; color: white; border-color: #38bdf8; }
+
+    /* Success Grid */
+    .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+    .success-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+    .card-badge { background: #0284c7; color: white; font-size: 0.7rem; font-weight: bold; padding: 0.2rem 0.6rem; border-radius: 10px; text-transform: uppercase; }
+    .card-body { padding: 1.25rem; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .stat-row { display: flex; justify-content: space-between; font-size: 0.85rem; color: #94a3b8; margin-bottom: 0.4rem; }
+    .stat-val { color: #f8fafc; font-weight: bold; }
+    .note-box { background: #0f172a; border-left: 3px solid #38bdf8; padding: 0.75rem; border-radius: 0 6px 6px 0; margin-top: 1rem; font-size: 0.85rem; color: #cbd5e1; font-style: italic; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div>
+        <h1 style="margin:0; font-size: 1.8rem; color: #38bdf8;">TTM Success Gallery</h1>
+        <p style="margin:0; color: #94a3b8; font-size: 0.9rem;">VERIFIED COLLECTOR RETURN SHOWCASE &amp; PROOF LOGS</p>
+      </div>
+      <nav class="nav-links">
+        <a href="index.html">Directory</a>
+        <a href="success.html" style="color:#ffffff;">🏆 Successes</a>
+        <a href="letter-writer.html">✍️ Letter Writer</a>
+        <a href="admin.html">⚙️ Admin Console</a>
+      </nav>
+    </header>
+
+    <!-- Filters -->
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="filterGallery('all', this)">All Returns</button>
+      <button class="filter-btn" onclick="filterGallery('sports', this)">🏈 Sports</button>
+      <button class="filter-btn" onclick="filterGallery('movies', this)">🎬 Movies &amp; TV</button>
+      <button class="filter-btn" onclick="filterGallery('racing', this)">🏎️ Racing</button>
+      <button class="filter-btn" onclick="filterGallery('custom', this)">🎨 Custom Cards</button>
+    </div>
+
+    <!-- Gallery Grid -->
+    <div id="galleryGrid" class="gallery-grid">
+      
+      <!-- Entry 1 -->
+      <div class="success-card" data-category="sports">
+        <div class="card-body">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+              <h3 style="margin:0; font-size: 1.2rem; color: #38bdf8;">Jack Youngblood</h3>
+              <span class="card-badge">Sports</span>
+            </div>
+            <div class="stat-row"><span>Turnaround:</span><span class="stat-val" style="color:#4ade80;">14 Days</span></div>
+            <div class="stat-row"><span>Item Sent:</span><span class="stat-val">1985 Topps Card</span></div>
+            <div class="stat-row"><span>Inscribed:</span><span class="stat-val">HOF '01</span></div>
+            <div class="stat-row"><span>Address:</span><span class="stat-val">Private SASE Return</span></div>
+          </div>
+          <div class="note-box">
+            "Sent with a personalized 3x5 index note. Returned promptly in blue Sharpie!"
+          </div>
+        </div>
+      </div>
+
+      <!-- Entry 2 -->
+      <div class="success-card" data-category="custom">
+        <div class="card-body">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+              <h3 style="margin:0; font-size: 1.2rem; color: #38bdf8;">Bret Butler</h3>
+              <span class="card-badge">Custom Card</span>
+            </div>
+            <div class="stat-row"><span>Turnaround:</span><span class="stat-val" style="color:#4ade80;">11 Days</span></div>
+            <div class="stat-row"><span>Item Sent:</span><span class="stat-val">Home-printed Custom Card</span></div>
+            <div class="stat-row"><span>Inscribed:</span><span class="stat-val">"Best Wishes"</span></div>
+            <div class="stat-row"><span>Address:</span><span class="stat-val">Home Address via SASE</span></div>
+          </div>
+          <div class="note-box">
+            "Included a duplicate custom card as a personal gift for him to keep. Great signer!"
+          </div>
+        </div>
+      </div>
+
+      <!-- Entry 3 -->
+      <div class="success-card" data-category="movies">
+        <div class="card-body">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+              <h3 style="margin:0; font-size: 1.2rem; color: #38bdf8;">Mark Hamill</h3>
+              <span class="card-badge">Movies</span>
+            </div>
+            <div class="stat-row"><span>Turnaround:</span><span class="stat-val" style="color:#4ade80;">28 Days</span></div>
+            <div class="stat-row"><span>Item Sent:</span><span class="stat-val">Custom Star Wars Card</span></div>
+            <div class="stat-row"><span>Inscribed:</span><span class="stat-val">May The Force Be With You</span></div>
+            <div class="stat-row"><span>Address:</span><span class="stat-val">Venue Fan Mail Desk</span></div>
+          </div>
+          <div class="note-box">
+            "Awesome return! Signed in silver marker on dark card stock."
+          </div>
+        </div>
+      </div>
+
+      <!-- Entry 4 -->
+      <div class="success-card" data-category="racing">
+        <div class="card-body">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+              <h3 style="margin:0; font-size: 1.2rem; color: #38bdf8;">Mario Andretti</h3>
+              <span class="card-badge">Racing</span>
+            </div>
+            <div class="stat-row"><span>Turnaround:</span><span class="stat-val" style="color:#4ade80;">9 Days</span></div>
+            <div class="stat-row"><span>Item Sent:</span><span class="stat-val">Hero Racing Card</span></div>
+            <div class="stat-row"><span>Inscribed:</span><span class="stat-val">1978 F1 Champ</span></div>
+            <div class="stat-row"><span>Address:</span><span class="stat-val">Andretti Autosport HQ</span></div>
+          </div>
+          <div class="note-box">
+            "Lightning fast return time. Signed cleanly in black fine-point pen."
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function filterGallery(category, btn) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const cards = document.querySelectorAll('.success-card');
+      cards.forEach(card => {
+        if (category === 'all' || card.dataset.category === category) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+  </script>
+</body>
+</html>
