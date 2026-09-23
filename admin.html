@@ -9,14 +9,12 @@
     body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }
     .container { max-width: 900px; margin: 0 auto; padding: 1.5rem 1rem; }
     
-    /* Navigation Bar */
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid #334155; padding-bottom: 1rem; flex-wrap: wrap; gap: 1rem; }
     .brand-title { margin: 0; font-size: 1.6rem; color: #38bdf8; font-weight: 800; }
     .nav-links { display: flex; gap: 1.2rem; align-items: center; }
     .nav-links a { color: #cbd5e1; text-decoration: none; font-weight: 600; font-size: 0.95rem; }
     .nav-links a:hover, .nav-links a.active { color: #38bdf8; }
 
-    /* Admin Form Styling */
     .admin-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 1.75rem; margin-bottom: 2rem; }
     .form-group { margin-bottom: 1.25rem; }
     .form-group label { display: block; font-weight: bold; font-size: 0.9rem; margin-bottom: 0.4rem; color: #38bdf8; }
@@ -24,16 +22,13 @@
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
 
-    /* Drag & Drop Zone */
-    .drop-zone { border: 2px dashed #38bdf8; background: #0f172a; border-radius: 8px; padding: 1.5rem; text-align: center; cursor: pointer; transition: background 0.2s; color: #94a3b8; }
+    .drop-zone { border: 2px dashed #38bdf8; background: #0f172a; border-radius: 8px; padding: 1.5rem; text-align: center; cursor: pointer; color: #94a3b8; }
     .drop-zone:hover { background: #1a2536; }
     .drop-zone img { max-height: 120px; margin-top: 0.5rem; border-radius: 6px; border: 1px solid #334155; }
 
-    /* Action Buttons */
     .btn-submit { background: #0284c7; color: white; border: none; padding: 0.85rem 1.5rem; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; width: 100%; transition: background 0.2s; }
     .btn-submit:hover { background: #0369a1; }
 
-    /* Saved Items Table */
     .table-container { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 1.25rem; }
     .item-list { width: 100%; border-collapse: collapse; text-align: left; }
     .item-list th, .item-list td { padding: 0.75rem; border-bottom: 1px solid #334155; font-size: 0.9rem; }
@@ -48,7 +43,7 @@
     <header>
       <div>
         <h1 class="brand-title">TTM Admin Console</h1>
-        <p style="margin:0; color:#94a3b8; font-size:0.8rem;">EASY ENTRY &amp; LOCAL STORAGE MANAGER</p>
+        <p style="margin:0; color:#94a3b8; font-size:0.8rem;">GLOBAL ENTRY &amp; LOCAL STORAGE MANAGER</p>
       </div>
       <nav class="nav-links">
         <a href="index.html">Home</a>
@@ -59,46 +54,59 @@
       </nav>
     </header>
 
-    <!-- Simple Add Form -->
     <div class="admin-card">
       <h2 style="margin-top:0; color:#f8fafc; font-size:1.3rem;">➕ Add New Signer / Success Return</h2>
       <form id="signerForm">
         
         <div class="form-row">
-          <!-- Category Selection -->
           <div class="form-group">
-            <label for="category">Category / Sport</label>
-            <select id="category" class="form-control" required>
-              <option value="🏈 Football">🏈 Football</option>
-              <option value="⚾ Baseball">⚾ Baseball</option>
-              <option value="🏀 Basketball">🏀 Basketball</option>
-              <option value="🎬 Movies & TV">🎬 Movies &amp; TV</option>
-              <option value="🏎️ Racing">🏎️ Racing</option>
+            <label for="categorySelect">Category / Sport</label>
+            <select id="categorySelect" class="form-control" required onchange="handleCategoryChange(this)">
+              <optgroup label="North American Sports">
+                <option value="🏈 Football">🏈 Football (NFL)</option>
+                <option value="⚾ Baseball">⚾ Baseball (MLB)</option>
+                <option value="🏀 Basketball">🏀 Basketball (NBA)</option>
+                <option value="🏒 Hockey">🏒 Hockey (NHL)</option>
+              </optgroup>
+              <optgroup label="Global & Olympic Sports">
+                <option value="⚽ Soccer">⚽ Soccer (Global Football)</option>
+                <option value="🏎️ Racing">🏎️ Racing &amp; Motorsports</option>
+                <option value="🎾 Golf & Tennis">🎾 Golf &amp; Tennis</option>
+                <option value="🥊 Combat Sports">🥊 Boxing &amp; MMA</option>
+                <option value="🎿 Winter Sports">🎿 Skiing &amp; Winter Sports</option>
+                <option value="🏏 Cricket & Rugby">🏏 Cricket &amp; Rugby</option>
+              </optgroup>
+              <optgroup label="Entertainment & Niche">
+                <option value="🎬 Movies">🎬 Movies &amp; Film</option>
+                <option value="📺 TV">📺 Television &amp; Streaming</option>
+                <option value="🎸 Music">🎸 Music Artists</option>
+                <option value="🎙️ Voice & Stage">🎙️ Voice &amp; Stage Actors</option>
+                <option value="📚 Authors & Creators">📚 Authors &amp; Creators</option>
+                <option value="OTHER">✨ Custom / Other Sport or Niche...</option>
+              </optgroup>
             </select>
+            <!-- Custom Category Text Input (Triggers if OTHER selected) -->
+            <input type="text" id="customCategoryInput" class="form-control" placeholder="Type custom sport/category name..." style="display: none; margin-top: 0.5rem; border-color: #38bdf8;">
           </div>
 
-          <!-- Signer Name -->
           <div class="form-group">
             <label for="signerName">Signer Name / Title</label>
-            <input type="text" id="signerName" class="form-control" placeholder="e.g. Jack Youngblood" required>
+            <input type="text" id="signerName" class="form-control" placeholder="e.g. Wayne Gretzky" required>
           </div>
         </div>
 
         <div class="form-row">
-          <!-- Turnaround Time -->
           <div class="form-group">
             <label for="turnaround">Turnaround Time</label>
             <input type="text" id="turnaround" class="form-control" placeholder="e.g. 14 Days" required>
           </div>
 
-          <!-- Inscription or Details -->
           <div class="form-group">
             <label for="inscription">Inscription / Notes</label>
-            <input type="text" id="inscription" class="form-control" placeholder="e.g. Inscribed HOF '01 / Blue Sharpie">
+            <input type="text" id="inscription" class="form-control" placeholder="e.g. Signed 8x10 photo in silver Sharpie">
           </div>
         </div>
 
-        <!-- Drag & Drop Photo Area -->
         <div class="form-group">
           <label>Attach Photo / Proof (Drag &amp; Drop)</label>
           <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click();">
@@ -112,7 +120,6 @@
       </form>
     </div>
 
-    <!-- Saved Items Listing (Simplified Table) -->
     <div class="table-container">
       <h3 style="margin-top:0; color:#f8fafc;">📁 Your Saved Entries (<span id="savedCount">0</span>)</h3>
       <table class="item-list">
@@ -125,18 +132,31 @@
             <th>Action</th>
           </tr>
         </thead>
-        <tbody id="savedTableBody">
-          <!-- Items will populate dynamically here -->
-        </tbody>
+        <tbody id="savedTableBody"></tbody>
       </table>
     </div>
 
   </div>
 
+  <footer style="margin-top: 3rem; border-top: 1px solid #334155; padding: 1.5rem 1rem; color: #94a3b8; font-size: 0.8rem; text-align: center;">
+    TTM Finder • Independent Autograph &amp; Fan Mail Reference Directory
+  </footer>
+
   <script>
     let currentImageData = "";
 
-    // Drag & Drop Handlers
+    function handleCategoryChange(selectElement) {
+      const customInput = document.getElementById('customCategoryInput');
+      if (selectElement.value === 'OTHER') {
+        customInput.style.display = 'block';
+        customInput.required = true;
+        customInput.focus();
+      } else {
+        customInput.style.display = 'none';
+        customInput.required = false;
+      }
+    }
+
     const dropZone = document.getElementById('dropZone');
 
     dropZone.addEventListener('dragover', (e) => {
@@ -166,7 +186,6 @@
       reader.readAsDataURL(file);
     }
 
-    // Storage Management Logic
     function getStoredSigners() {
       return JSON.parse(localStorage.getItem('ttm_saved_entries') || '[]');
     }
@@ -199,12 +218,16 @@
       renderSavedTable();
     }
 
-    // Save Form Handler
     document.getElementById('signerForm').addEventListener('submit', (e) => {
       e.preventDefault();
 
+      const selectVal = document.getElementById('categorySelect').value;
+      const finalCategory = (selectVal === 'OTHER') 
+        ? '⭐ ' + document.getElementById('customCategoryInput').value.trim() 
+        : selectVal;
+
       const newEntry = {
-        category: document.getElementById('category').value,
+        category: finalCategory,
         name: document.getElementById('signerName').value,
         turnaround: document.getElementById('turnaround').value,
         inscription: document.getElementById('inscription').value,
@@ -216,8 +239,8 @@
       items.unshift(newEntry);
       localStorage.setItem('ttm_saved_entries', JSON.stringify(items));
 
-      // Reset Form
       document.getElementById('signerForm').reset();
+      document.getElementById('customCategoryInput').style.display = 'none';
       document.getElementById('previewArea').innerHTML = '';
       currentImageData = "";
 
@@ -225,25 +248,7 @@
       alert('✅ Entry saved successfully to local storage!');
     });
 
-    // Initialize Table on Load
     document.addEventListener('DOMContentLoaded', renderSavedTable);
   </script>
 </body>
 </html>
-<!-- Site Footer & Legalities -->
-  <footer style="margin-top: 4rem; border-top: 1px solid #334155; padding: 2rem 1rem 3rem 1rem; color: #94a3b8; font-size: 0.8rem; line-height: 1.5; text-align: center;">
-    <div style="max-width: 900px; margin: 0 auto;">
-      <p style="margin-bottom: 0.75rem;">
-        <strong style="color: #cbd5e1;">TTM Finder</strong> • Independent Autograph &amp; Fan Mail Collector Directory
-      </p>
-      <p style="margin-bottom: 1rem; color: #64748b;">
-        <strong>Disclaimer:</strong> TTM Finder is a community reference platform created strictly for hobbyists and autograph collectors. This site is not affiliated with, endorsed by, or connected to the NFL, MLB, NBA, NHL, FIFA, SAG-AFTRA, or any official sports league, team, or entertainment organization. All trademarks, player names, and team references remain the property of their respective owners.
-      </p>
-      <p style="margin-bottom: 1rem; color: #64748b;">
-        <strong>Privacy &amp; Fair Use:</strong> TTM Finder does not store, trade, or publish confidential personal contact details or private home addresses. Public fan mail venues and team office addresses are compiled from public community logs for educational and respectful fan engagement.
-      </p>
-      <div style="margin-top: 1.5rem; color: #475569;">
-        © 2026 TTM Finder. Built by Collectors, for Collectors.
-      </div>
-    </div>
-  </footer>
