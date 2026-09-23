@@ -3,49 +3,61 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TTM Information Finder - Signer Catalog & Main Venue Hubs</title>
-  <link rel="stylesheet" href="style.css">
+  <title>TTM Finder - Master Tracker &amp; Address Roster</title>
   <style>
-    body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }
-    .container { max-width: 1150px; margin: 0 auto; padding: 1.5rem 1rem; }
+    body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 1.5rem; }
+    .container { max-width: 1200px; margin: 0 auto; }
+
+    header { border-bottom: 1px solid #334155; padding-bottom: 1rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    h1 { margin: 0; font-size: 1.5rem; color: #38bdf8; }
+
+    /* Summary Stats Bar */
+    .stats-bar { display: flex; gap: 1.5rem; background: #1e293b; padding: 1rem; border-radius: 8px; border: 1px solid #334155; margin-bottom: 1.5rem; justify-content: space-around; flex-wrap: wrap; }
+    .stat-item { text-align: center; }
+    .stat-val { font-size: 1.4rem; font-weight: bold; color: #38bdf8; }
+    .stat-label { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* Control Bar */
+    .controls-bar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap; background: #1e293b; padding: 1rem; border-radius: 8px; border: 1px solid #334155; }
+    .search-group { display: flex; gap: 0.5rem; flex: 1; max-width: 500px; }
+    .search-input { background: #0f172a; border: 1px solid #334155; color: white; padding: 0.5rem 0.75rem; border-radius: 6px; font-size: 0.85rem; width: 100%; }
+
+    .btn-group { display: flex; gap: 0.5rem; }
+    .btn { padding: 0.5rem 0.85rem; border-radius: 6px; font-weight: bold; font-size: 0.82rem; cursor: pointer; border: none; transition: background 0.2s; }
+    .btn-primary { background: #0284c7; color: white; }
+    .btn-primary:hover { background: #0369a1; }
+    .btn-success { background: #166534; color: #4ade80; border: 1px solid #22c55e; }
+    .btn-secondary { background: #334155; color: #cbd5e1; }
+
+    .filter-btn-group { display: flex; gap: 0.3rem; margin-bottom: 1rem; }
+    .filter-btn { background: #0f172a; border: 1px solid #334155; color: #94a3b8; padding: 0.35rem 0.75rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+    .filter-btn.active { background: #0284c7; color: white; border-color: #38bdf8; font-weight: bold; }
+
+    /* Data Table */
+    .table-container { background: #1e293b; border: 1px solid #334155; border-radius: 8px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left; }
+    th { padding: 0.75rem 0.75rem; border-bottom: 2px solid #334155; color: #94a3b8; font-size: 0.75rem; text-transform: uppercase; }
+    td { padding: 0.75rem 0.75rem; border-bottom: 1px solid #334155; color: #cbd5e1; vertical-align: middle; }
+    tr:hover { background: rgba(51, 65, 85, 0.3); }
+
+    /* Status Badges */
+    .badge { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; display: inline-block; }
+    .badge-pending { background: #854d0e; color: #fef08a; }
+    .badge-success { background: #166534; color: #4ade80; }
+    .badge-rts { background: #991b1b; color: #fca5a5; }
+
+    /* Modal Styling */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); justify-content: center; align-items: center; z-index: 100; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: #1e293b; border: 1px solid #334155; border-radius: 12px; width: 100%; max-width: 520px; padding: 1.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+    .modal-title { font-size: 1.2rem; color: #38bdf8; font-weight: bold; margin-bottom: 1rem; }
     
-    /* Header & Navigation Toolbar */
-    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid #334155; padding-bottom: 1rem; flex-wrap: wrap; gap: 1rem; }
-    .brand-title { margin: 0; font-size: 1.6rem; color: #38bdf8; font-weight: 800; }
-    .brand-subtitle { margin: 0; color: #94a3b8; font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
-    
-    .nav-links { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
-    .nav-links a { color: #cbd5e1; text-decoration: none; font-weight: 600; font-size: 0.92rem; padding: 0.4rem 0.6rem; border-radius: 6px; transition: all 0.2s; }
-    .nav-links a:hover, .nav-links a.active { color: #38bdf8; background: #1e293b; }
+    .form-group { margin-bottom: 0.85rem; }
+    .form-group label { display: block; font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.3rem; }
+    .form-control { width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 0.5rem; border-radius: 6px; font-size: 0.85rem; box-sizing: border-box; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
 
-    /* Hero Banner */
-    .hero-banner { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 1px solid #334155; border-radius: 12px; padding: 2rem; margin-bottom: 2rem; text-align: center; }
-    .hero-banner h2 { margin: 0 0 0.5rem 0; color: #38bdf8; font-size: 1.8rem; }
-    .hero-banner p { color: #cbd5e1; margin: 0 auto 1.5rem auto; max-width: 700px; font-size: 0.95rem; line-height: 1.5; }
-
-    /* Search & Filter Bar */
-    .search-section { display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
-    .search-input { width: 100%; max-width: 480px; padding: 0.85rem 1.2rem; background: #0f172a; border: 1px solid #38bdf8; border-radius: 25px; color: #fff; font-size: 1rem; }
-    .filter-btn { background: #1e293b; border: 1px solid #334155; color: #cbd5e1; padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-size: 0.85rem; }
-    .filter-btn.active, .filter-btn:hover { background: #0284c7; color: white; border-color: #38bdf8; }
-
-    /* Main Section Layout */
-    .section-title { font-size: 1.3rem; color: #38bdf8; margin: 2rem 0 1rem 0; display: flex; align-items: center; gap: 0.5rem; }
-    
-    /* Grid Layout for Directory */
-    .directory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.25rem; }
-    .info-card { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s; }
-    .info-card:hover { transform: translateY(-3px); border-color: #0284c7; }
-    .card-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem; }
-    .card-title { margin: 0; font-size: 1.1rem; color: #f8fafc; font-weight: bold; }
-    .card-badge { background: #0284c7; color: #fff; font-size: 0.7rem; font-weight: bold; padding: 0.2rem 0.55rem; border-radius: 10px; text-transform: uppercase; }
-    .card-address { background: #0f172a; border: 1px solid #334155; padding: 0.65rem; border-radius: 6px; font-size: 0.82rem; color: #38bdf8; margin: 0.75rem 0; font-family: monospace; white-space: pre-wrap; }
-
-    /* Quick Resources Grid */
-    .resource-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
-    .resource-box { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center; }
-    .resource-box h4 { margin: 0 0 0.4rem 0; color: #38bdf8; font-size: 1rem; }
-    .resource-box p { color: #94a3b8; font-size: 0.8rem; margin: 0; line-height: 1.4; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.25rem; }
   </style>
 </head>
 <body>
@@ -53,457 +65,336 @@
   <div class="container">
     <header>
       <div>
-        <h1 class="brand-title">TTM Finder</h1>
-        <p class="brand-subtitle">GLOBAL SIGNER ATLAS &amp; COLLECTOR DIRECTORY</p>
+        <h1>🎯 TTM Master Tracker &amp; Address Roster</h1>
+        <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.2rem;">Log outgoing requests, track turnarounds, and maintain your signer directory.</div>
       </div>
-      <nav class="nav-links">
-        <a href="index.html">Home</a>
-        <a href="finder.html" class="active">🔍 Information Finder</a>
-        <a href="success.html">🏆 Successes</a>
-        <a href="letter-writer.html">✍️ Letter Writer</a>
-        <a href="admin.html">📂 Finder's Console</a>
-      </nav>
+      <div class="btn-group">
+        <button class="btn btn-success" onclick="exportCSV()">📥 Export CSV</button>
+        <button class="btn btn-primary" onclick="openModal()">+ New TTM Request</button>
+      </div>
     </header>
 
-    <!-- Hero Banner -->
-    <div class="hero-banner">
-      <h2>🔍 Information &amp; Address Finder Hub</h2>
-      <p>Need inspiration or an address for your next TTM request? Search our growing index of music icons, sports legends, team venue hubs, and talent agency fan mail desks below.</p>
-      
-      <!-- Live Search Input -->
-      <div class="search-section">
-        <input type="text" id="finderSearch" class="search-input" placeholder="🔍 Search Billy Idol, Rams, Jeter, Music, NFL..." value="Billy Idol">
+    <!-- Stat Highlights -->
+    <div class="stats-bar">
+      <div class="stat-item">
+        <div class="stat-val" id="statSent">0</div>
+        <div class="stat-label">Total Sent</div>
       </div>
-
-      <!-- Quick Category Filter Buttons -->
-      <div style="display: flex; justify-content: center; gap: 0.5rem; flex-wrap: wrap;">
-        <button class="filter-btn active" onclick="filterCatalog('ALL', this)">All Catalog</button>
-        <button class="filter-btn" onclick="filterCatalog('Music', this)">🎸 Music &amp; Rock</button>
-        <button class="filter-btn" onclick="filterCatalog('NFL', this)">🏈 Football</button>
-        <button class="filter-btn" onclick="filterCatalog('MLB', this)">⚾ Baseball</button>
-        <button class="filter-btn" onclick="filterCatalog('NBA', this)">🏀 Basketball</button>
-        <button class="filter-btn" onclick="filterCatalog('Film & TV', this)">🎬 Film &amp; TV</button>
+      <div class="stat-item">
+        <div class="stat-val" id="statPending" style="color: #fef08a;">0</div>
+        <div class="stat-label">Pending</div>
       </div>
-    </div>
-
-    <!-- How to Locate Addresses Section -->
-    <div class="section-title">💡 How to Find Fan Mail Addresses</div>
-    <div class="resource-grid">
-      <div class="resource-box">
-        <h4>🏟️ Stadium &amp; Venue Mail</h4>
-        <p>Send during active playing seasons to team facility or stadium addresses marked <em>"Attn: Fan Mail / Player Name"</em>.</p>
+      <div class="stat-item">
+        <div class="stat-val" id="statSuccess" style="color: #4ade80;">0</div>
+        <div class="stat-label">Successes</div>
       </div>
-      <div class="resource-box">
-        <h4>🏢 Management &amp; Agency Desks</h4>
-        <p>For music stars, actors, or retired legends, look up their management agency or official company desks.</p>
+      <div class="stat-item">
+        <div class="stat-val" id="statRate" style="color: #38bdf8;">0%</div>
+        <div class="stat-label">Success Rate</div>
       </div>
-      <div class="resource-box">
-        <h4>✉️ SASE Prep Best Practice</h4>
-        <p>Always include a Self-Addressed Stamped Envelope (SASE) and a handwritten index card or personalized note.</p>
-      </div>
-      <div class="resource-box">
-        <h4>📜 Public Directory Search</h4>
-        <p>Cross-reference team rosters, record labels, press contacts, and verified public fan mail logs.</p>
+      <div class="stat-item">
+        <div class="stat-val" id="statAvgDays">0 days</div>
+        <div class="stat-label">Avg Turnaround</div>
       </div>
     </div>
 
-    <!-- Searchable Directory Catalog Grid -->
-    <div class="section-title">📍 Signer Catalog &amp; Main Venue Hubs</div>
-    <div id="catalogGrid" class="directory-grid">
-      <!-- Generated via JS -->
+    <!-- Controls & Filters -->
+    <div class="controls-bar">
+      <div class="search-group">
+        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search player, team, sport, or address..." oninput="renderTable()">
+      </div>
+      <div class="filter-btn-group" style="margin-bottom:0;">
+        <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+        <button class="filter-btn" onclick="setFilter('Pending', this)">Pending</button>
+        <button class="filter-btn" onclick="setFilter('Success', this)">Success</button>
+        <button class="filter-btn" onclick="setFilter('RTS', this)">RTS / Failed</button>
+      </div>
     </div>
 
+    <!-- Master Roster Table -->
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Player Name</th>
+            <th>Sport / Team</th>
+            <th>Sent Date</th>
+            <th>Returned Date</th>
+            <th>Turnaround</th>
+            <th>Status</th>
+            <th>Mailing Address</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="trackerTableBody">
+          <!-- Rows render dynamically -->
+        </tbody>
+      </table>
+    </div>
   </div>
 
-  <footer style="margin-top: 4rem; border-top: 1px solid #334155; padding: 2rem 1rem; color: #94a3b8; font-size: 0.8rem; text-align: center;">
-    TTM Finder • Independent Autograph Reference &amp; Fan Mail Hub Directory
-  </footer>
+  <!-- Add/Edit Entry Modal -->
+  <div class="modal-overlay" id="entryModal">
+    <div class="modal">
+      <div class="modal-title" id="modalTitle">Add New TTM Entry</div>
+      <form id="ttmForm" onsubmit="saveEntry(event)">
+        <input type="hidden" id="entryId">
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Player Name *</label>
+            <input type="text" id="playerName" class="form-control" required placeholder="e.g. Jack Youngblood">
+          </div>
+          <div class="form-group">
+            <label>Sport / Team</label>
+            <input type="text" id="playerTeam" class="form-control" placeholder="e.g. NFL / LA Rams">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date Sent *</label>
+            <input type="date" id="dateSent" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Date Returned</label>
+            <input type="date" id="dateReturned" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Status</label>
+            <select id="status" class="form-control">
+              <option value="Pending">Pending</option>
+              <option value="Success">Success</option>
+              <option value="RTS">RTS (Return To Sender)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Enclosures</label>
+            <input type="text" id="enclosures" class="form-control" placeholder="e.g. 1985 Topps, 3x5 index">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Mailing Address</label>
+          <input type="text" id="address" class="form-control" placeholder="Street, City, State ZIP">
+        </div>
+
+        <div class="form-group">
+          <label>Notes</label>
+          <input type="text" id="notes" class="form-control" placeholder="e.g. Signed in blue Sharpie, fee paid, etc.">
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Entry</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <script>
-    const catalogData = [
+    // Initial Master Roster Data
+    let ttmEntries = [
       {
-        name: "Billy Idol",
-        category: "Music",
-        type: "Rock Icon & Musician",
-        address: "c/o Cyberpunk / BFI Management Desk\nLos Angeles, CA",
-        notes: "Punk rock legend. Accepts fan mail and autographs via tour venues and management desks."
+        id: "1",
+        name: "Jack Youngblood",
+        team: "NFL / LA Rams",
+        sent: "2026-08-10",
+        returned: "2026-08-28",
+        status: "Success",
+        enclosures: "1981 Topps, 3x5 Card",
+        address: "P.O. Box 123, Orlando, FL",
+        notes: "Signed card in blue Sharpie, added HOF '01 inscription"
       },
       {
-        name: "Los Angeles Rams Facility",
-        category: "NFL",
-        type: "Main Team Venue Hub",
-        address: "c/o Los Angeles Rams\n21555 Oxnard St.\nWoodland Hills, CA 91367",
-        notes: "Primary training facility address for sending to active players & coaching staff during season."
-      },
-      {
-  name: "New Signer Name",
-  category: "NFL", // or MLB, Music, Film & TV, etc.
-  type: "Position / Title",
-  address: "Mailing Address Line 1\nCity, State ZIP",
-  notes: "Details about turnaround time or signing habits."
-},
-        name: "Jack Youngblood (HOF)",
-        category: "NFL",
-        type: "Pro Football HOF Legend",
-        address: "P.O. Box 568234\nOrlando, FL 32835",
-        notes: "Legendary LA Rams defensive end #85. Extremely gracious with TTM requests."
-      },
-      {
-        name: "Terry Bradshaw (HOF)",
-        category: "NFL",
-        type: "Pittsburgh Steelers Great",
-        address: "P.O. Box 1790\nGainesville, TX 76241",
-        notes: "4x Super Bowl Champion quarterback & broadcast analyst."
-      },
-      {
-        name: "Jerome Bettis (HOF)",
-        category: "NFL",
-        type: "Rams / Steelers Star",
-        address: "c/o Jerome Bettis Enterprises\n512 N. Main St.\nRoyal Oak, MI 48067",
-        notes: "'The Bus' signs through his official business office."
-      },
-      {
-        name: "Derek Jeter",
-        category: "MLB",
-        type: "Baseball HOF Legend",
-        address: "c/o The Players Tribune\n1700 Broadway, 29th Floor\nNew York, NY 10019",
-        notes: "Yankees Captain. Signs through foundation and corporate media desks."
-      },
-      {
-        name: "New York Yankees Facility",
-        category: "MLB",
-        type: "Main Team Venue Hub",
-        address: "c/o New York Yankees\n1 E. 161st St.\nBronx, NY 10451",
-        notes: "Main stadium address for active roster players and coaching staff."
-      },
-      {
-        name: "Randy Johnson (HOF)",
-        category: "MLB",
-        type: "Baseball HOF Pitcher",
-        address: "10645 Tatum Blvd. #C200-520\nPhoenix, AZ 85028",
-        notes: "300-game winner & Cy Young Legend."
-      },
-      {
-        name: "Chipper Jones (HOF)",
-        category: "MLB",
-        type: "Atlanta Braves Legend",
-        address: "c/o Major League Bowhunter\nSportsman Channel, Denver, CO 80204",
-        notes: "Braves Hall of Fame third baseman."
-      },
-      {
-        name: "Pau Gasol",
-        category: "NBA",
-        type: "Basketball Champion",
-        address: "c/o Gasolic Ventures / Gasol Foundation\n24310 Moulton Pkwy, Suite O\nLaguna Woods, CA 92637",
-        notes: "Lakers 2x Champion. Accepts fan mail through his foundation office."
-      },
-      {
-        name: "Brent Barry",
-        category: "NBA",
-        type: "Spurs / SuperSonics Legend",
-        address: "114 Champion Trail\nSan Antonio, TX 78258",
-        notes: "Slam Dunk Champion & NBA executive."
-      },
-      {
-        name: "Mario Andretti",
-        category: "Racing",
-        type: "Motorsports World Champ",
-        address: "c/o Andretti Autosport\n7615 Zionsville Rd.\nIndianapolis, IN 46268",
-        notes: "F1 and IndyCar legend with fast return times."
-      },
-      {
-        name: "Mark Hamill",
-        category: "Film & TV",
-        type: "Movie & Voice Icon",
-        address: "c/o Studio Fan Mail Desk\nLos Angeles, CA",
-        notes: "Star Wars icon. Periodically signs through production agency desks."
+        id: "2",
+        name: "Jim Everett",
+        team: "NFL / LA Rams",
+        sent: "2026-09-01",
+        returned: "",
+        status: "Pending",
+        enclosures: "1989 Pro Set",
+        address: "123 Main St, Irvine, CA",
+        notes: "Sent with LOR and SASE"
       }
     ];
 
-    function renderCatalog(list) {
-      const grid = document.getElementById('catalogGrid');
-      if (list.length === 0) {
-        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #94a3b8; padding: 2rem;">No signers or venues found matching your search. Try another keyword!</div>`;
-        return;
-      }
+    let currentFilter = 'all';
 
-      grid.innerHTML = list.map(item => `
-        <div class="info-card">
-          <div>
-            <div class="card-header">
-              <h3 class="card-title">${item.name}</h3>
-              <span class="card-badge">${item.category}</span>
-            </div>
-            <div style="font-size: 0.78rem; color: #38bdf8; font-weight: 600; margin-bottom: 0.4rem;">${item.type}</div>
-            <div class="card-address">${item.address}</div>
-            <p style="color: #94a3b8; font-size: 0.82rem; margin: 0; line-height: 1.4;">${item.notes}</p>
-          </div>
-        </div>
-      `).join('');
+    function initTracker() {
+      renderTable();
+      updateStats();
     }
 
-    // Live Search Filtering
-    const searchInput = document.getElementById('finderSearch');
-    
-    function performSearch() {
-      const query = searchInput.value.toLowerCase().trim();
-      if (!query) {
-        renderCatalog(catalogData);
-        return;
-      }
-      const filtered = catalogData.filter(item => 
-        item.name.toLowerCase().includes(query) ||
-        item.category.toLowerCase().includes(query) ||
-        item.type.toLowerCase().includes(query) ||
-        item.address.toLowerCase().includes(query) ||
-        item.notes.toLowerCase().includes(query)
-      );
-      renderCatalog(filtered);
+    function calculateDays(sentStr, retStr) {
+      if (!sentStr) return "-";
+      const sent = new Date(sentStr);
+      const ret = retStr ? new Date(retStr) : new Date();
+      const diffTime = Math.abs(ret - sent);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return retStr ? `${diffDays} days` : `${diffDays} days active`;
     }
 
-    searchInput.addEventListener('input', performSearch);
+    function updateStats() {
+      const total = ttmEntries.length;
+      const pending = ttmEntries.filter(e => e.status === 'Pending').length;
+      const success = ttmEntries.filter(e => e.status === 'Success').length;
+      const rate = total > 0 ? Math.round((success / total) * 100) : 0;
 
-    // Category Filter Buttons
-    function filterCatalog(cat, element) {
+      // Avg turnaround calculation
+      const completed = ttmEntries.filter(e => e.status === 'Success' && e.returned && e.sent);
+      let totalDays = 0;
+      completed.forEach(e => {
+        const s = new Date(e.sent);
+        const r = new Date(e.returned);
+        totalDays += Math.max(0, Math.ceil((r - s) / (1000 * 60 * 60 * 24)));
+      });
+      const avg = completed.length > 0 ? Math.round(totalDays / completed.length) : 0;
+
+      document.getElementById('statSent').textContent = total;
+      document.getElementById('statPending').textContent = pending;
+      document.getElementById('statSuccess').textContent = success;
+      document.getElementById('statRate').textContent = `${rate}%`;
+      document.getElementById('statAvgDays').textContent = `${avg} days`;
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('trackerTableBody');
+      const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+      tbody.innerHTML = '';
+
+      ttmEntries.forEach(entry => {
+        const matchesFilter = currentFilter === 'all' || entry.status === currentFilter;
+        const matchesSearch = 
+          entry.name.toLowerCase().includes(searchQuery) ||
+          entry.team.toLowerCase().includes(searchQuery) ||
+          entry.address.toLowerCase().includes(searchQuery) ||
+          entry.notes.toLowerCase().includes(searchQuery);
+
+        if (matchesFilter && matchesSearch) {
+          const daysText = calculateDays(entry.sent, entry.returned);
+          let badgeClass = 'badge-pending';
+          if (entry.status === 'Success') badgeClass = 'badge-success';
+          if (entry.status === 'RTS') badgeClass = 'badge-rts';
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td style="font-weight: bold; color: #f8fafc;">${entry.name}</td>
+            <td style="color: #94a3b8;">${entry.team || '-'}</td>
+            <td>${entry.sent || '-'}</td>
+            <td>${entry.returned || '-'}</td>
+            <td style="font-size: 0.8rem; color: #38bdf8;">${daysText}</td>
+            <td><span class="badge ${badgeClass}">${entry.status}</span></td>
+            <td style="font-size: 0.8rem; color: #94a3b8; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${entry.address}">${entry.address || '-'}</td>
+            <td>
+              <button class="btn btn-secondary" style="padding: 0.2rem 0.4rem; font-size: 0.75rem;" onclick="editEntry('${entry.id}')">Edit</button>
+              <button class="btn btn-secondary" style="padding: 0.2rem 0.4rem; font-size: 0.75rem; color: #fca5a5;" onclick="deleteEntry('${entry.id}')">✕</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        }
+      });
+    }
+
+    function setFilter(filter, el) {
+      currentFilter = filter;
       document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-      element.classList.add('active');
+      el.classList.add('active');
+      renderTable();
+    }
 
-      if (cat === 'ALL') {
-        searchInput.value = '';
-        renderCatalog(catalogData);
+    function openModal(editId = null) {
+      const modal = document.getElementById('entryModal');
+      const form = document.getElementById('ttmForm');
+      form.reset();
+
+      if (editId) {
+        const entry = ttmEntries.find(e => e.id === editId);
+        if (entry) {
+          document.getElementById('modalTitle').textContent = "Edit TTM Entry";
+          document.getElementById('entryId').value = entry.id;
+          document.getElementById('playerName').value = entry.name;
+          document.getElementById('playerTeam').value = entry.team;
+          document.getElementById('dateSent').value = entry.sent;
+          document.getElementById('dateReturned').value = entry.returned;
+          document.getElementById('status').value = entry.status;
+          document.getElementById('enclosures').value = entry.enclosures;
+          document.getElementById('address').value = entry.address;
+          document.getElementById('notes').value = entry.notes;
+        }
       } else {
-        searchInput.value = '';
-        const filtered = catalogData.filter(item => item.category === cat);
-        renderCatalog(filtered);
-      }
-    }
-
-    // Initial Load - Executes search automatically if default value present
-    document.addEventListener('DOMContentLoaded', performSearch);
-  </script>
-</body>
-</html>
-<script>
-    const baseCatalogData = [
-      {
-        name: "Billy Idol",
-        category: "Music",
-        type: "Rock Icon & Musician",
-        address: "c/o Cyberpunk / BFI Management Desk\nLos Angeles, CA",
-        notes: "Punk rock legend. Accepts fan mail and autographs via tour venues and management desks."
-      },
-      {
-        name: "Los Angeles Rams Facility",
-        category: "NFL",
-        type: "Main Team Venue Hub",
-        address: "c/o Los Angeles Rams\n21555 Oxnard St.\nWoodland Hills, CA 91367",
-        notes: "Primary training facility address for sending to active players & coaching staff during season."
-      },
-      {
-        name: "Jack Youngblood (HOF)",
-        category: "NFL",
-        type: "Pro Football HOF Legend",
-        address: "P.O. Box 568234\nOrlando, FL 32835",
-        notes: "Legendary LA Rams defensive end #85. Extremely gracious with TTM requests."
-      },
-      {
-        name: "Terry Bradshaw (HOF)",
-        category: "NFL",
-        type: "Pittsburgh Steelers Great",
-        address: "P.O. Box 1790\nGainesville, TX 76241",
-        notes: "4x Super Bowl Champion quarterback & broadcast analyst."
-      },
-      {
-        name: "Jerome Bettis (HOF)",
-        category: "NFL",
-        type: "Rams / Steelers Star",
-        address: "c/o Jerome Bettis Enterprises\n512 N. Main St.\nRoyal Oak, MI 48067",
-        notes: "'The Bus' signs through his official business office."
-      },
-      {
-        name: "Derek Jeter",
-        category: "MLB",
-        type: "Baseball HOF Legend",
-        address: "c/o The Players Tribune\n1700 Broadway, 29th Floor\nNew York, NY 10019",
-        notes: "Yankees Captain. Signs through foundation and corporate media desks."
-      },
-      {
-        name: "New York Yankees Facility",
-        category: "MLB",
-        type: "Main Team Venue Hub",
-        address: "c/o New York Yankees\n1 E. 161st St.\nBronx, NY 10451",
-        notes: "Main stadium address for active roster players and coaching staff."
-      },
-      {
-        name: "Randy Johnson (HOF)",
-        category: "MLB",
-        type: "Baseball HOF Pitcher",
-        address: "10645 Tatum Blvd. #C200-520\nPhoenix, AZ 85028",
-        notes: "300-game winner & Cy Young Legend."
-      },
-      {
-        name: "Chipper Jones (HOF)",
-        category: "MLB",
-        type: "Atlanta Braves Legend",
-        address: "c/o Major League Bowhunter\nSportsman Channel, Denver, CO 80204",
-        notes: "Braves Hall of Fame third baseman."
-      },
-      {
-        name: "Pau Gasol",
-        category: "NBA",
-        type: "Basketball Champion",
-        address: "c/o Gasolic Ventures / Gasol Foundation\n24310 Moulton Pkwy, Suite O\nLaguna Woods, CA 92637",
-        notes: "Lakers 2x Champion. Accepts fan mail through his foundation office."
-      },
-      {
-        name: "Brent Barry",
-        category: "NBA",
-        type: "Spurs / SuperSonics Legend",
-        address: "114 Champion Trail\nSan Antonio, TX 78258",
-        notes: "Slam Dunk Champion & NBA executive."
-      },
-      {
-        name: "Mario Andretti",
-        category: "Racing",
-        type: "Motorsports World Champ",
-        address: "c/o Andretti Autosport\n7615 Zionsville Rd.\nIndianapolis, IN 46268",
-        notes: "F1 and IndyCar legend with fast return times."
-      },
-      {
-        name: "Mark Hamill",
-        category: "Film & TV",
-        type: "Movie & Voice Icon",
-        address: "c/o Studio Fan Mail Desk\nLos Angeles, CA",
-        notes: "Star Wars icon. Periodically signs through production agency desks."
-      }
-    ];
-
-    // Load extra items added via admin.html / Finder's Console
-    function getStoredConsoleItems() {
-      const saved = JSON.parse(localStorage.getItem('ttm_saved_entries') || '[]');
-      return saved.map(item => ({
-        name: item.name,
-        category: item.category.replace(/^[^\w\s]+/, '').trim() || "Console Entry",
-        type: "Personal Tracker Entry",
-        address: item.inscription || "Saved via Finder Console",
-        notes: `Turnaround: ${item.turnaround}`
-      }));
-    }
-
-    // Combine base catalog + user console items
-    function getCombinedCatalog() {
-      return [...getStoredConsoleItems(), ...baseCatalogData];
-    }
-
-    function renderCatalog(list) {
-      const grid = document.getElementById('catalogGrid');
-      if (list.length === 0) {
-        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #94a3b8; padding: 2rem;">No signers or venues found matching your search. Try another keyword!</div>`;
-        return;
+        document.getElementById('modalTitle').textContent = "Add New TTM Entry";
+        document.getElementById('entryId').value = "";
+        document.getElementById('dateSent').valueAsDate = new Date();
       }
 
-      grid.innerHTML = list.map(item => `
-        <div class="info-card">
-          <div>
-            <div class="card-header">
-              <h3 class="card-title">${item.name}</h3>
-              <span class="card-badge">${item.category}</span>
-            </div>
-            <div style="font-size: 0.78rem; color: #38bdf8; font-weight: 600; margin-bottom: 0.4rem;">${item.type}</div>
-            <div class="card-address">${item.address}</div>
-            <p style="color: #94a3b8; font-size: 0.82rem; margin: 0; line-height: 1.4;">${item.notes}</p>
-          </div>
-        </div>
-      `).join('');
+      modal.classList.add('active');
     }
 
-    const searchInput = document.getElementById('finderSearch');
-    
-    function performSearch() {
-      const currentCatalog = getCombinedCatalog();
-      const query = searchInput.value.toLowerCase().trim();
-      
-      if (!query) {
-        renderCatalog(currentCatalog);
-        return;
-      }
-      
-      const filtered = currentCatalog.filter(item => 
-        item.name.toLowerCase().includes(query) ||
-        item.category.toLowerCase().includes(query) ||
-        item.type.toLowerCase().includes(query) ||
-        item.address.toLowerCase().includes(query) ||
-        item.notes.toLowerCase().includes(query)
-      );
-      renderCatalog(filtered);
+    function closeModal() {
+      document.getElementById('entryModal').classList.remove('active');
     }
 
-    searchInput.addEventListener('input', performSearch);
+    function saveEntry(e) {
+      e.preventDefault();
+      const id = document.getElementById('entryId').value;
+      const newEntry = {
+        id: id || Date.now().toString(),
+        name: document.getElementById('playerName').value,
+        team: document.getElementById('playerTeam').value,
+        sent: document.getElementById('dateSent').value,
+        returned: document.getElementById('dateReturned').value,
+        status: document.getElementById('status').value,
+        enclosures: document.getElementById('enclosures').value,
+        address: document.getElementById('address').value,
+        notes: document.getElementById('notes').value
+      };
 
-    function filterCatalog(cat, element) {
-      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-      element.classList.add('active');
-
-      const currentCatalog = getCombinedCatalog();
-      if (cat === 'ALL') {
-        searchInput.value = '';
-        renderCatalog(currentCatalog);
+      if (id) {
+        const idx = ttmEntries.findIndex(item => item.id === id);
+        if (idx !== -1) ttmEntries[idx] = newEntry;
       } else {
-        searchInput.value = '';
-        const filtered = currentCatalog.filter(item => item.category.toLowerCase().includes(cat.toLowerCase()));
-        renderCatalog(filtered);
+        ttmEntries.unshift(newEntry);
+      }
+
+      closeModal();
+      updateStats();
+      renderTable();
+    }
+
+    function editEntry(id) {
+      openModal(id);
+    }
+
+    function deleteEntry(id) {
+      if (confirm("Delete this entry?")) {
+        ttmEntries = ttmEntries.filter(e => e.id !== id);
+        updateStats();
+        renderTable();
       }
     }
 
-    document.addEventListener('DOMContentLoaded', performSearch);
+    function exportCSV() {
+      if (ttmEntries.length === 0) return alert("No entries to export!");
+
+      let csv = "data:text/csv;charset=utf-8,Player Name,Sport/Team,Date Sent,Date Returned,Status,Enclosures,Address,Notes\n";
+      ttmEntries.forEach(e => {
+        csv += `"${e.name}","${e.team}","${e.sent}","${e.returned}","${e.status}","${e.enclosures}","${e.address}","${e.notes}"\n`;
+      });
+
+      const encoded = encodeURI(csv);
+      const link = document.createElement("a");
+      link.setAttribute("href", encoded);
+      link.setAttribute("download", "ttm_master_tracker.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    document.addEventListener("DOMContentLoaded", initTracker);
   </script>
-<!-- External Collector Resources & Useful Sites -->
-    <div class="section-title">🌐 Essential Hobby Links &amp; Address Databases</div>
-    <div class="resource-grid" style="grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.25rem; margin-bottom: 3rem;">
-      
-      <!-- SCN / SCF -->
-      <div class="resource-box" style="text-align: left; padding: 1.25rem;">
-        <div style="display:flex; justify-size:space-between; align-items:center; margin-bottom: 0.5rem;">
-          <h4 style="margin:0; color:#38bdf8;">📬 SCN &amp; Address Databases</h4>
-        </div>
-        <p style="color:#cbd5e1; font-size:0.85rem; margin-bottom:1rem;">Search comprehensive TTM success records, test proven player addresses, and check recent return rates before mailing.</p>
-        <a href="https://www.sportscollectors.net" target="_blank" style="display:inline-block; background:#0284c7; color:#fff; text-decoration:none; padding:0.4rem 0.8rem; border-radius:6px; font-size:0.8rem; font-weight:bold;">Visit SportsCollectors.net ↗</a>
-      </div>
-
-      <!-- Sportlots -->
-      <div class="resource-box" style="text-align: left; padding: 1.25rem;">
-        <div style="display:flex; justify-size:space-between; align-items:center; margin-bottom: 0.5rem;">
-          <h4 style="margin:0; color:#38bdf8;">🃏 Sportlots Card Inventory</h4>
-        </div>
-        <p style="color:#cbd5e1; font-size:0.85rem; margin-bottom:1rem;">The premier site for sourcing inexpensive base cards, single-seller inventory fills, and set-building duplicates for TTM requests.</p>
-        <a href="https://www.sportlots.com" target="_blank" style="display:inline-block; background:#0284c7; color:#fff; text-decoration:none; padding:0.4rem 0.8rem; border-radius:6px; font-size:0.8rem; font-weight:bold;">Visit Sportlots.com ↗</a>
-      </div>
-
-      <!-- eBay -->
-      <div class="resource-box" style="text-align: left; padding: 1.25rem;">
-        <div style="display:flex; justify-size:space-between; align-items:center; margin-bottom: 0.5rem;">
-          <h4 style="margin:0; color:#38bdf8;">🏷️ eBay Card Marketplace</h4>
-        </div>
-        <p style="color:#cbd5e1; font-size:0.85rem; margin-bottom:1rem;">Locate vintage team cards, specific set singles, oddball collectibles, and verified certified auto comparisons.</p>
-        <a href="https://www.ebay.com" target="_blank" style="display:inline-block; background:#0284c7; color:#fff; text-decoration:none; padding:0.4rem 0.8rem; border-radius:6px; font-size:0.8rem; font-weight:bold;">Visit eBay Marketplace ↗</a>
-      </div>
-
-      <!-- USPS Postal Helper -->
-      <div class="resource-box" style="text-align: left; padding: 1.25rem;">
-        <div style="display:flex; justify-size:space-between; align-items:center; margin-bottom: 0.5rem;">
-          <h4 style="margin:0; color:#38bdf8;">📮 USPS Address &amp; Postage Lookup</h4>
-        </div>
-        <p style="color:#cbd5e1; font-size:0.85rem; margin-bottom:1rem;">Verify standardized ZIP codes, check current first-class stamp rates for SASE envelopes, and track outgoing packages.</p>
-        <a href="https://www.usps.com" target="_blank" style="display:inline-block; background:#0284c7; color:#fff; text-decoration:none; padding:0.4rem 0.8rem; border-radius:6px; font-size:0.8rem; font-weight:bold;">Visit USPS.com ↗</a>
-      </div>
-
-    </div>
-<nav class="nav-links">
-  <a href="index.html">Home</a>
-  <a href="finder.html">🔍 Information Finder</a>
-  <a href="success.html">🏆 Successes</a>
-  <a href="letter-writer.html">✍️ Letter Writer</a>
-  <a href="admin.html">📂 Finder's Console</a>
-</nav>
 </body>
 </html>
