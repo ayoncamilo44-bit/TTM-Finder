@@ -1,92 +1,90 @@
-let pendingImportText = "";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TTM Finder - Moderation Console</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .admin-container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; color: #fff; }
+    .drop-zone { border: 2px dashed #4a5568; background: #1a202c; border-radius: 8px; padding: 2rem; text-align: center; cursor: pointer; margin-bottom: 1.5rem; transition: border-color 0.2s; }
+    .drop-zone:hover { border-color: #63b3ed; }
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+    .modal-overlay.hidden { display: none; }
+    .modal-card { background: #2d3748; padding: 2rem; border-radius: 10px; max-width: 500px; width: 90%; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+    .modal-buttons { display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; }
+    .btn { padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: bold; cursor: pointer; border: none; }
+    .btn-primary { background: #3182ce; color: white; }
+    .btn-secondary { background: #4a5568; color: white; }
+    .btn-danger { background: #e53e3e; color: white; }
+    .btn-success { background: #38a169; color: white; }
+    .grid-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .interactive-table { width: 100%; border-collapse: collapse; background: #2d3748; border-radius: 8px; overflow: hidden; }
+    .interactive-table th, .interactive-table td { padding: 0.75rem 1rem; border-bottom: 1px solid #4a5568; text-align: left; }
+    .interactive-table th { background: #1a202c; color: #a0aec0; font-size: 0.85rem; text-transform: uppercase; }
+    .interactive-table td[contenteditable="true"]:focus { background: #4a5568; outline: 2px solid #63b3ed; border-radius: 4px; }
+    .drag-handle { cursor: grab; color: #a0aec0; text-align: center; width: 30px; }
+  </style>
+</head>
+<body style="background-color: #0f172a; font-family: system-ui, sans-serif;">
 
-// 1. Handle File Drag & Drop
-const dropZone = document.getElementById('drop-zone');
-dropZone.addEventListener('dragover', (e) => e.preventDefault());
-dropZone.addEventListener('drop', (e) => {
-  e.preventDefault();
-  const file = e.dataTransfer.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = (event) => processIncomingText(event.target.result);
-    reader.readAsText(file);
-  }
-});
+  <div class="admin-container">
+    <header style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h1 style="margin:0; font-size: 1.8rem;">TTM Finder</h1>
+        <p style="margin:0; color: #94a3b8; font-size: 0.9rem;">MODERATION CONSOLE &amp; DIRECTORY MANAGER</p>
+      </div>
+      <a href="index.html" style="color: #63b3ed; text-decoration: none;">← Back home</a>
+    </header>
 
-// 2. Handle Direct Page Paste
-document.addEventListener('paste', (e) => {
-  const pasteData = (e.clipboardData || window.clipboardData).getData('text');
-  if (pasteData) processIncomingText(pasteData);
-});
+    <!-- Drag & Drop Dropzone -->
+    <div id="drop-zone" class="drop-zone">
+      <div style="font-size: 1.2rem; margin-bottom: 0.5rem;">📄 <strong>Drag &amp; Drop your TTM file here</strong></div>
+      <div style="color: #a0aec0; font-size: 0.9rem;">Or paste text anywhere on this screen to auto-format.</div>
+    </div>
 
-// 3. Inspect Text & Prompt User
-function processIncomingText(rawText) {
-  pendingImportText = rawText;
-  
-  // Detect bullet points, symbol corruptions (â€¢), or multi-line notes
-  const isMessy = rawText.includes('•') || rawText.includes('â€¢') || rawText.includes('Cards:') || rawText.includes('Status:');
+    <!-- Toolbar -->
+    <div class="grid-toolbar">
+      <div>
+        <button id="btn-add-row" class="btn btn-secondary">+ Add Row</button>
+      </div>
+      <div>
+        <button id="btn-save-live" class="btn btn-success">💾 Save Clean Directory</button>
+      </div>
+    </div>
 
-  if (isMessy) {
-    // Show "Do you want to organize?" modal
-    document.getElementById('organize-modal').classList.remove('hidden');
-  } else {
-    // Clean import directly
-    renderGridRows(parseCleanCSV(rawText));
-  }
-}
+    <!-- Interactive Grid Table -->
+    <table class="interactive-table">
+      <thead>
+        <tr>
+          <th style="width: 30px;"></th>
+          <th>Signer Name</th>
+          <th>Category</th>
+          <th>Status</th>
+          <th>Collector Notes &amp; Details</th>
+          <th style="width: 80px;">Action</th>
+        </tr>
+      </thead>
+      <tbody id="grid-body">
+        <!-- Rows load dynamically here -->
+      </tbody>
+    </table>
+  </div>
 
-// 4. Automatic Cleanup Engine
-document.getElementById('btn-auto-organize').addEventListener('click', () => {
-  document.getElementById('organize-modal').classList.add('hidden');
-  
-  const lines = pendingImportText.split('\n');
-  const cleanSigners = [];
-  let currentSigner = null;
+  <!-- Smart Cleanup Popup Modal -->
+  <div id="organize-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <h3 style="margin-top:0; font-size: 1.3rem;">✨ Clean &amp; Organize File?</h3>
+      <p style="color: #cbd5e0; font-size: 0.95rem; line-height: 1.5;">
+        We detected bullet points and multi-line notes in your paste/file. Would you like to automatically merge those details into single signer profiles?
+      </p>
+      <div class="modal-buttons">
+        <button id="btn-auto-organize" class="btn btn-primary">Yes, Clean &amp; Organize</button>
+        <button id="btn-keep-raw" class="btn btn-secondary">Import As-Is</button>
+      </div>
+    </div>
+  </div>
 
-  lines.forEach(line => {
-    // Clean UTF-8 corruptions and whitespace
-    let trimmed = line.replace(/â€¢/g, '').replace(/•/g, '').trim();
-    if (!trimmed) return;
-
-    // Check if line is a sub-detail (bullet point or note header)
-    const isDetailLine = trimmed.startsWith('-') || trimmed.startsWith('Cards:') || trimmed.startsWith('Status:');
-
-    if (isDetailLine && currentSigner) {
-      // Merge into current signer's notes instead of starting a new row
-      currentSigner.notes += (currentSigner.notes ? ' | ' : '') + trimmed;
-    } else {
-      // Create new clean signer object
-      currentSigner = {
-        name: trimmed.split('\t')[0] || trimmed,
-        category: 'Sports',
-        status: 'OFTEN RESPONDS',
-        notes: ''
-      };
-      cleanSigners.push(currentSigner);
-    }
-  });
-
-  renderGridRows(cleanSigners);
-});
-
-// 5. Render Editable Rows into the Visual Grid
-function renderGridRows(signers) {
-  const tbody = document.getElementById('grid-body');
-  tbody.innerHTML = ''; // Clear broken rows
-
-  signers.forEach((s, index) => {
-    const tr = document.createElement('tr');
-    tr.draggable = true; // Enables row dragging
-    tr.innerHTML = `
-      <td class="drag-handle">≡</td>
-      <td contenteditable="true">${s.name}</td>
-      <td contenteditable="true">${s.category || 'Sports'}</td>
-      <td contenteditable="true">${s.status || 'Draft'}</td>
-      <td contenteditable="true">${s.notes || ''}</td>
-      <td>
-        <button onclick="this.closest('tr').remove()" class="btn-delete">Delete</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
+  <script src="admin.js"></script>
+</body>
+</html>
