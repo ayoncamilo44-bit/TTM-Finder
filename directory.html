@@ -60,129 +60,6 @@
     .badge-verified { background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
     .badge-stale { background-color: #fef9c3; color: #a16207; border: 1px solid #fef08a; }
     .badge-rts { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
-    .badge-warning { background-color: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
-
-    .sport-pill {
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      padding: 0.25rem 0.6rem;
-      border-radius: 20px;
-    }
-    .sport-nfl { background-color: #e0f2fe; color: #0369a1; }
-    .sport-mlb { background-color: #fce7f3; color: #be185d; }
-    .sport-nba { background-color: #ffedd5; color: #c2410c; }
-    .sport-racing { background-color: #f3e8ff; color: #6b21a8; }
-
-    .intel-box {
-      background-color: #f8fafc;
-      border-left: 3px solid #cbd5e1;
-      padding: 0.6rem 0.8rem;
-      font-size: 0.85rem;
-      border-radius: 0 6px 6px 0;
-    }
-
-    /* Envelope & 3x5 Print Previews */
-    .print-preview-envelope {
-      width: 100%;
-      max-width: 500px;
-      height: 240px;
-      border: 2px dashed #94a3b8;
-      background: #fff;
-      margin: 0 auto;
-      padding: 20px;
-      position: relative;
-      font-family: "Courier New", Courier, monospace;
-    }
-    .return-addr { position: absolute; top: 15px; left: 15px; font-size: 11px; }
-    .dest-addr { position: absolute; top: 110px; left: 160px; font-size: 13px; line-height: 1.4; }
-    .stamp-box { position: absolute; top: 15px; right: 15px; width: 45px; height: 50px; border: 1px dashed #cbd5e1; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #94a3b8; }
-
-    .print-preview-indexcard {
-      width: 100%;
-      max-width: 450px;
-      height: 270px;
-      border: 2px dashed #94a3b8;
-      background: #fffef0;
-      margin: 0 auto;
-      padding: 20px;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      font-size: 13px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-
-    @media print {
-      body * { visibility: hidden; }
-      #printableArea, #printableArea * { visibility: visible; }
-      #printableArea { position: absolute; left: 0; top: 0; width: 100%; }
-    }
-  </style>
-</head>
-<body>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TTM Finder — Fan Mail & Autograph Address Directory</title>
-  <!-- Bootstrap 5 CSS & Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-  <style>
-    :root {
-      --ttm-primary: #0f172a;
-      --ttm-accent: #059669;
-      --ttm-accent-hover: #047857;
-      --ttm-card-bg: #ffffff;
-      --ttm-bg: #f8fafc;
-    }
-
-    body {
-      background-color: var(--ttm-bg);
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      color: #334155;
-    }
-
-    /* Header & Navigation */
-    .hero-header {
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-      color: #ffffff;
-      padding: 2.5rem 0 2rem;
-      border-bottom: 4px solid var(--ttm-accent);
-    }
-
-    /* Search & Filter Controls */
-    .filter-bar {
-      background: #ffffff;
-      border-radius: 12px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-      padding: 1.25rem;
-      margin-top: -2rem;
-      margin-bottom: 2rem;
-    }
-
-    /* Player / Target Cards */
-    .ttm-card {
-      background: var(--ttm-card-bg);
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .ttm-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
-    }
-
-    /* Status Badges */
-    .badge-verified { background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
-    .badge-stale { background-color: #fef9c3; color: #a16207; border: 1px solid #fef08a; }
-    .badge-rts { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
-    .badge-warning { background-color: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
 
     .sport-pill {
       font-size: 0.75rem;
@@ -251,429 +128,10 @@
           <h1 class="h3 fw-bold mb-1"><i class="bi bi-mailbox2 text-warning me-2"></i>TTM Address Finder</h1>
           <p class="mb-0 text-light opacity-75 small">Verified Through-The-Mail Autograph Directory & Prep Assistant</p>
         </div>
-        <div><!-- Hero Header -->
-<header class="hero-header">
-  <div class="container">
-    <div class="d-flex justify-content-between align-items-center">
-      <div>
-        <h1 class="h3 fw-bold mb-1"><i class="bi bi-mailbox2 text-warning me-2"></i>TTM Address Finder</h1>
-        <p class="mb-0 text-light opacity-75 small">Verified Through-The-Mail Autograph Directory & Prep Assistant</p>
-      </div>
-      <!-- ADDED EXPORT CSV BUTTON HERE -->
-      <div>
-        <button class="btn btn-outline-light btn-sm me-2" onclick="exportDirectoryCSV()">
-          <i class="bi bi-download me-1"></i> Export CSV
-        </button>
-        <button class="btn btn-outline-light btn-sm me-2" onclick="openAddModal()">
-          <i class="bi bi-plus-circle me-1"></i> Submit Address
-        </button>
-        <a href="admin.html" class="btn btn-warning btn-sm fw-bold">Admin Portal</a>
-      </div>
-    </div>
-  </div>
-</header>
-          <button class="btn btn-outline-light btn-sm me-2" onclick="openAddModal()">
-            <i class="bi bi-plus-circle me-1"></i> Submit Address
-          </button>
-          <a href="admin.html" class="btn btn-warning btn-sm fw-bold">Admin Portal</a>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Container -->
-  <main class="container">
-    
-    <!-- Filter & Search Toolbar -->
-    <section class="filter-bar">
-      <div class="row g-2 align-items-center">
-        <!-- Search Input -->
-        <div class="col-md-4">
-          <div class="input-group input-group-sm">
-            <span class="input-group-text bg-white"><i class="bi bi-search text-muted"></i></span>
-            <input type="text" id="searchInput" class="form-control" placeholder="Search player, team, or era..." onkeyup="filterDirectory()">
-          </div>
-        </div>
-        
-        <!-- Sport Selector -->
-        <div class="col-md-3">
-          <select id="sportFilter" class="form-select form-select-sm" onchange="filterDirectory()">
-            <option value="ALL">All Sports / Categories</option>
-            <option value="NFL">NFL Football</option>
-            <option value="MLB">MLB Baseball</option>
-            <option value="NBA">NBA Basketball</option>
-            <option value="Racing">Motorsport / Racing</option>
-          </select>
-        </div>
-
-        <!-- Status Filter -->function exportDirectoryCSV() {
-  const headers = ["ID", "Name", "Sport", "Team", "Address Type", "Status", "Turnaround", "Fee", "Card Limit", "Warning", "Address", "Intel"];
-  
-  const rows = ttmDirectory.map(player => [
-    player.id,
-    `"${(player.name || '').replace(/"/g, '""')}"`,
-    `"${(player.sport || '').replace(/"/g, '""')}"`,
-    `"${(player.team || '').replace(/"/g, '""')}"`,
-    `"${(player.type || '').replace(/"/g, '""')}"`,
-    `"${(player.status || '').replace(/"/g, '""')}"`,
-    `"${(player.turnaround || '').replace(/"/g, '""')}"`,
-    `"${(player.fee || '').replace(/"/g, '""')}"`,
-    `"${(player.cardLimit || '').replace(/"/g, '""')}"`,
-    `"${(player.warning || '').replace(/"/g, '""')}"`,
-    `"${(player.address || '').replace(/\n/g, ' | ').replace(/"/g, '""')}"`,
-    `"${(player.intel || '').replace(/"/g, '""')}"`
-  ]);
-
-  const csvString = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
-
-  const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  
-  link.setAttribute('href', url);
-  link.setAttribute('download', `ttm_addresses_${new Date().toISOString().slice(0, 10)}.csv`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  
-  showToast("CSV file exported successfully!");
-}
-        <div class="col-md-3">
-          <select id="statusFilter" class="form-select form-select-sm" onchange="filterDirectory()">
-            <option value="ALL">All Return Statuses</option>
-            <option value="ACTIVE">🟢 Verified Active (< 60 Days)</option>
-            <option value="STALE">🟡 Stale (> 180 Days)</option>
-            <option value="FEE">💵 Fee / Donation Required</option>
-            <option value="WARNING">⚠️ Autopen / Secretarial Warning</option>
-          </select>
-        </div>
-
-        <!-- Address Type Filter -->
-        <div class="col-md-2">
-          <select id="typeFilter" class="form-select form-select-sm" onchange="filterDirectory()">
-            <option value="ALL">All Address Types</option>
-            <option value="HOME">Home Address</option>
-            <option value="VENUE">Stadium / Venue</option>
-            <option value="SPRING">Spring / Camp</option>
-          </select>
-        </div>
-      </div>
-    </section>
-
-    <!-- Cards Grid -->
-    <section class="row g-3 mb-5" id="directoryGrid">
-      <!-- Dynamic JS Insertion -->
-    </section>
-
-  </main>
-
-  <!-- Print Assistant Modal (3x5 Note & Envelope Generator) -->
-  <div class="modal fade" id="prepModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header bg-dark text-white">
-          <h5 class="modal-title h6"><i class="bi bi-printer me-2"></i>Mail Prep Assistant & Print Studio</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body bg-light">
-          
-          <!-- Mode Tabs -->
-          <ul class="nav nav-pills nav-fill mb-3" id="prepTabs" role="tablist">
-            <li class="nav-item">
-              <button class="nav-link active fw-bold btn-sm" id="env-tab" data-bs-toggle="tab" data-bs-target="#envPane"><i class="bi bi-envelope-paper me-1"></i> #10 Envelope Layout</button>
-            </li>
-            <li class="nav-item">
-              <button class="nav-link fw-bold btn-sm" id="note-tab" data-bs-toggle="tab" data-bs-target="#notePane"><i class="bi bi-card-text me-1"></i> 3x5 Index Note Generator</button>
-            </li>
-          </ul>
-
-          <div class="tab-content" id="prepTabContent">
-            <!-- Envelope Pane -->
-            <div class="tab-pane fade show active" id="envPane">
-              <div class="row g-3">
-                <div class="col-md-5">
-                  <label class="form-label small fw-bold">Your Return Address</label>
-                  <textarea id="senderAddrInput" class="form-control form-control-sm mb-2" rows="3" placeholder="Your Name&#10;123 Main St&#10;City, ST 12345" onkeyup="updateEnvelope()"></textarea>
-                  <small class="text-muted d-block fs-7">Tip: Saved in browser memory for future printouts.</small>
-                </div>
-                <div class="col-md-7">
-                  <label class="form-label small fw-bold">Print Preview (#10 Envelope)</label>
-                  <div class="print-preview-envelope" id="envelopePreview">
-                    <div class="return-addr" id="envReturnText">YOUR RETURN ADDRESS<br>CITY, ST ZIP</div>
-                    <div class="stamp-box">STAMP</div>
-                    <div class="dest-addr" id="envDestText">ATHLETE NAME<br>STREET ADDRESS<br>CITY, ST ZIP</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- 3x5 Index Note Pane -->
-            <div class="tab-pane fade" id="notePane">
-              <div class="row g-3">
-                <div class="col-md-5">
-                  <label class="form-label small fw-bold">Personal Request Prompt</label>
-                  <input type="text" id="signerNameNote" class="form-control form-control-sm mb-2" readonly>
-                  <label class="form-label small fw-bold">Short Custom Note</label>
-                  <textarea id="noteCustomText" class="form-control form-control-sm" rows="4" onkeyup="updateIndexCard()">Thank you for taking the time to read my letter. I have been a huge fan of your career for years. If you have a moment, I would be deeply honored if you could sign my cards. Best wishes to you and your family!</textarea>
-                </div>
-                <div class="col-md-7">
-                  <label class="form-label small fw-bold">Print Preview (3x5 Index Card)</label>
-                  <div class="print-preview-indexcard" id="indexCardPreview">
-                    <p class="fw-bold mb-1" id="indexCardHeader">Dear Mr. Youngblood,</p>
-                    <p class="mb-2" id="indexCardBody">Thank you for taking the time to read my letter. I have been a huge fan of your career for years. If you have a moment, I would be deeply honored if you could sign my cards.</p>
-                    <p class="mb-0 text-end fw-bold" id="indexCardSign">Respectfully,<br><span id="indexCardSender">Camilo</span></p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-        <div class="modal-footer bg-white">
-          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-emerald btn-sm text-white fw-bold style-btn" style="background: var(--ttm-accent);" onclick="window.print()">
-            <i class="bi bi-printer me-1"></i> Print Selection
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Toast Notification -->
-  <div class="toast-container position-fixed bottom-0 end-0 p-3">
-    <div id="actionToast" class="toast align-items-center text-white bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
-      <div class="d-flex">
-        <div class="toast-body" id="toastMessage">
-          Address copied to clipboard!
-        </div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- Main Directory Script -->
-  <script>
-    // Sample Master TTM Directory Data
-    const ttmDirectory = [
-      {
-        id: 1,
-        name: "Jack Youngblood",
-        sport: "NFL",
-        team: "Los Angeles Rams (HOF)",
-        type: "HOME",
-        status: "ACTIVE",
-        turnaround: "14 Days",
-        fee: "Free ($10 Don. Suggested)",
-        cardLimit: "2 Cards Max",
-        warning: null,
-        address: "P.O. Box 1012\nWinter Park, FL 32790",
-        intel: "Legendary Rams DE. Highly responsive via home PO Box. Please include SASE."
-      },
-      {
-        id: 2,
-        name: "Cal Ripken Jr.",
-        sport: "MLB",
-        team: "Baltimore Orioles (HOF)",
-        type: "VENUE",
-        status: "FEE",
-        turnaround: "30 Days",
-        fee: "$50 per item (Foundation)",
-        cardLimit: "Strict 1 Item",
-        warning: "Requires Foundation Form",
-        address: "c/o Ripken Baseball\n800 Leidos Dr\nAberdeen, MD 21001",
-        intel: "Requires payment fee to Cal Ripken Sr. Foundation. Returns items unsigned if fee is omitted."
-      },
-      {
-        id: 3,
-        name: "Barry Bonds",
-        sport: "MLB",
-        team: "San Francisco Giants",
-        type: "HOME",
-        status: "WARNING",
-        turnaround: "N/A",
-        fee: "N/A",
-        cardLimit: "No Cards",
-        warning: "High RTS Rate / Secretarial",
-        address: "c/o Beverly Hills, CA 90210",
-        intel: "Currently returns RTS or unsigned. Highly recommend against sending vintage high-value cards."
-      },
-      {
-        id: 4,
-        name: "Dick Vermeil",
-        sport: "NFL",
-        team: "Eagles / Rams / Chiefs (HOF)",
-        type: "HOME",
-        status: "ACTIVE",
-        turnaround: "10 Days",
-        fee: "Free",
-        cardLimit: "3 Cards Max",
-        warning: null,
-        address: "c/o Vermeil Wines\n10 West Park Ave\nChiefland, PA 19355",
-        intel: "Extremely gracious signer. Often writes personalized notes and fast turnarounds!"
-      },
-      {
-        id: 5,
-        name: "Richard Petty",
-        sport: "Racing",
-        team: "Petty Enterprises / NASCAR",
-        type: "VENUE",
-        status: "ACTIVE",
-        turnaround: "21 Days",
-        fee: "Free ($5 Museum Don.)",
-        cardLimit: "2 Cards Max",
-        warning: null,
-        address: "c/o Petty Museum\n311 Brantley Gordon Rd\nRandleman, NC 27317",
-        intel: "Signs reliably through the Petty Museum. Great signer for hero cards & 3x5 index notes."
-      }
-    ];
-
-    let currentSelectedPlayer = null;
-
-    // Render Directory Cards
-    function renderDirectory(items) {
-      const grid = document.getElementById('directoryGrid');
-      grid.innerHTML = '';
-
-      if (items.length === 0) {
-        grid.innerHTML = `
-          <div class="col-12 text-center py-5">
-            <i class="bi bi-search text-muted display-4"></i>
-            <p class="mt-2 text-muted fw-bold">No athlete addresses found matching your filters.</p>
-          </div>
-        `;
-        return;
-      }
-
-      items.forEach(player => {
-        // Badges HTML
-        let statusBadge = '<span class="badge badge-verified"><i class="bi bi-check-circle-fill me-1"></i>Active</span>';
-        if (player.status === 'STALE') statusBadge = '<span class="badge badge-stale"><i class="bi bi-clock-history me-1"></i>Stale (>180d)</span>';
-        if (player.status === 'FEE') statusBadge = '<span class="badge badge-stale"><i class="bi bi-cash-stack me-1"></i>Fee Req.</span>';
-        if (player.status === 'WARNING') statusBadge = '<span class="badge badge-rts"><i class="bi bi-exclamation-triangle-fill me-1"></i>RTS / Warning</span>';
-
-        let sportClass = `sport-${player.sport.toLowerCase()}`;
-
-        const card = document.createElement('div');
-        card.className = 'col-md-6 col-lg-4';
-        card.innerHTML = `
-          <div class="ttm-card p-3">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-              <div>
-                <span class="sport-pill ${sportClass} mb-1 d-inline-block">${player.sport}</span>
-                <h2 class="h6 fw-bold mb-0 text-dark">${player.name}</h2>
-                <small class="text-muted fs-7">${player.team}</small>
-              </div>
-              <div>${statusBadge}</div>
-            </div>
-
-            <div class="my-2 p-2 bg-light rounded border fs-7 font-monospace">
-              <i class="bi bi-geo-alt-fill text-danger me-1"></i>
-              <strong>${player.type}:</strong><br>
-              ${player.address.replace(/\n/g, '<br>')}
-            </div>
-
-            <div class="intel-box mb-3">
-              <div class="d-flex justify-content-between">
-                <span><strong>Avg Time:</strong> ${player.turnaround}</span>
-                <span><strong>Fee:</strong> ${player.fee}</span>
-              </div>
-              <div class="mt-1"><strong>Limit:</strong> ${player.cardLimit}</div>
-              ${player.warning ? `<div class="text-danger fw-bold mt-1 fs-7"><i class="bi bi-shield-slash me-1"></i>${player.warning}</div>` : ''}
-            </div>
-
-            <div class="mt-auto pt-2 border-top d-flex gap-2">
-              <button class="btn btn-outline-secondary btn-sm flex-grow-1 fs-7" onclick="copyAddress('${player.address.replace(/\n/g, ', ')}')">
-                <i class="bi bi-copy me-1"></i> Copy
-              </button>
-              <button class="btn btn-dark btn-sm flex-grow-1 fs-7" onclick="openPrepStudio(${player.id})">
-                <i class="bi bi-printer me-1"></i> Print Studio
-              </button>
-            </div>
-          </div>
-        `;
-        grid.appendChild(card);
-      });
-    }
-
-    // Filter Logic
-    function filterDirectory() {
-      const search = document.getElementById('searchInput').value.toLowerCase();
-      const sport = document.getElementById('sportFilter').value;
-      const status = document.getElementById('statusFilter').value;
-      const type = document.getElementById('typeFilter').value;
-
-      const filtered = ttmDirectory.filter(item => {
-        const matchesSearch = item.name.toLowerCase().includes(search) || item.team.toLowerCase().includes(search);
-        const matchesSport = (sport === 'ALL' || item.sport === sport);
-        const matchesStatus = (status === 'ALL' || item.status === status);
-        const matchesType = (type === 'ALL' || item.type === type);
-
-        return matchesSearch && matchesSport && matchesStatus && matchesType;
-      });
-
-      renderDirectory(filtered);
-    }
-
-    // Copy Address Toast
-    function copyAddress(text) {
-      navigator.clipboard.writeText(text);
-      showToast("Address copied to clipboard!");
-    }
-
-    function showToast(msg) {
-      document.getElementById('toastMessage').innerText = msg;
-      const toastEl = document.getElementById('actionToast');
-      const toast = new bootstrap.Toast(toastEl);
-      toast.show();
-    }
-
-    // Open Prep Studio Modal
-    function openPrepStudio(playerId) {
-      const player = ttmDirectory.find(p => p.id === playerId);
-      currentSelectedPlayer = player;
-
-      document.getElementById('envDestText').innerHTML = `<strong>${player.name.toUpperCase()}</strong><br>${player.address.replace(/\n/g, '<br>')}`;
-      document.getElementById('signerNameNote').value = player.name;
-      document.getElementById('indexCardHeader').innerText = `Dear ${player.name},`;
-
-      const savedSender = localStorage.getItem('ttm_sender_address') || "Camilo Ayon\n123 Main St\nBrawley, CA 92227";
-      document.getElementById('senderAddrInput').value = savedSender;
-      updateEnvelope();
-
-      const modal = new bootstrap.Modal(document.getElementById('prepModal'));
-      modal.show();
-    }
-
-    function updateEnvelope() {
-      const val = document.getElementById('senderAddrInput').value;
-      localStorage.setItem('ttm_sender_address', val);
-      document.getElementById('envReturnText').innerHTML = val.replace(/\n/g, '<br>') || "YOUR RETURN ADDRESS";
-    }
-
-    function updateIndexCard() {
-      const bodyText = document.getElementById('noteCustomText').value;
-      document.getElementById('indexCardBody').innerText = bodyText;
-    }
-
-    // Initialize on page load
-    document.addEventListener('DOMContentLoaded', () => {
-      renderDirectory(ttmDirectory);
-    });
-  </script>
-</body>
-</html>
-  <!-- Hero Header -->
-  <header class="hero-header">
-    <div class="container">
-      <div class="d-flex justify-content-between align-items-center">
         <div>
-          <h1 class="h3 fw-bold mb-1"><i class="bi bi-mailbox2 text-warning me-2"></i>TTM Address Finder</h1>
-          <p class="mb-0 text-light opacity-75 small">Verified Through-The-Mail Autograph Directory & Prep Assistant</p>
-        </div>
-        <div>
+          <button class="btn btn-outline-light btn-sm me-2" onclick="exportDirectoryCSV()">
+            <i class="bi bi-download me-1"></i> Export CSV
+          </button>
           <button class="btn btn-outline-light btn-sm me-2" onclick="openAddModal()">
             <i class="bi bi-plus-circle me-1"></i> Submit Address
           </button>
@@ -712,8 +170,8 @@
         <div class="col-md-3">
           <select id="statusFilter" class="form-select form-select-sm" onchange="filterDirectory()">
             <option value="ALL">All Return Statuses</option>
-            <option value="ACTIVE">🟢 Verified Active (< 60 Days)</option>
-            <option value="STALE">🟡 Stale (> 180 Days)</option>
+            <option value="ACTIVE">🟢 Verified Active (&lt; 60 Days)</option>
+            <option value="STALE">🟡 Stale (&gt; 180 Days)</option>
             <option value="FEE">💵 Fee / Donation Required</option>
             <option value="WARNING">⚠️ Autopen / Secretarial Warning</option>
           </select>
@@ -810,6 +268,86 @@
     </div>
   </div>
 
+  <!-- Submit Address Modal -->
+  <div class="modal fade" id="addAddressModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-dark text-white">
+          <h5 class="modal-title h6"><i class="bi bi-plus-circle me-2"></i>Submit New Athlete Address</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body bg-light">
+          <form id="addAddressForm" onsubmit="event.preventDefault(); saveSubmittedAddress();">
+            <div class="row g-2">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold mb-1">Athlete Name</label>
+                <input type="text" id="addName" class="form-control form-control-sm" required placeholder="e.g. Jack Youngblood">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small fw-bold mb-1">Sport</label>
+                <select id="addSport" class="form-select form-select-sm">
+                  <option value="NFL">NFL Football</option>
+                  <option value="MLB">MLB Baseball</option>
+                  <option value="NBA">NBA Basketball</option>
+                  <option value="Racing">Motorsport / Racing</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small fw-bold mb-1">Address Type</label>
+                <select id="addType" class="form-select form-select-sm">
+                  <option value="HOME">HOME</option>
+                  <option value="VENUE">VENUE</option>
+                  <option value="SPRING">SPRING</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold mb-1">Team / Era</label>
+                <input type="text" id="addTeam" class="form-control form-control-sm" placeholder="e.g. Los Angeles Rams (HOF)">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small fw-bold mb-1">Status</label>
+                <select id="addStatus" class="form-select form-select-sm">
+                  <option value="ACTIVE">ACTIVE</option>
+                  <option value="STALE">STALE</option>
+                  <option value="FEE">FEE</option>
+                  <option value="WARNING">WARNING</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small fw-bold mb-1">Turnaround Time</label>
+                <input type="text" id="addTurnaround" class="form-control form-control-sm" placeholder="e.g. 14 Days">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold mb-1">Fee Info</label>
+                <input type="text" id="addFee" class="form-control form-control-sm" placeholder="e.g. Free or $10">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold mb-1">Card Limit</label>
+                <input type="text" id="addCardLimit" class="form-control form-control-sm" placeholder="e.g. 2 Cards Max">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold mb-1">Warning / Note</label>
+                <input type="text" id="addWarning" class="form-control form-control-sm" placeholder="Optional warning">
+              </div>
+              <div class="col-md-12">
+                <label class="form-label small fw-bold mb-1">Mailing Address</label>
+                <textarea id="addAddress" class="form-control form-control-sm" rows="2" required placeholder="P.O. Box 1012&#10;Winter Park, FL 32790"></textarea>
+              </div>
+              <div class="col-md-12">
+                <label class="form-label small fw-bold mb-1">Collector Intel / Tips</label>
+                <input type="text" id="addIntel" class="form-control form-control-sm" placeholder="e.g. Includes SASE, signs fast">
+              </div>
+            </div>
+            <div class="text-end mt-3">
+              <button type="button" class="btn btn-secondary btn-sm me-1" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-check-circle me-1"></i> Save to Directory</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification -->
   <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="actionToast" class="toast align-items-center text-white bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
@@ -828,7 +366,7 @@
   <!-- Main Directory Script -->
   <script>
     // Sample Master TTM Directory Data
-    const ttmDirectory = [
+    let ttmDirectory = [
       {
         id: 1,
         name: "Jack Youngblood",
@@ -919,7 +457,6 @@
       }
 
       items.forEach(player => {
-        // Badges HTML
         let statusBadge = '<span class="badge badge-verified"><i class="bi bi-check-circle-fill me-1"></i>Active</span>';
         if (player.status === 'STALE') statusBadge = '<span class="badge badge-stale"><i class="bi bi-clock-history me-1"></i>Stale (>180d)</span>';
         if (player.status === 'FEE') statusBadge = '<span class="badge badge-stale"><i class="bi bi-cash-stack me-1"></i>Fee Req.</span>';
@@ -988,6 +525,74 @@
       renderDirectory(filtered);
     }
 
+    // Export CSV Functionality
+    function exportDirectoryCSV() {
+      const headers = ["ID", "Name", "Sport", "Team", "Address Type", "Status", "Turnaround", "Fee", "Card Limit", "Warning", "Address", "Intel"];
+      
+      const rows = ttmDirectory.map(player => [
+        player.id,
+        `"${(player.name || '').replace(/"/g, '""')}"`,
+        `"${(player.sport || '').replace(/"/g, '""')}"`,
+        `"${(player.team || '').replace(/"/g, '""')}"`,
+        `"${(player.type || '').replace(/"/g, '""')}"`,
+        `"${(player.status || '').replace(/"/g, '""')}"`,
+        `"${(player.turnaround || '').replace(/"/g, '""')}"`,
+        `"${(player.fee || '').replace(/"/g, '""')}"`,
+        `"${(player.cardLimit || '').replace(/"/g, '""')}"`,
+        `"${(player.warning || '').replace(/"/g, '""')}"`,
+        `"${(player.address || '').replace(/\n/g, ' | ').replace(/"/g, '""')}"`,
+        `"${(player.intel || '').replace(/"/g, '""')}"`
+      ]);
+
+      const csvString = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
+
+      const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', `ttm_addresses_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      showToast("CSV file exported successfully!");
+    }
+
+    // Modal Triggers
+    function openAddModal() {
+      const modalEl = document.getElementById('addAddressModal');
+      const modal = new bootstrap.Modal(modalEl);
+      modal.show();
+    }
+
+    function saveSubmittedAddress() {
+      const newEntry = {
+        id: Date.now(),
+        name: document.getElementById('addName').value.trim(),
+        sport: document.getElementById('addSport').value,
+        team: document.getElementById('addTeam').value.trim() || "Independent",
+        type: document.getElementById('addType').value,
+        status: document.getElementById('addStatus').value,
+        turnaround: document.getElementById('addTurnaround').value.trim() || "Unknown",
+        fee: document.getElementById('addFee').value.trim() || "Free",
+        cardLimit: document.getElementById('addCardLimit').value.trim() || "2 Cards",
+        warning: document.getElementById('addWarning').value.trim() || null,
+        address: document.getElementById('addAddress').value.trim(),
+        intel: document.getElementById('addIntel').value.trim() || "User submitted address."
+      };
+
+      ttmDirectory.unshift(newEntry);
+      filterDirectory();
+
+      const modalEl = document.getElementById('addAddressModal');
+      const modal = bootstrap.Modal.getInstance(modalEl);
+      if (modal) modal.hide();
+
+      document.getElementById('addAddressForm').reset();
+      showToast("New address added successfully!");
+    }
+
     // Copy Address Toast
     function copyAddress(text) {
       navigator.clipboard.writeText(text);
@@ -1028,92 +633,7 @@
       const bodyText = document.getElementById('noteCustomText').value;
       document.getElementById('indexCardBody').innerText = bodyText;
     }
-<!-- Submit New Signer Address Modal -->
-  <div class="modal fade" id="addAddressModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header bg-dark text-white">
-          <h5 class="modal-title h6"><i class="bi bi-plus-circle me-2"></i>Submit New Signer Address</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body bg-light">
-          <form id="addAddressForm" onsubmit="event.preventDefault(); saveSubmittedAddress();">
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label small fw-bold">Signer Name *</label>
-                <input type="text" id="addName" class="form-control form-control-sm" placeholder="e.g. Bo Jackson" required>
-              </div>
-              <div class="col-md-3">
-                <label class="form-label small fw-bold">Sport / Category *</label>
-                <select id="addSport" class="form-select form-select-sm" required>
-                  <option value="NFL">NFL Football</option>
-                  <option value="MLB">MLB Baseball</option>
-                  <option value="NBA">NBA Basketball</option>
-                  <option value="Racing">Motorsport / Racing</option>
-                  <option value="Other">Other / Entertainment</option>
-                </select>
-              </div>
-              <div class="col-md-3">
-                <label class="form-label small fw-bold">Address Type *</label>
-                <select id="addType" class="form-select form-select-sm" required>
-                  <option value="HOME">Home Address</option>
-                  <option value="VENUE">Stadium / Venue</option>
-                  <option value="SPRING">Spring / Camp</option>
-                </select>
-              </div>
 
-              <div class="col-md-6">
-                <label class="form-label small fw-bold">Team / Era / Affiliation</label>
-                <input type="text" id="addTeam" class="form-control form-control-sm" placeholder="e.g. Kansas City Royals / HOF">
-              </div>
-              <div class="col-md-3">
-                <label class="form-label small fw-bold">Return Status *</label>
-                <select id="addStatus" class="form-select form-select-sm" required>
-                  <option value="ACTIVE">🟢 Active (&lt; 60d)</option>
-                  <option value="STALE">🟡 Stale (&gt; 180d)</option>
-                  <option value="FEE">💵 Fee / Donation Req.</option>
-                  <option value="WARNING">⚠️ RTS / Warning</option>
-                </select>
-              </div>
-              <div class="col-md-3">
-                <label class="form-label small fw-bold">Turnaround Time</label>
-                <input type="text" id="addTurnaround" class="form-control form-control-sm" placeholder="e.g. 14 Days">
-              </div>
-
-              <div class="col-md-4">
-                <label class="form-label small fw-bold">Fee / Donation</label>
-                <input type="text" id="addFee" class="form-control form-control-sm" placeholder="e.g. Free or $10">
-              </div>
-              <div class="col-md-4">
-                <label class="form-label small fw-bold">Card / Item Limit</label>
-                <input type="text" id="addCardLimit" class="form-control form-control-sm" placeholder="e.g. 2 Cards Max">
-              </div>
-              <div class="col-md-4">
-                <label class="form-label small fw-bold">Warning / Flag (Optional)</label>
-                <input type="text" id="addWarning" class="form-control form-control-sm" placeholder="e.g. Autopen Warning">
-              </div>
-
-              <div class="col-md-12">
-                <label class="form-label small fw-bold">Mailing Address *</label>
-                <textarea id="addAddress" class="form-control form-control-sm" rows="3" placeholder="Street Address / P.O. Box&#10;City, ST ZIP" required></textarea>
-              </div>
-
-              <div class="col-md-12">
-                <label class="form-label small fw-bold">Collector Intel & Notes</label>
-                <textarea id="addIntel" class="form-control form-control-sm" rows="2" placeholder="e.g. Gracious signer, prefers personalized 3x5 index notes."></textarea>
-              </div>
-            </div>
-            <div class="modal-footer bg-white px-0 pb-0 mt-3 border-0">
-              <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-              <button type="submit" class="btn btn-success btn-sm fw-bold">
-                <i class="bi bi-check-circle me-1"></i> Save to Address Book
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', () => {
       renderDirectory(ttmDirectory);
