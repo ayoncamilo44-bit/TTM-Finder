@@ -24,8 +24,8 @@
     .hero-banner p { color: #cbd5e1; margin: 0 auto 1.5rem auto; max-width: 700px; font-size: 0.95rem; line-height: 1.5; }
 
     /* Search & Filter Bar */
-    .search-section { display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 2rem; }
-    .search-input { width: 100%; max-width: 450px; padding: 0.85rem 1.2rem; background: #0f172a; border: 1px solid #38bdf8; border-radius: 25px; color: #fff; font-size: 1rem; }
+    .search-section { display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+    .search-input { width: 100%; max-width: 480px; padding: 0.85rem 1.2rem; background: #0f172a; border: 1px solid #38bdf8; border-radius: 25px; color: #fff; font-size: 1rem; }
     .filter-btn { background: #1e293b; border: 1px solid #334155; color: #cbd5e1; padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-size: 0.85rem; }
     .filter-btn.active, .filter-btn:hover { background: #0284c7; color: white; border-color: #38bdf8; }
 
@@ -68,21 +68,21 @@
     <!-- Hero Banner -->
     <div class="hero-banner">
       <h2>🔍 Information &amp; Address Finder Hub</h2>
-      <p>Need inspiration or an address for your next TTM request? Browse our catalog of known signers, major sports venue hubs, and entertainment agency mailing desks below.</p>
+      <p>Need inspiration or an address for your next TTM request? Search our growing index of music icons, sports legends, team venue hubs, and talent agency fan mail desks below.</p>
       
       <!-- Live Search Input -->
       <div class="search-section">
-        <input type="text" id="finderSearch" class="search-input" placeholder="🔍 Search signers, teams, venues, or sports...">
+        <input type="text" id="finderSearch" class="search-input" placeholder="🔍 Search Billy Idol, Rams, Jeter, Music, NFL..." value="Billy Idol">
       </div>
 
       <!-- Quick Category Filter Buttons -->
       <div style="display: flex; justify-content: center; gap: 0.5rem; flex-wrap: wrap;">
         <button class="filter-btn active" onclick="filterCatalog('ALL', this)">All Catalog</button>
-        <button class="filter-btn" onclick="filterCatalog('NFL', this)">🏈 NFL Teams</button>
-        <button class="filter-btn" onclick="filterCatalog('MLB', this)">⚾ MLB Teams</button>
-        <button class="filter-btn" onclick="filterCatalog('NBA', this)">🏀 NBA / WNBA</button>
-        <button class="filter-btn" onclick="filterCatalog('Signers', this)">✍️ Proven Signers</button>
-        <button class="filter-btn" onclick="filterCatalog('Entertainment', this)">🎬 Film &amp; TV</button>
+        <button class="filter-btn" onclick="filterCatalog('Music', this)">🎸 Music &amp; Rock</button>
+        <button class="filter-btn" onclick="filterCatalog('NFL', this)">🏈 Football</button>
+        <button class="filter-btn" onclick="filterCatalog('MLB', this)">⚾ Baseball</button>
+        <button class="filter-btn" onclick="filterCatalog('NBA', this)">🏀 Basketball</button>
+        <button class="filter-btn" onclick="filterCatalog('Film & TV', this)">🎬 Film &amp; TV</button>
       </div>
     </div>
 
@@ -94,8 +94,8 @@
         <p>Send during active playing seasons to team facility or stadium addresses marked <em>"Attn: Fan Mail / Player Name"</em>.</p>
       </div>
       <div class="resource-box">
-        <h4>🏢 Corporate &amp; Agency Desks</h4>
-        <p>For retired legends or actors, look up their management agencies, private foundations, or public companies.</p>
+        <h4>🏢 Management &amp; Agency Desks</h4>
+        <p>For music stars, actors, or retired legends, look up their management agency or official company desks.</p>
       </div>
       <div class="resource-box">
         <h4>✉️ SASE Prep Best Practice</h4>
@@ -103,7 +103,7 @@
       </div>
       <div class="resource-box">
         <h4>📜 Public Directory Search</h4>
-        <p>Cross-reference player team rosters, sports press releases, and production company mailing offices.</p>
+        <p>Cross-reference team rosters, record labels, press contacts, and verified public fan mail logs.</p>
       </div>
     </div>
 
@@ -122,60 +122,95 @@
   <script>
     const catalogData = [
       {
+        name: "Billy Idol",
+        category: "Music",
+        type: "Rock Icon & Musician",
+        address: "c/o Cyberpunk / BFI Management Desk\nLos Angeles, CA",
+        notes: "Punk rock legend. Accepts fan mail and autographs via tour venues and management desks."
+      },
+      {
         name: "Los Angeles Rams Facility",
         category: "NFL",
-        type: "Main Team Hub",
+        type: "Main Team Venue Hub",
         address: "c/o Los Angeles Rams\n21555 Oxnard St.\nWoodland Hills, CA 91367",
         notes: "Primary training facility address for sending to active players & coaching staff during season."
       },
       {
         name: "Jack Youngblood (HOF)",
-        category: "Signers",
-        type: "Pro Football HOF",
+        category: "NFL",
+        type: "Pro Football HOF Legend",
         address: "P.O. Box 568234\nOrlando, FL 32835",
-        notes: "Legendary Rams defensive end. Known to be very gracious with TTM fan mail!"
+        notes: "Legendary LA Rams defensive end #85. Extremely gracious with TTM requests."
+      },
+      {
+        name: "Terry Bradshaw (HOF)",
+        category: "NFL",
+        type: "Pittsburgh Steelers Great",
+        address: "P.O. Box 1790\nGainesville, TX 76241",
+        notes: "4x Super Bowl Champion quarterback & broadcast analyst."
+      },
+      {
+        name: "Jerome Bettis (HOF)",
+        category: "NFL",
+        type: "Rams / Steelers Star",
+        address: "c/o Jerome Bettis Enterprises\n512 N. Main St.\nRoyal Oak, MI 48067",
+        notes: "'The Bus' signs through his official business office."
       },
       {
         name: "Derek Jeter",
         category: "MLB",
-        type: "Baseball Legend",
+        type: "Baseball HOF Legend",
         address: "c/o The Players Tribune\n1700 Broadway, 29th Floor\nNew York, NY 10019",
-        notes: "Great response history via corporate and foundation desks."
+        notes: "Yankees Captain. Signs through foundation and corporate media desks."
       },
       {
         name: "New York Yankees Facility",
         category: "MLB",
-        type: "Main Team Hub",
+        type: "Main Team Venue Hub",
         address: "c/o New York Yankees\n1 E. 161st St.\nBronx, NY 10451",
-        notes: "Main stadium venue hub. Best sent during Spring Training or regular season."
+        notes: "Main stadium address for active roster players and coaching staff."
+      },
+      {
+        name: "Randy Johnson (HOF)",
+        category: "MLB",
+        type: "Baseball HOF Pitcher",
+        address: "10645 Tatum Blvd. #C200-520\nPhoenix, AZ 85028",
+        notes: "300-game winner & Cy Young Legend."
+      },
+      {
+        name: "Chipper Jones (HOF)",
+        category: "MLB",
+        type: "Atlanta Braves Legend",
+        address: "c/o Major League Bowhunter\nSportsman Channel, Denver, CO 80204",
+        notes: "Braves Hall of Fame third baseman."
       },
       {
         name: "Pau Gasol",
         category: "NBA",
-        type: "Basketball Legend",
+        type: "Basketball Champion",
         address: "c/o Gasolic Ventures / Gasol Foundation\n24310 Moulton Pkwy, Suite O\nLaguna Woods, CA 92637",
-        notes: "Lakers 2x Champion. Accepts fan mail through his foundation address."
+        notes: "Lakers 2x Champion. Accepts fan mail through his foundation office."
+      },
+      {
+        name: "Brent Barry",
+        category: "NBA",
+        type: "Spurs / SuperSonics Legend",
+        address: "114 Champion Trail\nSan Antonio, TX 78258",
+        notes: "Slam Dunk Champion & NBA executive."
       },
       {
         name: "Mario Andretti",
-        category: "Signers",
-        type: "Motorsports Legend",
+        category: "Racing",
+        type: "Motorsports World Champ",
         address: "c/o Andretti Autosport\n7615 Zionsville Rd.\nIndianapolis, IN 46268",
-        notes: "World Champion racing driver with incredible turnaround times!"
+        notes: "F1 and IndyCar legend with fast return times."
       },
       {
         name: "Mark Hamill",
-        category: "Entertainment",
-        type: "Movie & TV Icon",
+        category: "Film & TV",
+        type: "Movie & Voice Icon",
         address: "c/o Studio Fan Mail Desk\nLos Angeles, CA",
-        notes: "Star Wars legend. Periodically signs through production agency desks."
-      },
-      {
-        name: "Frank Tanana",
-        category: "Signers",
-        type: "MLB Pitching Great",
-        address: "c/o Public Ministry Office\nDetroit Tigers Alumni Desk",
-        notes: "Known to sign cards and include inspirational notes on returns."
+        notes: "Star Wars icon. Periodically signs through production agency desks."
       }
     ];
 
@@ -201,9 +236,15 @@
       `).join('');
     }
 
-    // Search Filtering
-    document.getElementById('finderSearch').addEventListener('input', (e) => {
-      const query = e.target.value.toLowerCase();
+    // Live Search Filtering
+    const searchInput = document.getElementById('finderSearch');
+    
+    function performSearch() {
+      const query = searchInput.value.toLowerCase().trim();
+      if (!query) {
+        renderCatalog(catalogData);
+        return;
+      }
       const filtered = catalogData.filter(item => 
         item.name.toLowerCase().includes(query) ||
         item.category.toLowerCase().includes(query) ||
@@ -212,7 +253,9 @@
         item.notes.toLowerCase().includes(query)
       );
       renderCatalog(filtered);
-    });
+    }
+
+    searchInput.addEventListener('input', performSearch);
 
     // Category Filter Buttons
     function filterCatalog(cat, element) {
@@ -220,15 +263,17 @@
       element.classList.add('active');
 
       if (cat === 'ALL') {
+        searchInput.value = '';
         renderCatalog(catalogData);
       } else {
+        searchInput.value = '';
         const filtered = catalogData.filter(item => item.category === cat);
         renderCatalog(filtered);
       }
     }
 
-    // Initial Render
-    document.addEventListener('DOMContentLoaded', () => renderCatalog(catalogData));
+    // Initial Load - Executes search automatically if default value present
+    document.addEventListener('DOMContentLoaded', performSearch);
   </script>
 </body>
 </html>
