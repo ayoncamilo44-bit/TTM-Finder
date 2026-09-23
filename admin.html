@@ -250,7 +250,30 @@
     });
 
     document.addEventListener('DOMContentLoaded', renderSavedTable);
+  </script><!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Admin Dashboard</title>
+</head>
+<body>
+
+  <!-- Your existing content & toolbar -->
+  <button id="exportCsvBtn" type="button" class="btn btn-outline-secondary">
+    Export CSV
+  </button>
+
+  <!-- Rest of your body content -->
+
+  <!-- PLACE THE SCRIPT AT THE VERY BOTTOM -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('exportCsvBtn').addEventListener('click', () => {
+        window.location.href = '/api/admin/export-csv';
+      });
+    });
   </script>
+</body>
+</html>
 </body>
 </html>
 <nav class="nav-links">
