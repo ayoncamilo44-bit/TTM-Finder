@@ -364,9 +364,10 @@
 
 <script>
     // =========================================================================
-    // PASTE YOUR PUBLISHED GOOGLE SHEET CSV LINK BELOW (INSIDE THE QUOTES)
+    // PUBLISHED GOOGLE SHEET CSV LINK
     // =========================================================================
-    const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/https://docs.google.com/spreadsheets/d/e/2PACX-1vSxCid9_WAnxxLE628DVoY_ORSqoAUlcdTuamSo9cW8JQFZDrShA2nG1_HqWVSOoCj7avORBCcz4k9e/pub?output=csv/pub?output=csv";
+    const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSxCid9_WAnxxLE628DVoY_ORSqoAUlcdTuamSo9cW8JQFZDrShA2nG1_HqWVSOoCj7avORBCcz4k9e/pub?output=csv";
+
     // Backup Sample Roster (Used if sheet link is not set or network fails)
     const fallbackSigners = [
         {
@@ -503,7 +504,7 @@
     }
 
     function closeModalDirect() {
-        document.getElementById("profileModal").style.display = "none";
+        document.getElementById("closeModal").style.display = "none";
     }
 
     function updateStats(data) {
