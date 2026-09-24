@@ -47,6 +47,40 @@
             font-size: 0.95rem;
         }
 
+        /* Stat Counters Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+
+        .stat-number.success { color: var(--success); }
+        .stat-number.warning { color: var(--warning); }
+        .stat-number.danger  { color: var(--danger); }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
         .controls {
             display: flex;
             gap: 10px;
@@ -135,15 +169,35 @@
         <p class="subtitle">Search active signers, verified forwarding addresses, and RTS re-routes.</p>
     </header>
 
+    <!-- Dashboard Stat Counters -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number" id="totalCount">0</div>
+            <div class="stat-label">Total Signers Logged</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number success" id="activeCount">0</div>
+            <div class="stat-label">Active / Successes</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number warning" id="pendingCount">0</div>
+            <div class="stat-label">Pending Requests</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number danger" id="rtsCount">0</div>
+            <div class="stat-label">RTS / Flagged</div>
+        </div>
+    </div>
+
     <div class="controls">
         <input type="text" id="searchInput" placeholder="Search by name, sport, address, or card set..." onkeyup="filterTable()">
-        <button class="filter-btn active" onclick="filterSport('all')">All Sports</button>
-        <button class="filter-btn" onclick="filterSport('football')">Football / Rams</button>
-        <button class="filter-btn" onclick="filterSport('baseball')">Baseball</button>
-        <button class="filter-btn" onclick="filterSport('basketball')">Basketball</button>
-        <button class="filter-btn" onclick="filterSport('hockey')">Hockey</button>
-        <button class="filter-btn" onclick="filterSport('soccer')">Soccer</button>
-        <button class="filter-btn" onclick="filterSport('combat')">Boxing / MMA</button>
+        <button class="filter-btn active" onclick="filterSport('all', event)">All Sports</button>
+        <button class="filter-btn" onclick="filterSport('football', event)">Football / Rams</button>
+        <button class="filter-btn" onclick="filterSport('baseball', event)">Baseball</button>
+        <button class="filter-btn" onclick="filterSport('basketball', event)">Basketball</button>
+        <button class="filter-btn" onclick="filterSport('hockey', event)">Hockey</button>
+        <button class="filter-btn" onclick="filterSport('soccer', event)">Soccer</button>
+        <button class="filter-btn" onclick="filterSport('combat', event)">Boxing / MMA</button>
     </div>
 
     <div class="form-container" id="reportForm" style="margin-bottom: 20px; text-align: center;">
@@ -361,6 +415,28 @@
 </div>
 
 <script>
+    function calculateStats() {
+        let rows = document.querySelectorAll("#ttmTable tbody tr");
+        let total = rows.length;
+        let active = 0;
+        let pending = 0;
+        let rts = 0;
+
+        rows.forEach(row => {
+            let badge = row.querySelector(".badge");
+            if (badge) {
+                if (badge.classList.contains("badge-success")) active++;
+                else if (badge.classList.contains("badge-warning")) pending++;
+                else if (badge.classList.contains("badge-danger")) rts++;
+            }
+        });
+
+        document.getElementById("totalCount").innerText = total;
+        document.getElementById("activeCount").innerText = active;
+        document.getElementById("pendingCount").innerText = pending;
+        document.getElementById("rtsCount").innerText = rts;
+    }
+
     function filterTable() {
         let input = document.getElementById("searchInput").value.toLowerCase();
         let rows = document.querySelectorAll("#ttmTable tbody tr");
@@ -371,9 +447,9 @@
         });
     }
 
-    function filterSport(sport) {
+    function filterSport(sport, evt) {
         document.querySelectorAll(".filter-btn").forEach(btn => btn.classList.remove("active"));
-        event.target.classList.add("active");
+        evt.target.classList.add("active");
 
         let rows = document.querySelectorAll("#ttmTable tbody tr");
         rows.forEach(row => {
@@ -384,6 +460,8 @@
             }
         });
     }
+
+    window.onload = calculateStats;
 </script>
 
 </body>
