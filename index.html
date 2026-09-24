@@ -1,184 +1,386 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Collector Workbench - Master Hub</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background-color: #0b1120; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; display: flex; flex-direction: column; height: 100vh; overflow: hidden; position: relative; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTM Autograph Hub & Master Address Log</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --border: #334155;
+            --success: #22c55e;
+            --warning: #eab308;
+            --danger: #ef4444;
+        }
 
-    /* =========================================================
-       Ambient Floating Cards Background (Faded & Drifting)
-       ========================================================= */
-    .ambient-bg {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 1;
-      overflow: hidden;
-      opacity: 0.06; /* Faded so it never interferes with text/prompts */
-    }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+        }
 
-    .floating-card {
-      position: absolute;
-      width: 140px;
-      height: 196px; /* 2.5 x 3.5 Aspect Ratio */
-      border: 2px solid #38bdf8;
-      border-radius: 8px;
-      background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(15, 23, 42, 0.8) 100%);
-      box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 10px;
-      transform: rotate(-12deg);
-      filter: blur(0.5px);
-    }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
 
-    /* Simulated Autograph Script & Photo Frame Inside Card */
-    .card-photo-box { width: 100%; height: 60%; background: rgba(255, 255, 255, 0.1); border-radius: 4px; }
-    .card-sig-line { 
-      font-family: 'Brush Script MT', cursive, sans-serif; 
-      font-size: 1.2rem; 
-      color: #38bdf8; 
-      text-align: center; 
-      transform: rotate(-5deg); 
-      letter-spacing: 1px;
-    }
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
 
-    /* Drift Animation Schedules */
-    .card-1 { top: 15%; left: -180px; animation: floatRight 38s linear infinite; }
-    .card-2 { top: 55%; left: -180px; animation: floatRight 48s linear infinite 12s; transform: rotate(15deg); }
-    .card-3 { top: 30%; right: -180px; animation: floatLeft 42s linear infinite 5s; transform: rotate(-8deg); }
-    .card-4 { top: 75%; right: -180px; animation: floatLeft 52s linear infinite 22s; transform: rotate(20deg); }
+        h1 {
+            color: var(--accent);
+            margin-bottom: 6px;
+            font-size: 1.8rem;
+        }
 
-    @keyframes floatRight {
-      0% { transform: translateX(0) translateY(0) rotate(-12deg); }
-      50% { transform: translateX(60vw) translateY(-30px) rotate(5deg); }
-      100% { transform: translateX(115vw) translateY(10px) rotate(-10deg); }
-    }
+        p.subtitle {
+            color: var(--text-muted);
+            margin: 0;
+            font-size: 0.95rem;
+        }
 
-    @keyframes floatLeft {
-      0% { transform: translateX(0) translateY(0) rotate(15deg); }
-      50% { transform: translateX(-60vw) translateY(40px) rotate(-5deg); }
-      100% { transform: translateX(-115vw) translateY(-20px) rotate(12deg); }
-    }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
 
-    /* =========================================================
-       Master UI Layout Controls
-       ========================================================= */
-    header { 
-      background: rgba(15, 23, 42, 0.95); 
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid #334155; 
-      padding: 0.75rem 1.5rem; 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      flex-wrap: wrap; 
-      gap: 1rem; 
-      z-index: 10; 
-    }
-    
-    .brand { display: flex; align-items: center; gap: 0.75rem; }
-    .brand-logo { background: #0284c7; color: white; font-weight: 900; font-size: 1.1rem; padding: 0.4rem 0.6rem; border-radius: 6px; letter-spacing: 1px; }
-    .brand-title { font-size: 1.1rem; font-weight: bold; color: #f8fafc; }
-    .brand-subtitle { font-size: 0.75rem; color: #64748b; }
+        input[type="text"] {
+            flex: 1;
+            min-width: 240px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background-color: var(--card-bg);
+            color: var(--text-main);
+            font-size: 0.95rem;
+        }
 
-    nav.tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-    .tab-btn { background: #1e293b; border: 1px solid #334155; color: #94a3b8; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 0.4rem; }
-    .tab-btn:hover { background: #334155; color: #f8fafc; }
-    .tab-btn.active { background: #0284c7; color: #ffffff; border-color: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.25); }
+        .filter-btn {
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background-color: var(--card-bg);
+            color: var(--text-main);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
 
-    .popout-btn { background: transparent; border: 1px solid #334155; color: #94a3b8; padding: 0.4rem 0.6rem; border-radius: 6px; font-size: 0.75rem; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 0.3rem; }
-    .popout-btn:hover { color: #38bdf8; border-color: #38bdf8; }
+        .filter-btn:hover, .filter-btn.active {
+            background-color: var(--accent);
+            color: #0f172a;
+            font-weight: bold;
+        }
 
-    main { flex: 1; position: relative; background: transparent; z-index: 5; }
-    iframe { width: 100%; height: 100%; border: none; background: transparent; }
+        .table-container {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+        }
 
-    .frame-loader { position: absolute; inset: 0; background: #0f172a; display: flex; justify-content: center; align-items: center; color: #38bdf8; font-size: 0.9rem; font-weight: bold; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; z-index: 6; }
-    .frame-loader.active { opacity: 1; pointer-events: auto; }
-  </style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background-color: #111827;
+            color: var(--accent);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .badge-success { background-color: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .badge-warning { background-color: rgba(234, 179, 8, 0.2); color: var(--warning); }
+        .badge-danger { background-color: rgba(239, 68, 68, 0.2); color: var(--danger); }
+    </style>
 </head>
 <body>
 
-  <!-- Ambient Faded Background (Floating Cards & Signatures) -->
-  <div class="ambient-bg">
-    <div class="floating-card card-1">
-      <div class="card-photo-box"></div>
-      <div class="card-sig-line">Authentic</div>
-    </div>
-    <div class="floating-card card-2">
-      <div class="card-photo-box"></div>
-      <div class="card-sig-line">Vintage #85</div>
-    </div>
-    <div class="floating-card card-3">
-      <div class="card-photo-box"></div>
-      <div class="card-sig-line">Hall of Fame</div>
-    </div>
-    <div class="floating-card card-4">
-      <div class="card-photo-box"></div>
-      <div class="card-sig-line">Signed TTM</div>
-    </div>
-  </div>
+<div class="container">
+    <header>
+        <h1>TTM Autograph Hub & Master Address Log</h1>
+        <p class="subtitle">Search active signers, verified forwarding addresses, and RTS re-routes.</p>
+    </header>
 
-  <!-- Master Top Navigation -->
-  <header>
-    <div class="brand">
-      <div class="brand-logo">TTM</div>
-      <div>
-        <div class="brand-title">Collector Workbench</div>
-        <div class="brand-subtitle">Unified Suite for Autographs, Checklists &amp; Printing</div>
-      </div>
+    <div class="controls">
+        <input type="text" id="searchInput" placeholder="Search by name, sport, address, or card set..." onkeyup="filterTable()">
+        <button class="filter-btn active" onclick="filterSport('all')">All Sports</button>
+        <button class="filter-btn" onclick="filterSport('football')">Football / Rams</button>
+        <button class="filter-btn" onclick="filterSport('baseball')">Baseball</button>
+        <button class="filter-btn" onclick="filterSport('basketball')">Basketball</button>
+        <button class="filter-btn" onclick="filterSport('hockey')">Hockey</button>
+        <button class="filter-btn" onclick="filterSport('soccer')">Soccer</button>
+        <button class="filter-btn" onclick="filterSport('combat')">Boxing / MMA</button>
     </div>
 
-    <nav class="tabs">
-      <button class="tab-btn active" onclick="switchModule('finder.html', this)">
-        <span>🎯</span> Master Tracker
-      </button>
-      <button class="tab-btn" onclick="switchModule('binder-tool.html', this)">
-        <span>📋</span> Binder &amp; Set Mapper
-      </button>
-      <button class="tab-btn" onclick="switchModule('letter-writer.html', this)">
-        <span>✍️</span> 3x5 Index Writer
-      </button>
-      <button class="tab-btn" onclick="switchModule('card-printer.html', this)">
-        <span>🖼️</span> Custom Card Printer
-      </button>
-    </nav>
+    <div class="table-container">
+        <table id="ttmTable">
+            <thead>
+                <tr>
+                    <th>Sport</th>
+                    <th>Athlete Name</th>
+                    <th>Era / Role / Target Cards</th>
+                    <th>Mailing Address</th>
+                    <th>Status / Action Item</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Football / Rams -->
+                <tr data-sport="football">
+                    <td>Football</td>
+                    <td><strong>Jim Youngblood</strong></td>
+                    <td>LB (1973–1984)</td>
+                    <td>126 Heritage Way, Union, SC 29379</td>
+                    <td><span class="badge badge-success">Signed & Received</span></td>
+                </tr>
+                <tr data-sport="football">
+                    <td>Football</td>
+                    <td><strong>Dennis Harrah</strong></td>
+                    <td>1986 Topps #84</td>
+                    <td>925 Rockin One Way, Paso Robles, CA 93446</td>
+                    <td><span class="badge badge-warning">Pending (2nd Send)</span></td>
+                </tr>
+                <tr data-sport="football">
+                    <td>Football</td>
+                    <td><strong>Vince Newsome</strong></td>
+                    <td>1990 Fleer #44 / 1990 Pro Set #171</td>
+                    <td>5308 Woodnote Ln, Columbia, MD 21044</td>
+                    <td><span class="badge badge-warning">Pending</span></td>
+                </tr>
+                <tr data-sport="football">
+                    <td>Football</td>
+                    <td><strong>Mike Lansford</strong></td>
+                    <td>1990 Topps #76</td>
+                    <td>30221 Silverado Canyon Rd, Silverado, CA 92676</td>
+                    <td><span class="badge badge-danger">RTS - Re-route</span></td>
+                </tr>
+                <tr data-sport="football">
+                    <td>Football</td>
+                    <td><strong>Frank Corral</strong></td>
+                    <td>K/P (1978–1981)</td>
+                    <td>12442 Saffron Ave, Rancho Cucamonga, CA 91739</td>
+                    <td><span class="badge badge-danger">RTS - Re-route</span></td>
+                </tr>
+                <tr data-sport="football">
+                    <td>Football</td>
+                    <td><strong>Preston Dennard</strong></td>
+                    <td>WR (1978–1983)</td>
+                    <td>13210 High Star Dr, Houston, TX 77083</td>
+                    <td><span class="badge badge-danger">RTS - Re-route</span></td>
+                </tr>
+                <tr data-sport="football">
+                    <td>Football</td>
+                    <td><strong>Pete Holohan</strong></td>
+                    <td>1990 Fleer #39</td>
+                    <td>1148 Calle Ganado, San Clemente, CA 92673</td>
+                    <td><span class="badge badge-danger">RTS - Dead Address</span></td>
+                </tr>
+                <tr data-sport="football">
+                    <td>Football</td>
+                    <td><strong>Eric Dickerson</strong></td>
+                    <td>RB (1983–1987)</td>
+                    <td>26815 Mulholland Hwy, Calabasas, CA 91302</td>
+                    <td><span class="badge badge-success">Active Signer ($10)</span></td>
+                </tr>
+                <tr data-sport="football">
+                    <td>Football</td>
+                    <td><strong>Tom Mack</strong></td>
+                    <td>G (1966–1978)</td>
+                    <td>52 Grand Miramar Dr, Henderson, NV 89011</td>
+                    <td><span class="badge badge-success">Active HOF Signer</span></td>
+                </tr>
+                <tr data-sport="football">
+                    <td>Football</td>
+                    <td><strong>Jim Everett</strong></td>
+                    <td>QB (1986–1993)</td>
+                    <td>2044 Bantry Dr, Keller, TX 76262</td>
+                    <td><span class="badge badge-success">Active Signer</span></td>
+                </tr>
+                <tr data-sport="football">
+                    <td>Football</td>
+                    <td><strong>Jackie Slater</strong></td>
+                    <td>OT (1976–1995)</td>
+                    <td>P.O. Box 6411, Orange, CA 92863</td>
+                    <td><span class="badge badge-success">Active HOF Signer</span></td>
+                </tr>
 
-    <a id="popoutLink" href="finder.html" target="_blank" class="popout-btn" title="Open active module in a new browser tab">
-      <span>↗</span> Standalone Tab
-    </a>
-  </header>
+                <!-- Baseball -->
+                <tr data-sport="baseball">
+                    <td>Baseball</td>
+                    <td><strong>Bobby Shantz</strong></td>
+                    <td>P (1949–1964)</td>
+                    <td>22 Longview Rd, Ambler, PA 19002</td>
+                    <td><span class="badge badge-success">Active Signer</span></td>
+                </tr>
+                <tr data-sport="baseball">
+                    <td>Baseball</td>
+                    <td><strong>Frank Tanana</strong></td>
+                    <td>P (1973–1993)</td>
+                    <td>363 Edgevale Rd, Rochester Hills, MI 48309</td>
+                    <td><span class="badge badge-success">Active Signer</span></td>
+                </tr>
 
-  <!-- Module Display Window -->
-  <main>
-    <div class="frame-loader" id="loader">Loading Module...</div>
-    <iframe id="workspaceFrame" src="finder.html" onload="hideLoader()"></iframe>
-  </main>
+                <!-- Basketball -->
+                <tr data-sport="basketball">
+                    <td>Basketball</td>
+                    <td><strong>Rick Barry</strong></td>
+                    <td>F (1965–1980)</td>
+                    <td>1 Oakwood Ln, Colorado Springs, CO 80906</td>
+                    <td><span class="badge badge-success">Active Signer</span></td>
+                </tr>
+                <tr data-sport="basketball">
+                    <td>Basketball</td>
+                    <td><strong>Gail Goodrich</strong></td>
+                    <td>G (1965–1979)</td>
+                    <td>10 Green Winged Teal, Sunriver, OR 97707</td>
+                    <td><span class="badge badge-success">Active HOF Signer</span></td>
+                </tr>
+                <tr data-sport="basketball">
+                    <td>Basketball</td>
+                    <td><strong>Jamaal Wilkes</strong></td>
+                    <td>F (1974–1985)</td>
+                    <td>100 Bayview Cir, Newport Beach, CA 92660</td>
+                    <td><span class="badge badge-success">Active HOF Signer</span></td>
+                </tr>
 
-  <script>
-    const iframe = document.getElementById('workspaceFrame');
-    const loader = document.getElementById('loader');
-    const popoutLink = document.getElementById('popoutLink');
+                <!-- Hockey -->
+                <tr data-sport="hockey">
+                    <td>Hockey</td>
+                    <td><strong>Marcel Dionne</strong></td>
+                    <td>C (1971–1989)</td>
+                    <td>59 Edgecomb Ave, Niagara Falls, NY 14305</td>
+                    <td><span class="badge badge-success">Active HOF Signer</span></td>
+                </tr>
+                <tr data-sport="hockey">
+                    <td>Hockey</td>
+                    <td><strong>Bernie Parent</strong></td>
+                    <td>G (1965–1979)</td>
+                    <td>114 Shore Rd, Linwood, NJ 08221</td>
+                    <td><span class="badge badge-success">Active HOF Signer</span></td>
+                </tr>
+                <tr data-sport="hockey">
+                    <td>Hockey</td>
+                    <td><strong>Lanny McDonald</strong></td>
+                    <td>RW (1973–1989)</td>
+                    <td>225 Flathead Dr, Kalispell, MT 59901</td>
+                    <td><span class="badge badge-success">Active HOF Signer</span></td>
+                </tr>
 
-    function switchModule(fileUrl, buttonEl) {
-      if (iframe.src.endsWith(fileUrl)) return;
+                <!-- Soccer -->
+                <tr data-sport="soccer">
+                    <td>Soccer</td>
+                    <td><strong>Alexi Lalas</strong></td>
+                    <td>DF (USMNT)</td>
+                    <td>c/o Fox Sports, 10201 W Pico Blvd, Los Angeles, CA 90035</td>
+                    <td><span class="badge badge-success">Active Signer</span></td>
+                </tr>
+                <tr data-sport="soccer">
+                    <td>Soccer</td>
+                    <td><strong>Kasey Keller</strong></td>
+                    <td>GK (USMNT)</td>
+                    <td>c/o Seattle Sounders FC, 159 S Jackson St, Seattle, WA 98104</td>
+                    <td><span class="badge badge-success">Active Signer</span></td>
+                </tr>
 
-      loader.classList.add('active');
+                <!-- Combat Sports -->
+                <tr data-sport="combat">
+                    <td>Boxing</td>
+                    <td><strong>James "Buster" Douglas</strong></td>
+                    <td>Heavyweight Champion</td>
+                    <td>1189 Dennison Ave, Columbus, OH 43201</td>
+                    <td><span class="badge badge-success">Active Signer</span></td>
+                </tr>
+                <tr data-sport="combat">
+                    <td>Boxing</td>
+                    <td><strong>Micky Ward</strong></td>
+                    <td>Lt. Welterweight Legend</td>
+                    <td>132 Upham Street, Lowell, MA 01851</td>
+                    <td><span class="badge badge-success">Active Signer</span></td>
+                </tr>
+                <tr data-sport="combat">
+                    <td>MMA</td>
+                    <td><strong>Dan Severn</strong></td>
+                    <td>UFC Hall of Famer</td>
+                    <td>P.O. Box 212, Coldwater, MI 49036</td>
+                    <td><span class="badge badge-success">Active Signer</span></td>
+                </tr>
+                <tr data-sport="combat">
+                    <td>MMA</td>
+                    <td><strong>Stephen Thompson</strong></td>
+                    <td>Welterweight ("Wonderboy")</td>
+                    <td>c/o Upstate Karate, 128 Enoree Rd, Simpsonville, SC 29681</td>
+                    <td><span class="badge badge-success">Active Signer</span></td>
+                </tr>
+                <tr data-sport="combat">
+                    <td>MMA</td>
+                    <td><strong>Forrest Griffin</strong></td>
+                    <td>UFC Hall of Famer</td>
+                    <td>c/o UFC Performance Institute, 6650 S Torrey Pines Dr, Las Vegas, NV 89118</td>
+                    <td><span class="badge badge-success">Active Signer</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      buttonEl.classList.add('active');
+<script>
+    function filterTable() {
+        let input = document.getElementById("searchInput").value.toLowerCase();
+        let rows = document.querySelectorAll("#ttmTable tbody tr");
 
-      popoutLink.href = fileUrl;
-      iframe.src = fileUrl;
+        rows.forEach(row => {
+            let text = row.innerText.toLowerCase();
+            row.style.display = text.includes(input) ? "" : "none";
+        });
     }
 
-    function hideLoader() {
-      loader.classList.remove('active');
+    function filterSport(sport) {
+        document.querySelectorAll(".filter-btn").forEach(btn => btn.classList.remove("active"));
+        event.target.classList.add("active");
+
+        let rows = document.querySelectorAll("#ttmTable tbody tr");
+        rows.forEach(row => {
+            if (sport === "all" || row.getAttribute("data-sport") === sport) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        });
     }
-  </script>
+</script>
+
 </body>
 </html>
