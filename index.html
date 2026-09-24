@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TTM Autograph Hub & Master Address Log</title>
+    <title>TTM Autograph Hub - Live Google Sheet Sync</title>
+    <!-- PapaParse CDN for robust CSV handling -->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -18,7 +20,7 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
@@ -38,19 +40,24 @@
         h1 {
             color: var(--accent);
             margin-bottom: 6px;
-            font-size: 1.8rem;
         }
 
-        p.subtitle {
+        .sync-status {
+            text-align: center;
+            font-size: 0.8rem;
             color: var(--text-muted);
-            margin: 0;
-            font-size: 0.95rem;
+            margin-bottom: 15px;
         }
 
-        /* Stat Counters Grid */
+        .sync-status span {
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        /* Stat Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
             margin-bottom: 20px;
         }
@@ -64,21 +71,15 @@
         }
 
         .stat-number {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: bold;
             color: var(--accent);
-            margin-bottom: 4px;
         }
-
-        .stat-number.success { color: var(--success); }
-        .stat-number.warning { color: var(--warning); }
-        .stat-number.danger  { color: var(--danger); }
 
         .stat-label {
             font-size: 0.75rem;
             color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.05em;
         }
 
         .controls {
@@ -96,7 +97,6 @@
             border: 1px solid var(--border);
             background-color: var(--card-bg);
             color: var(--text-main);
-            font-size: 0.95rem;
         }
 
         .filter-btn {
@@ -106,11 +106,9 @@
             background-color: var(--card-bg);
             color: var(--text-main);
             cursor: pointer;
-            font-size: 0.85rem;
-            transition: all 0.2s ease;
         }
 
-        .filter-btn:hover, .filter-btn.active {
+        .filter-btn.active {
             background-color: var(--accent);
             color: #0f172a;
             font-weight: bold;
@@ -127,7 +125,6 @@
             width: 100%;
             border-collapse: collapse;
             text-align: left;
-            font-size: 0.9rem;
         }
 
         th, td {
@@ -138,17 +135,20 @@
         th {
             background-color: #111827;
             color: var(--accent);
-            text-transform: uppercase;
             font-size: 0.75rem;
-            letter-spacing: 0.05em;
+            text-transform: uppercase;
         }
 
-        tr:last-child td {
-            border-bottom: none;
+        tr.clickable {
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        tr.clickable:hover {
+            background-color: #334155;
         }
 
         .badge {
-            display: inline-block;
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 0.75rem;
@@ -159,309 +159,384 @@
         .badge-success { background-color: rgba(34, 197, 94, 0.2); color: var(--success); }
         .badge-warning { background-color: rgba(234, 179, 8, 0.2); color: var(--warning); }
         .badge-danger { background-color: rgba(239, 68, 68, 0.2); color: var(--danger); }
+
+        /* Profile Modal Overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.75);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 520px;
+            padding: 24px;
+            position: relative;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px; right: 20px;
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .avatar-circle {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 2px dashed var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+        }
+
+        .modal-title {
+            text-align: center;
+            font-size: 1.4rem;
+            margin: 0 0 4px;
+            color: var(--text-main);
+            text-transform: uppercase;
+        }
+
+        .modal-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 16px;
+        }
+
+        .info-group {
+            margin-bottom: 12px;
+            border-top: 1px solid var(--border);
+            padding-top: 10px;
+        }
+
+        .info-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        .mail-badge-box {
+            display: flex;
+            gap: 10px;
+            background: #0f172a;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-top: 6px;
+        }
+
+        .mail-stat {
+            flex: 1;
+            text-align: center;
+        }
+
+        .mail-stat-val {
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .mail-stat-lbl {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>TTM Autograph Hub & Master Address Log</h1>
-        <p class="subtitle">Search active signers, verified forwarding addresses, and RTS re-routes.</p>
+        <h1>TTM Autograph Hub & Master Profiles</h1>
+        <p style="color: var(--text-muted);">Synced directly from your personal Google Sheet.</p>
     </header>
 
-    <!-- Dashboard Stat Counters -->
+    <div class="sync-status" id="syncStatus">Fetching latest address roster...</div>
+
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-number" id="totalCount">0</div>
-            <div class="stat-label">Total Signers Logged</div>
+            <div class="stat-label">Total Signers</div>
         </div>
         <div class="stat-card">
-            <div class="stat-number success" id="activeCount">0</div>
-            <div class="stat-label">Active / Successes</div>
+            <div class="stat-number" style="color:var(--success)" id="activeCount">0</div>
+            <div class="stat-label">Active Signers</div>
         </div>
         <div class="stat-card">
-            <div class="stat-number warning" id="pendingCount">0</div>
+            <div class="stat-number" style="color:var(--warning)" id="pendingCount">0</div>
             <div class="stat-label">Pending Requests</div>
         </div>
         <div class="stat-card">
-            <div class="stat-number danger" id="rtsCount">0</div>
-            <div class="stat-label">RTS / Flagged</div>
+            <div class="stat-number" style="color:var(--danger)" id="rtsCount">0</div>
+            <div class="stat-label">RTS / Dead Address</div>
         </div>
     </div>
 
     <div class="controls">
-        <input type="text" id="searchInput" placeholder="Search by name, sport, address, or card set..." onkeyup="filterTable()">
-        <button class="filter-btn active" onclick="filterSport('all', event)">All Sports</button>
+        <input type="text" id="searchInput" placeholder="Search by name, team, address, or enclosure..." onkeyup="filterTable()">
+        <button class="filter-btn active" onclick="filterSport('all', event)">All Signers</button>
         <button class="filter-btn" onclick="filterSport('football', event)">Football / Rams</button>
         <button class="filter-btn" onclick="filterSport('baseball', event)">Baseball</button>
-        <button class="filter-btn" onclick="filterSport('basketball', event)">Basketball</button>
-        <button class="filter-btn" onclick="filterSport('hockey', event)">Hockey</button>
-        <button class="filter-btn" onclick="filterSport('soccer', event)">Soccer</button>
-        <button class="filter-btn" onclick="filterSport('combat', event)">Boxing / MMA</button>
-    </div>
-
-    <div class="form-container" id="reportForm" style="margin-bottom: 20px; text-align: center;">
-        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdB6AN3qpTNtGttKGxpPhtTvetgAc7ucvxvBeqdwyL08xYI6A/viewform?embedded=true" width="100%" height="520" frameborder="0">Loading form…</iframe>
     </div>
 
     <div class="table-container">
-        <table id="ttmTable">
+        <table>
             <thead>
                 <tr>
-                    <th>Sport</th>
                     <th>Athlete Name</th>
-                    <th>Era / Role / Target Cards</th>
+                    <th>Sport / Era</th>
+                    <th>Fee Status</th>
                     <th>Mailing Address</th>
-                    <th>Status / Action Item</th>
+                    <th>TTM Status</th>
                 </tr>
             </thead>
-            <tbody>
-                <!-- Football / Rams -->
-                <tr data-sport="football">
-                    <td>Football</td>
-                    <td><strong>Jim Youngblood</strong></td>
-                    <td>LB (1973–1984)</td>
-                    <td>126 Heritage Way, Union, SC 29379</td>
-                    <td><span class="badge badge-success">Signed & Received</span></td>
-                </tr>
-                <tr data-sport="football">
-                    <td>Football</td>
-                    <td><strong>Dennis Harrah</strong></td>
-                    <td>1986 Topps #84</td>
-                    <td>925 Rockin One Way, Paso Robles, CA 93446</td>
-                    <td><span class="badge badge-warning">Pending (2nd Send)</span></td>
-                </tr>
-                <tr data-sport="football">
-                    <td>Football</td>
-                    <td><strong>Vince Newsome</strong></td>
-                    <td>1990 Fleer #44 / 1990 Pro Set #171</td>
-                    <td>5308 Woodnote Ln, Columbia, MD 21044</td>
-                    <td><span class="badge badge-warning">Pending</span></td>
-                </tr>
-                <tr data-sport="football">
-                    <td>Football</td>
-                    <td><strong>Mike Lansford</strong></td>
-                    <td>1990 Topps #76</td>
-                    <td>30221 Silverado Canyon Rd, Silverado, CA 92676</td>
-                    <td><span class="badge badge-danger">RTS - Re-route</span></td>
-                </tr>
-                <tr data-sport="football">
-                    <td>Football</td>
-                    <td><strong>Frank Corral</strong></td>
-                    <td>K/P (1978–1981)</td>
-                    <td>12442 Saffron Ave, Rancho Cucamonga, CA 91739</td>
-                    <td><span class="badge badge-danger">RTS - Re-route</span></td>
-                </tr>
-                <tr data-sport="football">
-                    <td>Football</td>
-                    <td><strong>Preston Dennard</strong></td>
-                    <td>WR (1978–1983)</td>
-                    <td>13210 High Star Dr, Houston, TX 77083</td>
-                    <td><span class="badge badge-danger">RTS - Re-route</span></td>
-                </tr>
-                <tr data-sport="football">
-                    <td>Football</td>
-                    <td><strong>Pete Holohan</strong></td>
-                    <td>1990 Fleer #39</td>
-                    <td>1148 Calle Ganado, San Clemente, CA 92673</td>
-                    <td><span class="badge badge-danger">RTS - Dead Address</span></td>
-                </tr>
-                <tr data-sport="football">
-                    <td>Football</td>
-                    <td><strong>Eric Dickerson</strong></td>
-                    <td>RB (1983–1987)</td>
-                    <td>26815 Mulholland Hwy, Calabasas, CA 91302</td>
-                    <td><span class="badge badge-success">Active Signer ($10)</span></td>
-                </tr>
-                <tr data-sport="football">
-                    <td>Football</td>
-                    <td><strong>Tom Mack</strong></td>
-                    <td>G (1966–1978)</td>
-                    <td>52 Grand Miramar Dr, Henderson, NV 89011</td>
-                    <td><span class="badge badge-success">Active HOF Signer</span></td>
-                </tr>
-                <tr data-sport="football">
-                    <td>Football</td>
-                    <td><strong>Jim Everett</strong></td>
-                    <td>QB (1986–1993)</td>
-                    <td>2044 Bantry Dr, Keller, TX 76262</td>
-                    <td><span class="badge badge-success">Active Signer</span></td>
-                </tr>
-                <tr data-sport="football">
-                    <td>Football</td>
-                    <td><strong>Jackie Slater</strong></td>
-                    <td>OT (1976–1995)</td>
-                    <td>P.O. Box 6411, Orange, CA 92863</td>
-                    <td><span class="badge badge-success">Active HOF Signer</span></td>
-                </tr>
-
-                <!-- Baseball -->
-                <tr data-sport="baseball">
-                    <td>Baseball</td>
-                    <td><strong>Bobby Shantz</strong></td>
-                    <td>P (1949–1964)</td>
-                    <td>22 Longview Rd, Ambler, PA 19002</td>
-                    <td><span class="badge badge-success">Active Signer</span></td>
-                </tr>
-                <tr data-sport="baseball">
-                    <td>Baseball</td>
-                    <td><strong>Frank Tanana</strong></td>
-                    <td>P (1973–1993)</td>
-                    <td>363 Edgevale Rd, Rochester Hills, MI 48309</td>
-                    <td><span class="badge badge-success">Active Signer</span></td>
-                </tr>
-
-                <!-- Basketball -->
-                <tr data-sport="basketball">
-                    <td>Basketball</td>
-                    <td><strong>Rick Barry</strong></td>
-                    <td>F (1965–1980)</td>
-                    <td>1 Oakwood Ln, Colorado Springs, CO 80906</td>
-                    <td><span class="badge badge-success">Active Signer</span></td>
-                </tr>
-                <tr data-sport="basketball">
-                    <td>Basketball</td>
-                    <td><strong>Gail Goodrich</strong></td>
-                    <td>G (1965–1979)</td>
-                    <td>10 Green Winged Teal, Sunriver, OR 97707</td>
-                    <td><span class="badge badge-success">Active HOF Signer</span></td>
-                </tr>
-                <tr data-sport="basketball">
-                    <td>Basketball</td>
-                    <td><strong>Jamaal Wilkes</strong></td>
-                    <td>F (1974–1985)</td>
-                    <td>100 Bayview Cir, Newport Beach, CA 92660</td>
-                    <td><span class="badge badge-success">Active HOF Signer</span></td>
-                </tr>
-
-                <!-- Hockey -->
-                <tr data-sport="hockey">
-                    <td>Hockey</td>
-                    <td><strong>Marcel Dionne</strong></td>
-                    <td>C (1971–1989)</td>
-                    <td>59 Edgecomb Ave, Niagara Falls, NY 14305</td>
-                    <td><span class="badge badge-success">Active HOF Signer</span></td>
-                </tr>
-                <tr data-sport="hockey">
-                    <td>Hockey</td>
-                    <td><strong>Bernie Parent</strong></td>
-                    <td>G (1965–1979)</td>
-                    <td>114 Shore Rd, Linwood, NJ 08221</td>
-                    <td><span class="badge badge-success">Active HOF Signer</span></td>
-                </tr>
-                <tr data-sport="hockey">
-                    <td>Hockey</td>
-                    <td><strong>Lanny McDonald</strong></td>
-                    <td>RW (1973–1989)</td>
-                    <td>225 Flathead Dr, Kalispell, MT 59901</td>
-                    <td><span class="badge badge-success">Active HOF Signer</span></td>
-                </tr>
-
-                <!-- Soccer -->
-                <tr data-sport="soccer">
-                    <td>Soccer</td>
-                    <td><strong>Alexi Lalas</strong></td>
-                    <td>DF (USMNT)</td>
-                    <td>c/o Fox Sports, 10201 W Pico Blvd, Los Angeles, CA 90035</td>
-                    <td><span class="badge badge-success">Active Signer</span></td>
-                </tr>
-                <tr data-sport="soccer">
-                    <td>Soccer</td>
-                    <td><strong>Kasey Keller</strong></td>
-                    <td>GK (USMNT)</td>
-                    <td>c/o Seattle Sounders FC, 159 S Jackson St, Seattle, WA 98104</td>
-                    <td><span class="badge badge-success">Active Signer</span></td>
-                </tr>
-
-                <!-- Combat Sports -->
-                <tr data-sport="combat">
-                    <td>Boxing</td>
-                    <td><strong>James "Buster" Douglas</strong></td>
-                    <td>Heavyweight Champion</td>
-                    <td>1189 Dennison Ave, Columbus, OH 43201</td>
-                    <td><span class="badge badge-success">Active Signer</span></td>
-                </tr>
-                <tr data-sport="combat">
-                    <td>Boxing</td>
-                    <td><strong>Micky Ward</strong></td>
-                    <td>Lt. Welterweight Legend</td>
-                    <td>132 Upham Street, Lowell, MA 01851</td>
-                    <td><span class="badge badge-success">Active Signer</span></td>
-                </tr>
-                <tr data-sport="combat">
-                    <td>MMA</td>
-                    <td><strong>Dan Severn</strong></td>
-                    <td>UFC Hall of Famer</td>
-                    <td>P.O. Box 212, Coldwater, MI 49036</td>
-                    <td><span class="badge badge-success">Active Signer</span></td>
-                </tr>
-                <tr data-sport="combat">
-                    <td>MMA</td>
-                    <td><strong>Stephen Thompson</strong></td>
-                    <td>Welterweight ("Wonderboy")</td>
-                    <td>c/o Upstate Karate, 128 Enoree Rd, Simpsonville, SC 29681</td>
-                    <td><span class="badge badge-success">Active Signer</span></td>
-                </tr>
-                <tr data-sport="combat">
-                    <td>MMA</td>
-                    <td><strong>Forrest Griffin</strong></td>
-                    <td>UFC Hall of Famer</td>
-                    <td>c/o UFC Performance Institute, 6650 S Torrey Pines Dr, Las Vegas, NV 89118</td>
-                    <td><span class="badge badge-success">Active Signer</span></td>
-                </tr>
+            <tbody id="signerTableBody">
+                <tr><td colspan="5" style="text-align:center; color: var(--text-muted);">Loading roster data...</td></tr>
             </tbody>
         </table>
     </div>
 </div>
 
-<script>
-    function calculateStats() {
-        let rows = document.querySelectorAll("#ttmTable tbody tr");
-        let total = rows.length;
-        let active = 0;
-        let pending = 0;
-        let rts = 0;
+<!-- Modal Profile Card -->
+<div class="modal-overlay" id="profileModal" onclick="closeModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+        <span class="close-btn" onclick="closeModalDirect()">&times;</span>
+        <div class="avatar-circle">📬</div>
+        <h2 class="modal-title" id="mName">Player Name</h2>
+        <div class="modal-subtitle" id="mResponse">TTM Status</div>
 
-        rows.forEach(row => {
-            let badge = row.querySelector(".badge");
-            if (badge) {
-                if (badge.classList.contains("badge-success")) active++;
-                else if (badge.classList.contains("badge-warning")) pending++;
-                else if (badge.classList.contains("badge-danger")) rts++;
+        <div class="info-group">
+            <div class="info-label">Postal Mail Tracking</div>
+            <div class="mail-badge-box">
+                <div class="mail-stat">
+                    <div class="mail-stat-lbl">Sent Date</div>
+                    <div class="mail-stat-val" id="mSentDate">--</div>
+                </div>
+                <div class="mail-stat">
+                    <div class="mail-stat-lbl">Return Date</div>
+                    <div class="mail-stat-val" id="mReturnDate">--</div>
+                </div>
+                <div class="mail-stat">
+                    <div class="mail-stat-lbl">Turnaround</div>
+                    <div class="mail-stat-val" id="mTurnaround">--</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-group">
+            <div class="info-label">Mailing Address</div>
+            <div class="info-value" id="mAddress">Address loading...</div>
+        </div>
+
+        <div class="info-group">
+            <div class="info-label">Enclosures & Items Sent</div>
+            <div class="info-value" id="mEnclosure">--</div>
+        </div>
+
+        <div class="info-group">
+            <div class="info-label">Fees & Notes</div>
+            <div class="info-value" id="mFee">No fees required</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // =========================================================================
+    // PASTE YOUR PUBLISHED GOOGLE SHEET CSV LINK BELOW (INSIDE THE QUOTES)
+    // =========================================================================
+    const GOOGLE_SHEET_CSV_URL = "YOUR_PUBLISHED_CSV_URL_HERE";
+
+    // Backup Sample Roster (Used if sheet link is not set or network fails)
+    const fallbackSigners = [
+        {
+            Name: "Ray Agnew Jr.",
+            Sport: "football",
+            Era: "DT (1990–2000) / Rams",
+            Address: "2215 Cline St, Winston Salem, NC 27107-2411",
+            Fee: "No fees required",
+            Status: "Active Signer",
+            SentDate: "Not Sent Yet",
+            ReturnDate: "--",
+            Turnaround: "--",
+            Enclosure: "1990 Topps #484 + Handwritten 3x5 Note + SASE"
+        },
+        {
+            Name: "Jim Youngblood",
+            Sport: "football",
+            Era: "LB (1973–1984) / Rams",
+            Address: "126 Heritage Way, Union, SC 29379",
+            Fee: "Free TTM",
+            Status: "Signed & Received",
+            SentDate: "08/10/2026",
+            ReturnDate: "08/28/2026",
+            Turnaround: "18 Days",
+            Enclosure: "1977 Topps #412 + 3x5 Note + SASE"
+        },
+        {
+            Name: "Dennis Harrah",
+            Sport: "football",
+            Era: "G (1975–1987) / Rams",
+            Address: "925 Rockin One Way, Paso Robles, CA 93446",
+            Fee: "Free TTM",
+            Status: "Pending (2nd Send)",
+            SentDate: "08/12/2026",
+            ReturnDate: "Pending",
+            Turnaround: "43 Days",
+            Enclosure: "1986 Topps #84 + 3x5 Note + SASE"
+        }
+    ];
+
+    let signersData = [];
+
+    function getStatusClass(statusText) {
+        if (!statusText) return "badge-success";
+        let lower = statusText.toLowerCase();
+        if (lower.includes("signed") || lower.includes("active") || lower.includes("received")) return "badge-success";
+        if (lower.includes("pending") || lower.includes("in mail")) return "badge-warning";
+        if (lower.includes("rts") || lower.includes("dead") || lower.includes("moved")) return "badge-danger";
+        return "badge-success";
+    }
+
+    function fetchGoogleSheetData() {
+        const statusElem = document.getElementById("syncStatus");
+
+        if (!GOOGLE_SHEET_CSV_URL || GOOGLE_SHEET_CSV_URL === "YOUR_PUBLISHED_CSV_URL_HERE") {
+            statusElem.innerHTML = "⚠️ Using local fallback roster. (Paste your Google Sheet CSV URL into index.html to enable live sync)";
+            signersData = fallbackSigners;
+            renderTable(signersData);
+            return;
+        }
+
+        Papa.parse(GOOGLE_SHEET_CSV_URL, {
+            download: true,
+            header: true,
+            skipEmptyLines: true,
+            complete: function(results) {
+                if (results.data && results.data.length > 0) {
+                    signersData = results.data;
+                    statusElem.innerHTML = `<span>● Live Sync Active</span> — Loaded ${signersData.length} records from Google Sheets.`;
+                    renderTable(signersData);
+                } else {
+                    statusElem.innerHTML = "⚠️ Sheet connected but no data rows found. Loading fallback roster.";
+                    signersData = fallbackSigners;
+                    renderTable(signersData);
+                }
+            },
+            error: function(err) {
+                console.error("CSV Fetch Error:", err);
+                statusElem.innerHTML = "❌ Failed to fetch Google Sheet. Verify your 'Publish to web' CSV link.";
+                signersData = fallbackSigners;
+                renderTable(signersData);
             }
         });
+    }
 
-        document.getElementById("totalCount").innerText = total;
-        document.getElementById("activeCount").innerText = active;
-        document.getElementById("pendingCount").innerText = pending;
-        document.getElementById("rtsCount").innerText = rts;
+    function renderTable(data) {
+        const tbody = document.getElementById("signerTableBody");
+        tbody.innerHTML = "";
+
+        if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--text-muted);">No records found matching your query.</td></tr>`;
+            updateStats([]);
+            return;
+        }
+
+        data.forEach((s) => {
+            let tr = document.createElement("tr");
+            tr.className = "clickable";
+            let sportVal = (s.Sport || "all").toLowerCase();
+            tr.setAttribute("data-sport", sportVal);
+            tr.onclick = () => openModal(s);
+
+            let statusClass = getStatusClass(s.Status);
+
+            tr.innerHTML = `
+                <td><strong>${s.Name || "--"}</strong></td>
+                <td>${s.Era || "--"}</td>
+                <td>${s.Fee || "Free"}</td>
+                <td>${s.Address || "--"}</td>
+                <td><span class="badge ${statusClass}">${s.Status || "Active"}</span></td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        updateStats(data);
+    }
+
+    function openModal(s) {
+        document.getElementById("mName").innerText = s.Name || "Unknown Athlete";
+        document.getElementById("mResponse").innerText = `TTM Status: ${s.Status || "Active"}`;
+        document.getElementById("mAddress").innerText = s.Address || "--";
+        document.getElementById("mFee").innerText = s.Fee || "No fees required";
+        document.getElementById("mSentDate").innerText = s.SentDate || "--";
+        document.getElementById("mReturnDate").innerText = s.ReturnDate || "--";
+        document.getElementById("mTurnaround").innerText = s.Turnaround || "--";
+        document.getElementById("mEnclosure").innerText = s.Enclosure || "--";
+        document.getElementById("profileModal").style.display = "flex";
+    }
+
+    function closeModal(e) {
+        if (e.target.classList.contains("modal-overlay")) {
+            document.getElementById("profileModal").style.display = "none";
+        }
+    }
+
+    function closeModalDirect() {
+        document.getElementById("profileModal").style.display = "none";
+    }
+
+    function updateStats(data) {
+        document.getElementById("totalCount").innerText = data.length;
+        document.getElementById("activeCount").innerText = data.filter(s => getStatusClass(s.Status) === 'badge-success').length;
+        document.getElementById("pendingCount").innerText = data.filter(s => getStatusClass(s.Status) === 'badge-warning').length;
+        document.getElementById("rtsCount").innerText = data.filter(s => getStatusClass(s.Status) === 'badge-danger').length;
     }
 
     function filterTable() {
         let input = document.getElementById("searchInput").value.toLowerCase();
-        let rows = document.querySelectorAll("#ttmTable tbody tr");
-
-        rows.forEach(row => {
-            let text = row.innerText.toLowerCase();
-            row.style.display = text.includes(input) ? "" : "none";
-        });
+        let filtered = signersData.filter(s => 
+            (s.Name && s.Name.toLowerCase().includes(input)) || 
+            (s.Address && s.Address.toLowerCase().includes(input)) ||
+            (s.Enclosure && s.Enclosure.toLowerCase().includes(input)) ||
+            (s.Era && s.Era.toLowerCase().includes(input))
+        );
+        renderTable(filtered);
     }
 
     function filterSport(sport, evt) {
         document.querySelectorAll(".filter-btn").forEach(btn => btn.classList.remove("active"));
         evt.target.classList.add("active");
 
-        let rows = document.querySelectorAll("#ttmTable tbody tr");
-        rows.forEach(row => {
-            if (sport === "all" || row.getAttribute("data-sport") === sport) {
-                row.style.display = "";
-            } else {
-                row.style.display = "none";
-            }
-        });
+        if (sport === "all") {
+            renderTable(signersData);
+        } else {
+            renderTable(signersData.filter(s => (s.Sport || "").toLowerCase().includes(sport)));
+        }
     }
 
-    window.onload = calculateStats;
+    window.onload = fetchGoogleSheetData;
 </script>
 
 </body>
