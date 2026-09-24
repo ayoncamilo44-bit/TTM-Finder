@@ -44,7 +44,7 @@
 
         .sync-status {
             text-align: center;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
             margin-bottom: 15px;
         }
@@ -190,6 +190,10 @@
             cursor: pointer;
         }
 
+        .close-btn:hover {
+            color: var(--text-main);
+        }
+
         .avatar-circle {
             width: 70px;
             height: 70px;
@@ -282,7 +286,7 @@
         </div>
         <div class="stat-card">
             <div class="stat-number" style="color:var(--success)" id="activeCount">0</div>
-            <div class="stat-label">Active Signers</div>
+            <div class="stat-label">Active / Signed</div>
         </div>
         <div class="stat-card">
             <div class="stat-number" style="color:var(--warning)" id="pendingCount">0</div>
@@ -295,7 +299,7 @@
     </div>
 
     <div class="controls">
-        <input type="text" id="searchInput" placeholder="Search by name, team, address, or enclosure..." onkeyup="filterTable()">
+        <input type="text" id="searchInput" placeholder="Search by name, era, address, or notes..." onkeyup="filterTable()">
         <button class="filter-btn active" onclick="filterSport('all', event)">All Signers</button>
         <button class="filter-btn" onclick="filterSport('football', event)">Football / Rams</button>
         <button class="filter-btn" onclick="filterSport('baseball', event)">Baseball</button>
@@ -305,11 +309,11 @@
         <table>
             <thead>
                 <tr>
+                    <th>Sport</th>
                     <th>Athlete Name</th>
-                    <th>Sport / Era</th>
-                    <th>Fee Status</th>
+                    <th>Era / Role</th>
                     <th>Mailing Address</th>
-                    <th>TTM Status</th>
+                    <th>Status</th>
                 </tr>
             </thead>
             <tbody id="signerTableBody">
@@ -347,7 +351,7 @@
 
         <div class="info-group">
             <div class="info-label">Mailing Address</div>
-            <div class="info-value" id="mAddress">Address loading...</div>
+            <div class="info-value" id="mAddress">--</div>
         </div>
 
         <div class="info-group">
@@ -357,7 +361,7 @@
 
         <div class="info-group">
             <div class="info-label">Fees & Notes</div>
-            <div class="info-value" id="mFee">No fees required</div>
+            <div class="info-value" id="mFee">--</div>
         </div>
     </div>
 </div>
@@ -368,43 +372,43 @@
     // =========================================================================
     const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSxCid9_WAnxxLE628DVoY_ORSqoAUlcdTuamSo9cW8JQFZDrShA2nG1_HqWVSOoCj7avORBCcz4k9e/pub?output=csv";
 
-    // Backup Sample Roster (Used if sheet link is not set or network fails)
+    // Backup Fallback Data
     const fallbackSigners = [
         {
-            Name: "Ray Agnew Jr.",
-            Sport: "football",
-            Era: "DT (1990–2000) / Rams",
-            Address: "2215 Cline St, Winston Salem, NC 27107-2411",
-            Fee: "No fees required",
-            Status: "Active Signer",
-            SentDate: "Not Sent Yet",
-            ReturnDate: "--",
-            Turnaround: "--",
-            Enclosure: "1990 Topps #484 + Handwritten 3x5 Note + SASE"
+            "Sport": "Football",
+            "Athlete Name": "Ray Agnew Jr.",
+            "Era": "DT (1990–2000) / Rams",
+            "Address": "2215 Cline St, Winston Salem, NC 27107-2411",
+            "Fee": "No fees required",
+            "Status": "Active Signer",
+            "Sent": "Not Sent Yet",
+            "Returned": "--",
+            "Turnaround": "--",
+            "Enclosure": "1990 Topps #484 + Handwritten Note + SASE"
         },
         {
-            Name: "Jim Youngblood",
-            Sport: "football",
-            Era: "LB (1973–1984) / Rams",
-            Address: "126 Heritage Way, Union, SC 29379",
-            Fee: "Free TTM",
-            Status: "Signed & Received",
-            SentDate: "08/10/2026",
-            ReturnDate: "08/28/2026",
-            Turnaround: "18 Days",
-            Enclosure: "1977 Topps #412 + 3x5 Note + SASE"
+            "Sport": "Football",
+            "Athlete Name": "Jim Youngblood",
+            "Era": "LB (1973–1984) / Rams",
+            "Address": "126 Heritage Way, Union, SC 29379",
+            "Fee": "Free TTM",
+            "Status": "Signed",
+            "Sent": "08/10/2026",
+            "Returned": "08/28/2026",
+            "Turnaround": "18 Days",
+            "Enclosure": "1977 Topps #412 + 3x5 Note + SASE"
         },
         {
-            Name: "Dennis Harrah",
-            Sport: "football",
-            Era: "G (1975–1987) / Rams",
-            Address: "925 Rockin One Way, Paso Robles, CA 93446",
-            Fee: "Free TTM",
-            Status: "Pending (2nd Send)",
-            SentDate: "08/12/2026",
-            ReturnDate: "Pending",
-            Turnaround: "43 Days",
-            Enclosure: "1986 Topps #84 + 3x5 Note + SASE"
+            "Sport": "Football",
+            "Athlete Name": "Dennis Harrah",
+            "Era": "G (1975–1987) / Rams",
+            "Address": "925 Rockin One Way, Paso Robles, CA 93446",
+            "Fee": "Free TTM",
+            "Status": "Waiting",
+            "Sent": "08/12/2026",
+            "Returned": "Pending",
+            "Turnaround": "43 Days",
+            "Enclosure": "1986 Topps #84 + 3x5 Note + SASE"
         }
     ];
 
@@ -412,10 +416,10 @@
 
     function getStatusClass(statusText) {
         if (!statusText) return "badge-success";
-        let lower = statusText.toLowerCase();
+        let lower = String(statusText).toLowerCase();
         if (lower.includes("signed") || lower.includes("active") || lower.includes("received")) return "badge-success";
-        if (lower.includes("pending") || lower.includes("in mail")) return "badge-warning";
-        if (lower.includes("rts") || lower.includes("dead") || lower.includes("moved")) return "badge-danger";
+        if (lower.includes("waiting") || lower.includes("pending") || lower.includes("in mail")) return "badge-warning";
+        if (lower.includes("rts") || lower.includes("dead") || lower.includes("unable")) return "badge-danger";
         return "badge-success";
     }
 
@@ -423,7 +427,7 @@
         const statusElem = document.getElementById("syncStatus");
 
         if (!GOOGLE_SHEET_CSV_URL || GOOGLE_SHEET_CSV_URL === "YOUR_PUBLISHED_CSV_URL_HERE") {
-            statusElem.innerHTML = "⚠️ Using local fallback roster. (Paste your Google Sheet CSV URL into index.html to enable live sync)";
+            statusElem.innerHTML = "⚠️ Using local fallback roster.";
             signersData = fallbackSigners;
             renderTable(signersData);
             return;
@@ -446,7 +450,7 @@
             },
             error: function(err) {
                 console.error("CSV Fetch Error:", err);
-                statusElem.innerHTML = "❌ Failed to fetch Google Sheet. Verify your 'Publish to web' CSV link.";
+                statusElem.innerHTML = "❌ Failed to fetch Google Sheet. Using fallback roster.";
                 signersData = fallbackSigners;
                 renderTable(signersData);
             }
@@ -454,83 +458,103 @@
     }
 
     function renderTable(data) {
-    const tbody = document.getElementById("tableBody");
-    tbody.innerHTML = "";
+        const tbody = document.getElementById("signerTableBody");
+        if (!tbody) return;
+        tbody.innerHTML = "";
 
-    data.forEach(s => {
-        // Skip empty rows
-        if (!s["Athlete Name"] && !s.Name) return;
+        if (!data || data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--text-muted);">No signers found.</td></tr>`;
+            return;
+        }
 
-        const tr = document.createElement("tr");
-        
-        // This attaches the click event so clicking any row opens the modal pop-up:
-        tr.onclick = function() {
-            openModal(s);
-        };
+        data.forEach(s => {
+            const name = s["Athlete Name"] || s.Name || "";
+            if (!name.trim()) return; // Skip blank rows
 
-        const athleteName = s["Athlete Name"] || s.Name || "";
-        const sport = s.Sport || "";
-        const era = s.Era || "";
-        const address = s.Address || "";
-        const status = s.Status || "";
+            const sport = s.Sport || "--";
+            const era = s.Era || "--";
+            const address = s.Address || "--";
+            const status = s.Status || "Active";
 
-        tr.innerHTML = `
-            <td>${sport}</td>
-            <td><strong>${athleteName}</strong></td>
-            <td>${era}</td>
-            <td>${address}</td>
-            <td><span class="status-badge ${getStatusClass(status)}">${status}</span></td>
-        `;
+            const tr = document.createElement("tr");
+            tr.className = "clickable";
+            
+            // Attach row click event to open the profile modal
+            tr.onclick = function() {
+                openModal(s);
+            };
 
-        tbody.appendChild(tr);
-    });
+            tr.innerHTML = `
+                <td>${sport}</td>
+                <td><strong>${name}</strong></td>
+                <td>${era}</td>
+                <td>${address}</td>
+                <td><span class="badge ${getStatusClass(status)}">${status}</span></td>
+            `;
 
-    updateStats(data);
-}
+            tbody.appendChild(tr);
+        });
+
+        updateStats(data);
+    }
 
     function openModal(s) {
-        document.getElementById("mName").innerText = s.Name || "Unknown Athlete";
-        document.getElementById("mResponse").innerText = `TTM Status: ${s.Status || "Active"}`;
-        document.getElementById("mAddress").innerText = s.Address || "--";
-        document.getElementById("mFee").innerText = s.Fee || "No fees required";
-        document.getElementById("mSentDate").innerText = s.SentDate || "--";
-        document.getElementById("mReturnDate").innerText = s.ReturnDate || "--";
-        document.getElementById("mTurnaround").innerText = s.Turnaround || "--";
-        document.getElementById("mEnclosure").innerText = s.Enclosure || "--";
+        const name = s["Athlete Name"] || s.Name || "Unknown Signer";
+        const status = s.Status || "Active";
+        const address = s.Address || "No address listed";
+        const fee = s.Fee || "No fee info";
+        const sent = s.Sent || s.SentDate || "--";
+        const returned = s.Returned || s.ReturnDate || "--";
+        const turnaround = s.Turnaround || "--";
+        const enclosure = s.Enclosure || "--";
+
+        document.getElementById("mName").innerText = name;
+        document.getElementById("mResponse").innerText = `TTM Status: ${status}`;
+        document.getElementById("mAddress").innerText = address;
+        document.getElementById("mFee").innerText = fee;
+        document.getElementById("mSentDate").innerText = sent;
+        document.getElementById("mReturnDate").innerText = returned;
+        document.getElementById("mTurnaround").innerText = turnaround;
+        document.getElementById("mEnclosure").innerText = enclosure;
+        
         document.getElementById("profileModal").style.display = "flex";
+    }
+
+    function closeModalDirect() {
+        document.getElementById("profileModal").style.display = "none";
     }
 
     function closeModal(e) {
         if (e.target.classList.contains("modal-overlay")) {
-            document.getElementById("profileModal").style.display = "none";
+            closeModalDirect();
         }
     }
 
-    function closeModalDirect() {
-    document.getElementById("profileModal").style.display = "none";
-}
-
     function updateStats(data) {
-        document.getElementById("totalCount").innerText = data.length;
-        document.getElementById("activeCount").innerText = data.filter(s => getStatusClass(s.Status) === 'badge-success').length;
-        document.getElementById("pendingCount").innerText = data.filter(s => getStatusClass(s.Status) === 'badge-warning').length;
-        document.getElementById("rtsCount").innerText = data.filter(s => getStatusClass(s.Status) === 'badge-danger').length;
+        const validData = data.filter(s => (s["Athlete Name"] || s.Name || "").trim() !== "");
+        document.getElementById("totalCount").innerText = validData.length;
+        document.getElementById("activeCount").innerText = validData.filter(s => getStatusClass(s.Status) === 'badge-success').length;
+        document.getElementById("pendingCount").innerText = validData.filter(s => getStatusClass(s.Status) === 'badge-warning').length;
+        document.getElementById("rtsCount").innerText = validData.filter(s => getStatusClass(s.Status) === 'badge-danger').length;
     }
 
     function filterTable() {
         let input = document.getElementById("searchInput").value.toLowerCase();
-        let filtered = signersData.filter(s => 
-            (s.Name && s.Name.toLowerCase().includes(input)) || 
-            (s.Address && s.Address.toLowerCase().includes(input)) ||
-            (s.Enclosure && s.Enclosure.toLowerCase().includes(input)) ||
-            (s.Era && s.Era.toLowerCase().includes(input))
-        );
+        let filtered = signersData.filter(s => {
+            const name = (s["Athlete Name"] || s.Name || "").toLowerCase();
+            const address = (s.Address || "").toLowerCase();
+            const enclosure = (s.Enclosure || "").toLowerCase();
+            const era = (s.Era || "").toLowerCase();
+            const sport = (s.Sport || "").toLowerCase();
+
+            return name.includes(input) || address.includes(input) || enclosure.includes(input) || era.includes(input) || sport.includes(input);
+        });
         renderTable(filtered);
     }
 
     function filterSport(sport, evt) {
         document.querySelectorAll(".filter-btn").forEach(btn => btn.classList.remove("active"));
-        evt.target.classList.add("active");
+        if (evt && evt.target) evt.target.classList.add("active");
 
         if (sport === "all") {
             renderTable(signersData);
