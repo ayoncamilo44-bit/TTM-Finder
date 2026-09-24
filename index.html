@@ -454,36 +454,39 @@
     }
 
     function renderTable(data) {
-        const tbody = document.getElementById("signerTableBody");
-        tbody.innerHTML = "";
+    const tbody = document.getElementById("tableBody");
+    tbody.innerHTML = "";
 
-        if (data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--text-muted);">No records found matching your query.</td></tr>`;
-            updateStats([]);
-            return;
-        }
+    data.forEach(s => {
+        // Skip empty rows
+        if (!s["Athlete Name"] && !s.Name) return;
 
-        data.forEach((s) => {
-            let tr = document.createElement("tr");
-            tr.className = "clickable";
-            let sportVal = (s.Sport || "all").toLowerCase();
-            tr.setAttribute("data-sport", sportVal);
-            tr.onclick = () => openModal(s);
+        const tr = document.createElement("tr");
+        
+        // This attaches the click event so clicking any row opens the modal pop-up:
+        tr.onclick = function() {
+            openModal(s);
+        };
 
-            let statusClass = getStatusClass(s.Status);
+        const athleteName = s["Athlete Name"] || s.Name || "";
+        const sport = s.Sport || "";
+        const era = s.Era || "";
+        const address = s.Address || "";
+        const status = s.Status || "";
 
-            tr.innerHTML = `
-                <td><strong>${s.Name || "--"}</strong></td>
-                <td>${s.Era || "--"}</td>
-                <td>${s.Fee || "Free"}</td>
-                <td>${s.Address || "--"}</td>
-                <td><span class="badge ${statusClass}">${s.Status || "Active"}</span></td>
-            `;
-            tbody.appendChild(tr);
-        });
+        tr.innerHTML = `
+            <td>${sport}</td>
+            <td><strong>${athleteName}</strong></td>
+            <td>${era}</td>
+            <td>${address}</td>
+            <td><span class="status-badge ${getStatusClass(status)}">${status}</span></td>
+        `;
 
-        updateStats(data);
-    }
+        tbody.appendChild(tr);
+    });
+
+    updateStats(data);
+}
 
     function openModal(s) {
         document.getElementById("mName").innerText = s.Name || "Unknown Athlete";
