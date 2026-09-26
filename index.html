@@ -1,571 +1,119 @@
 <!DOCTYPE html>
- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TTM Autograph Hub - Live Google Sheet Sync</title>
-    <!-- PapaParse CDN for robust CSV handling -->
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-    <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --accent: #38bdf8;
-            --border: #334155;
-            --success: #22c55e;
-            --warning: #eab308;
-            --danger: #ef4444;
-        }
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Pokémon Card Explorer</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+    <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet">
+    <!-- Font Imports -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=Limelight&display=swap" rel="stylesheet">
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        h1 {
-            color: var(--accent);
-            margin-bottom: 6px;
-        }
-
-        .sync-status {
-            text-align: center;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: 15px;
-        }
-
-        .sync-status span {
-            color: var(--success);
-            font-weight: bold;
-        }
-
-        /* Stat Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .stat-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 16px;
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: var(--accent);
-        }
-
-        .stat-label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-        }
-
-        .controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        input[type="text"] {
-            flex: 1;
-            min-width: 240px;
-            padding: 10px 14px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background-color: var(--card-bg);
-            color: var(--text-main);
-        }
-
-        .filter-btn {
-            padding: 10px 14px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background-color: var(--card-bg);
-            color: var(--text-main);
-            cursor: pointer;
-        }
-
-        .filter-btn.active {
-            background-color: var(--accent);
-            color: #0f172a;
-            font-weight: bold;
-        }
-
-        .table-container {
-            background-color: var(--card-bg);
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-        }
-
-        th, td {
-            padding: 12px 14px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        th {
-            background-color: #111827;
-            color: var(--accent);
-            font-size: 0.75rem;
-            text-transform: uppercase;
-        }
-
-        tr.clickable {
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        tr.clickable:hover {
-            background-color: #334155;
-        }
-
-        .badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .badge-success { background-color: rgba(34, 197, 94, 0.2); color: var(--success); }
-        .badge-warning { background-color: rgba(234, 179, 8, 0.2); color: var(--warning); }
-        .badge-danger { background-color: rgba(239, 68, 68, 0.2); color: var(--danger); }
-
-        /* Profile Modal Overlay */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.75);
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .modal-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            width: 90%;
-            max-width: 520px;
-            padding: 24px;
-            position: relative;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 15px; right: 20px;
-            font-size: 1.5rem;
-            color: var(--text-muted);
-            cursor: pointer;
-        }
-
-        .close-btn:hover {
-            color: var(--text-main);
-        }
-
-        .avatar-circle {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            border: 2px dashed var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 12px;
-            color: var(--text-muted);
-            font-size: 1.5rem;
-        }
-
-        .modal-title {
-            text-align: center;
-            font-size: 1.4rem;
-            margin: 0 0 4px;
-            color: var(--text-main);
-            text-transform: uppercase;
-        }
-
-        .modal-subtitle {
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            margin-bottom: 16px;
-        }
-
-        .info-group {
-            margin-bottom: 12px;
-            border-top: 1px solid var(--border);
-            padding-top: 10px;
-        }
-
-        .info-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            letter-spacing: 0.05em;
-            margin-bottom: 4px;
-        }
-
-        .info-value {
-            font-size: 0.9rem;
-            color: var(--text-main);
-        }
-
-        .mail-badge-box {
-            display: flex;
-            gap: 10px;
-            background: #0f172a;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            margin-top: 6px;
-        }
-
-        .mail-stat {
-            flex: 1;
-            text-align: center;
-        }
-
-        .mail-stat-val {
-            font-size: 0.95rem;
-            font-weight: bold;
-            color: var(--accent);
-        }
-
-        .mail-stat-lbl {
-            font-size: 0.65rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-        }
-    </style>
 </head>
 <body>
+<div class="content">
+    <!-- Global Navbar Element -->
+    {% include 'core_features/navbar.html' %}
 
-<div class="container">
-    <header>
-        <h1>TTM Autograph Hub & Master Profiles</h1>
-        <p style="color: var(--text-muted);">Synced directly from your personal Google Sheet.</p>
-    </header>
-
-    <div class="sync-status" id="syncStatus">Fetching latest address roster...</div>
-
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-number" id="totalCount">0</div>
-            <div class="stat-label">Total Signers</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number" style="color:var(--success)" id="activeCount">0</div>
-            <div class="stat-label">Active / Signed</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number" style="color:var(--warning)" id="pendingCount">0</div>
-            <div class="stat-label">Pending Requests</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number" style="color:var(--danger)" id="rtsCount">0</div>
-            <div class="stat-label">RTS / Dead Address</div>
-        </div>
+    <div class="hero-section">
+        <h1>Welcome to Collectible Chest!</h1>
     </div>
-
-    <div class="controls">
-        <input type="text" id="searchInput" placeholder="Search by name, era, address, or notes..." onkeyup="filterTable()">
-        <button class="filter-btn active" onclick="filterSport('all', event)">All Signers</button>
-        <button class="filter-btn" onclick="filterSport('football', event)">Football / Rams</button>
-        <button class="filter-btn" onclick="filterSport('baseball', event)">Baseball</button>
-    </div>
-
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>Sport</th>
-                    <th>Athlete Name</th>
-                    <th>Era / Role</th>
-                    <th>Mailing Address</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody id="signerTableBody">
-                <tr><td colspan="5" style="text-align:center; color: var(--text-muted);">Loading roster data...</td></tr>
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<!-- Modal Profile Card -->
-<div class="modal-overlay" id="profileModal" onclick="closeModal(event)">
-    <div class="modal-card" onclick="event.stopPropagation()">
-        <span class="close-btn" onclick="closeModalDirect()">&times;</span>
-        <div class="avatar-circle">📬</div>
-        <h2 class="modal-title" id="mName">Player Name</h2>
-        <div class="modal-subtitle" id="mResponse">TTM Status</div>
-
-        <div class="info-group">
-            <div class="info-label">Postal Mail Tracking</div>
-            <div class="mail-badge-box">
-                <div class="mail-stat">
-                    <div class="mail-stat-lbl">Sent Date</div>
-                    <div class="mail-stat-val" id="mSentDate">--</div>
-                </div>
-                <div class="mail-stat">
-                    <div class="mail-stat-lbl">Return Date</div>
-                    <div class="mail-stat-val" id="mReturnDate">--</div>
-                </div>
-                <div class="mail-stat">
-                    <div class="mail-stat-lbl">Turnaround</div>
-                    <div class="mail-stat-val" id="mTurnaround">--</div>
+    <div class="container mt-5">
+      <div class="row">
+          <div class="col-sm-4">
+              <div class="card">
+                  <img class="card-img-top" src="static\pokemon_splash_scree.png" alt="Pokemon Card">
+                  <div class="card-body">
+                      <h5 class="card-title">Pokemon Card Explorer</h5>
+                      <p class="card-text">Dive into the world of Pokémon TCG, where you can search and collect cards of your favorite Pokémon, from the classic to the latest generations</p>
+                      <a href="{{ url_for('pokemon.cards') }}" class="btn btn-primary custom-button">Pokemon</a>
+                  </div>
+              </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="card">
+                <img class="card-img-top" src="static/magic_the_Gathering_splash_screen.png" alt="Magic: The Gathering Card">
+                <div class="card-body">
+                    <h5 class="card-title">Magic: The Gathering Card Explorer</h5>
+                    <p class="card-text">Explore the expansive universe of Magic: The Gathering TCG, where you can discover powerful spells, creatures, and artifacts to dominate the game</p>
+                    <a href="{{ url_for('magic.magic_cards') }}" class="btn btn-primary custom-button">Magic: The Gathering</a>
                 </div>
             </div>
         </div>
+        <div class="col-sm-4">
+          <div class="card">
+              <img class="card-img-top" src="static\neopets_splash_screen.png" alt="Neopets Card">
+              <div class="card-body">
+                  <h5 class="card-title">Neopets Card Explorer</h5>
+                  <p class="card-text">Embark on an adventure in Neopia and find the most coveted Neopets TCG cards to bring your virtual pets and strategies to life</p>
+                  <a href="{{ url_for('neopets.neopets') }}" class="btn btn-primary custom-button">Neopets</a>
+              </div>
+          </div>
+      </div>
+      </div>
+  </div>
 
-        <div class="info-group">
-            <div class="info-label">Mailing Address</div>
-            <div class="info-value" id="mAddress">--</div>
-        </div>
-
-        <div class="info-group">
-            <div class="info-label">Enclosures & Items Sent</div>
-            <div class="info-value" id="mEnclosure">--</div>
-        </div>
-
-        <div class="info-group">
-            <div class="info-label">Fees & Notes</div>
-            <div class="info-value" id="mFee">--</div>
-        </div>
+    <div class="container mt-4">
+        <p>This is a place where you can explore and learn more about TCG cards and more collectibles. Start your adventure now by browsing the cards or logging in to manage your collection.</p>
+        <a href="#" class="btn btn-primary">Explore Cards</a> <!-- Update the href to point to your card browsing page -->
     </div>
 </div>
 
+
+<!-- Disclaimer Modal -->
+{% if not disclaimer_seen %}
+<div class="modal fade" id="disclaimerModal" tabindex="-1" role="dialog" aria-labelledby="disclaimerModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="disclaimerModalLabel">Disclaimer and Acknowledgment</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Welcome to Collectible Chest, your portal to the world of Trading Card Games (TCG) and collectibles.</p>
+        <p>Please note that Collectible Chest is an independent platform aimed at providing valuable information and fostering a community for collectors and enthusiasts. We are <strong>not affiliated, endorsed, sponsored, or supported</strong> by the creators or rights holders of any trading card games, including but not limited to Pokémon, Magic: The Gathering, and Neopets, or their respective parent companies.</p>
+        <p>All the data and resources available on Collectible Chest are <strong>freely accessible</strong> and meant for educational and entertainment purposes only. We respect intellectual property rights and strive to ensure that all content on our platform is used fairly and responsibly. We encourage our users to support official releases and merchandise.</p>
+        <p>Collectible Chest does not solicit users to spend money for accessing data or engaging with our content. We are committed to maintaining an open and transparent platform, ensuring that our community thrives on mutual respect for the fandoms we love.</p>
+        <p>By continuing to use Collectible Chest, you acknowledge and agree to this disclaimer. Thank you for being a part of our community.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="setDisclaimerCookie()">I Understand</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+
+
+<!-- Global Footer Elements -->
+{% include 'core_features/footer.html' %}
+
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script>
-    // =========================================================================
-    // PUBLISHED GOOGLE SHEET CSV LINK
-    // =========================================================================
-    const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSxCid9_WAnxxLE628DVoY_ORSqoAUlcdTuamSo9cW8JQFZDrShA2nG1_HqWVSOoCj7avORBCcz4k9e/pub?output=csv";
-
-    // Backup Fallback Data
-    const fallbackSigners = [
-        {
-            "Sport": "Football",
-            "Athlete Name": "Ray Agnew Jr.",
-            "Era": "DT (1990–2000) / Rams",
-            "Address": "2215 Cline St, Winston Salem, NC 27107-2411",
-            "Fee": "No fees required",
-            "Status": "Active Signer",
-            "Sent": "Not Sent Yet",
-            "Returned": "--",
-            "Turnaround": "--",
-            "Enclosure": "1990 Topps #484 + Handwritten Note + SASE"
-        },
-        {
-            "Sport": "Football",
-            "Athlete Name": "Jim Youngblood",
-            "Era": "LB (1973–1984) / Rams",
-            "Address": "126 Heritage Way, Union, SC 29379",
-            "Fee": "Free TTM",
-            "Status": "Signed",
-            "Sent": "08/10/2026",
-            "Returned": "08/28/2026",
-            "Turnaround": "18 Days",
-            "Enclosure": "1977 Topps #412 + 3x5 Note + SASE"
-        },
-        {
-            "Sport": "Football",
-            "Athlete Name": "Dennis Harrah",
-            "Era": "G (1975–1987) / Rams",
-            "Address": "925 Rockin One Way, Paso Robles, CA 93446",
-            "Fee": "Free TTM",
-            "Status": "Waiting",
-            "Sent": "08/12/2026",
-            "Returned": "Pending",
-            "Turnaround": "43 Days",
-            "Enclosure": "1986 Topps #84 + 3x5 Note + SASE"
-        }
-    ];
-
-    let signersData = [];
-
-    function getStatusClass(statusText) {
-        if (!statusText) return "badge-success";
-        let lower = String(statusText).toLowerCase();
-        if (lower.includes("signed") || lower.includes("active") || lower.includes("received")) return "badge-success";
-        if (lower.includes("waiting") || lower.includes("pending") || lower.includes("in mail")) return "badge-warning";
-        if (lower.includes("rts") || lower.includes("dead") || lower.includes("unable")) return "badge-danger";
-        return "badge-success";
-    }
-
-    function fetchGoogleSheetData() {
-        const statusElem = document.getElementById("syncStatus");
-
-        if (!GOOGLE_SHEET_CSV_URL || GOOGLE_SHEET_CSV_URL === "YOUR_PUBLISHED_CSV_URL_HERE") {
-            statusElem.innerHTML = "⚠️ Using local fallback roster.";
-            signersData = fallbackSigners;
-            renderTable(signersData);
-            return;
-        }
-
-        Papa.parse(GOOGLE_SHEET_CSV_URL, {
-            download: true,
-            header: true,
-            skipEmptyLines: true,
-            complete: function(results) {
-                if (results.data && results.data.length > 0) {
-                    signersData = results.data;
-                    statusElem.innerHTML = `<span>● Live Sync Active</span> — Loaded ${signersData.length} records from Google Sheets.`;
-                    renderTable(signersData);
-                } else {
-                    statusElem.innerHTML = "⚠️ Sheet connected but no data rows found. Loading fallback roster.";
-                    signersData = fallbackSigners;
-                    renderTable(signersData);
-                }
-            },
-            error: function(err) {
-                console.error("CSV Fetch Error:", err);
-                statusElem.innerHTML = "❌ Failed to fetch Google Sheet. Using fallback roster.";
-                signersData = fallbackSigners;
-                renderTable(signersData);
-            }
-        });
-    }
-
-    function renderTable(data) {
-        const tbody = document.getElementById("signerTableBody");
-        if (!tbody) return;
-        tbody.innerHTML = "";
-
-        if (!data || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--text-muted);">No signers found.</td></tr>`;
-            return;
-        }
-
-        data.forEach(s => {
-            const name = s["Athlete Name"] || s.Name || "";
-            if (!name.trim()) return; // Skip blank rows
-
-            const sport = s.Sport || "--";
-            const era = s.Era || "--";
-            const address = s.Address || "--";
-            const status = s.Status || "Active";
-
-            const tr = document.createElement("tr");
-            tr.className = "clickable";
-            
-            // Attach row click event to open the profile modal
-            tr.onclick = function() {
-                openModal(s);
-            };
-
-            tr.innerHTML = `
-                <td>${sport}</td>
-                <td><strong>${name}</strong></td>
-                <td>${era}</td>
-                <td>${address}</td>
-                <td><span class="badge ${getStatusClass(status)}">${status}</span></td>
-            `;
-
-            tbody.appendChild(tr);
-        });
-
-        updateStats(data);
-    }
-
-    function openModal(s) {
-        const name = s["Athlete Name"] || s.Name || "Unknown Signer";
-        const status = s.Status || "Active";
-        const address = s.Address || "No address listed";
-        const fee = s.Fee || "No fee info";
-        const sent = s.Sent || s.SentDate || "--";
-        const returned = s.Returned || s.ReturnDate || "--";
-        const turnaround = s.Turnaround || "--";
-        const enclosure = s.Enclosure || "--";
-
-        document.getElementById("mName").innerText = name;
-        document.getElementById("mResponse").innerText = `TTM Status: ${status}`;
-        document.getElementById("mAddress").innerText = address;
-        document.getElementById("mFee").innerText = fee;
-        document.getElementById("mSentDate").innerText = sent;
-        document.getElementById("mReturnDate").innerText = returned;
-        document.getElementById("mTurnaround").innerText = turnaround;
-        document.getElementById("mEnclosure").innerText = enclosure;
-        
-        document.getElementById("profileModal").style.display = "flex";
-    }
-
-    function closeModalDirect() {
-        document.getElementById("profileModal").style.display = "none";
-    }
-
-    function closeModal(e) {
-        if (e.target.classList.contains("modal-overlay")) {
-            closeModalDirect();
-        }
-    }
-
-    function updateStats(data) {
-        const validData = data.filter(s => (s["Athlete Name"] || s.Name || "").trim() !== "");
-        document.getElementById("totalCount").innerText = validData.length;
-        document.getElementById("activeCount").innerText = validData.filter(s => getStatusClass(s.Status) === 'badge-success').length;
-        document.getElementById("pendingCount").innerText = validData.filter(s => getStatusClass(s.Status) === 'badge-warning').length;
-        document.getElementById("rtsCount").innerText = validData.filter(s => getStatusClass(s.Status) === 'badge-danger').length;
-    }
-
-    function filterTable() {
-        let input = document.getElementById("searchInput").value.toLowerCase();
-        let filtered = signersData.filter(s => {
-            const name = (s["Athlete Name"] || s.Name || "").toLowerCase();
-            const address = (s.Address || "").toLowerCase();
-            const enclosure = (s.Enclosure || "").toLowerCase();
-            const era = (s.Era || "").toLowerCase();
-            const sport = (s.Sport || "").toLowerCase();
-
-            return name.includes(input) || address.includes(input) || enclosure.includes(input) || era.includes(input) || sport.includes(input);
-        });
-        renderTable(filtered);
-    }
-
-    function filterSport(sport, evt) {
-        document.querySelectorAll(".filter-btn").forEach(btn => btn.classList.remove("active"));
-        if (evt && evt.target) evt.target.classList.add("active");
-
-        if (sport === "all") {
-            renderTable(signersData);
-        } else {
-            renderTable(signersData.filter(s => (s.Sport || "").toLowerCase().includes(sport)));
-        }
-    }
-
-    window.onload = fetchGoogleSheetData;
+  function setDisclaimerCookie() {
+    document.cookie = "disclaimer_seen=true; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/";
+  }
+  
+  $(document).ready(function(){
+      if (!document.cookie.includes('disclaimer_seen=true')) {
+          $("#disclaimerModal").modal('show');
+      }
+  });
 </script>
+  
 
 </body>
 </html>
