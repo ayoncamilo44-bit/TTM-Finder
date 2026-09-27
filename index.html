@@ -3,64 +3,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Sports Card Workbench</title>
+    <title>Global Sports Card Workbench | Showcase</title>
+    <!-- Google Fonts for a modern, athletic look -->
+    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f4f4f9; color: #333; }
-        h1 { text-align: center; color: #111; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
-        th { background-color: #007bff; color: white; }
-        tr:hover { background-color: #f1f1f1; }
+        :root {
+            --bg-color: #0f141c;
+            --card-bg: #18202d;
+            --accent-color: #f59e0b; /* Gold/Card foil accent */
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-color: #2a3447;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: linear-gradient(135deg, #18202d, #0b0f17);
+            border-bottom: 2px solid var(--border-color);
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-family: 'Teko', sans-serif;
+            font-size: 3.5rem;
+            letter-spacing: 2px;
+            margin: 0;
+            color: #ffffff;
+            text-transform: uppercase;
+        }
+
+        h1 span {
+            color: var(--accent-color);
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-top: 10px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        /* Filter Buttons Bar */
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .filter-btn {
+            background-color: var(--card-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background-color: var(--accent-color);
+            color: #000000;
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        /* Cards Grid Layout */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .sports-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .sports-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.15);
+            border-color: var(--accent-color);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .sport-badge {
+            background-color: rgba(245, 158, 11, 0.15);
+            color: var(--accent-color);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 6px;
+            letter-spacing: 1px;
+        }
+
+        .card-number {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .player-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+            color: #ffffff;
+        }
+
+        .card-details {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border-color);
+            padding-top: 12px;
+            font-size: 0.85rem;
+        }
+
+        .status-tag {
+            font-weight: 600;
+            color: #10b981; /* Green for owned/safe */
+        }
+
+        .status-tag.ttm {
+            color: #3b82f6; /* Blue for TTM out */
+        }
+
+        .message-box {
+            text-align: center;
+            grid-column: 1 / -1;
+            padding: 40px;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
     </style>
 </head>
 <body>
 
+<header>
+    <h1>Global Sports Card <span>Workbench</span></h1>
+    <p class="subtitle">A premier digital archive spanning Football, Soccer, Rugby, Cricket, Baseball, and Basketball.</p>
+</header>
+
 <div class="container">
-    <h1>Global Sports Card Collection</h1>
-    <p style="text-align: center;">Tracking Football, Baseball, Basketball, Soccer, Rugby, and Cricket.</p>
-    
-    <table id="cardTable">
-        <thead>
-            <tr>
-                <th>Sport</th>
-                <th>Player</th>
-                <th>Year</th>
-                <th>Brand</th>
-                <th>Card #</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Data will load here automatically -->
-        </tbody>
-    </table>
+    <!-- Dynamic Filter Buttons -->
+    <div class="filter-bar" id="filterBar">
+        <button class="filter-btn active" onclick="filterCards('All')">All Sports</button>
+        <button class="filter-btn" onclick="filterCards('Soccer')">Soccer</button>
+        <button class="filter-btn" onclick="filterCards('Rugby')">Rugby</button>
+        <button class="filter-btn" onclick="filterCards('Cricket')">Cricket</button>
+        <button class="filter-btn" onclick="filterCards('Football')">Football</button>
+        <button class="filter-btn" onclick="filterCards('Baseball')">Baseball</button>
+        <button class="filter-btn" onclick="filterCards('Basketball')">Basketball</button>
+    </div>
+
+    <!-- The Display Grid -->
+    <div class="card-grid" id="cardGrid">
+        <div class="message-box">Loading collection data from the workbench...</div>
+    </div>
 </div>
 
 <script>
+    let allCardsData = [];
+
     // Fetch the JSON file generated by your Python script
     fetch('collection_data.json')
         .then(response => response.json())
         .then(data => {
-            const tableBody = document.querySelector('#cardTable tbody');
-            data.forEach(card => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td><strong>${card.sport}</strong></td>
-                    <td>${card.player_name}</td>
-                    <td>${card.year || ''}</td>
-                    <td>${card.brand || ''}</td>
-                    <td>${card.card_number || ''}</td>
-                    <td>${card.status}</td>
-                `;
-                tableBody.appendChild(row);
-            });
+            allCardsData = data;
+            displayCards(allCardsData);
         })
         .catch(error => {
             console.error('Error loading collection data:', error);
-            const tableBody = document.querySelector('#cardTable tbody');
-            tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: red;">No collection data found yet. Run your Python export script!</td></tr>`;
+            document.getElementById('cardGrid').innerHTML = `
+                <div class="message-box" style="color: #ef4444;">
+                    No collection data found yet. Run your Python export script to generate <strong>collection_data.json</strong>!
+                </div>`;
         });
+
+    function displayCards(cards) {
+        const grid = document.getElementById('cardGrid');
+        grid.innerHTML = '';
+
+        if (cards.length === 0) {
+            grid.innerHTML = `<div class="message-box">No cards found in this category.</div>`;
+            return;
+        }
+
+        cards.forEach(card => {
+            const isTTM = card.status && card.status.toLowerCase().includes('ttm');
+            const statusClass = isTTM ? 'status-tag ttm' : 'status-tag';
+
+            const cardEl = document.createElement('div');
+            cardEl.className = 'sports-card';
+            cardEl.innerHTML = `
+                <div class="card-header">
+                    <span class="sport-badge">${card.sport || 'General'}</span>
+                    <span class="card-number">#${card.card_number || 'N/A'}</span>
+                </div>
+                <h3 class="player-name">${card.player_name}</h3>
+                <div class="card-details">${card.year || ''} ${card.brand || ''}</div>
+                <div class="card-footer">
+                    <span class="${statusClass}">${card.status || 'Owned'}</span>
+                    <span style="color: #6b7280; font-style: italic;">${card.notes ? card.notes : ''}</span>
+                </div>
+            `;
+            grid.appendChild(cardEl);
+        });
+    }
+
+    function filterCards(sportName) {
+        // Highlight active button
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+
+        if (sportName === 'All') {
+            displayCards(allCardsData);
+        } else {
+            const filtered = allCardsData.filter(c => c.sport && c.sport.toLowerCase() === sportName.toLowerCase());
+            displayCards(filtered);
+        }
+    }
 </script>
 
 </body>
