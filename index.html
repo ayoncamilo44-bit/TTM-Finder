@@ -1,74 +1,44 @@
 import sqlite3
-import csv
+import json
 
-# 1. Initialize the Database (Updated with a 'sport' column)
-def init_workbench_db():
+def export_collection_to_json(sport_filter=None, output_filename="collection_data.json"):
     conn = sqlite3.connect('collector_workbench.db')
+    # Row factory allows us to easily convert rows into dictionaries
+    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS collection (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            sport TEXT NOT NULL, -- e.g., 'Soccer', 'Football', 'Baseball', 'Rugby', 'Cricket'
-            player_name TEXT NOT NULL,
-            year INTEGER,
-            brand TEXT,
-            card_number TEXT,
-            status TEXT, -- e.g., 'Owned', 'Sent TTM', 'Received', 'Wishlist'
-            date_sent TEXT,
-            date_received TEXT,
-            notes TEXT
-        )
-    ''')
-    
-    conn.commit()
-    conn.close()
-    print("Multi-sport database initialized successfully!")
-
-# 2. Add Any Card (With Sport Specification)
-def add_card(sport, player_name, year, brand, card_number, status, date_sent=None, notes=""):
-    conn = sqlite3.connect('collector_workbench.db')
-    cursor = conn.cursor()
-    cursor.execute('''
-        INSERT INTO collection (sport, player_name, year, brand, card_number, status, date_sent, notes)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (sport, player_name, year, brand, card_number, status, date_sent, notes))
-    conn.commit()
-    conn.close()
-    print(f"Added [{sport}]: {year} {brand} {player_name} ({status})")
-
-# 3. Specific Helper for Soccer Cards (or other global sports)
-def add_soccer_card(player_name, year, brand, card_number, status, notes=""):
-    # Easily drop in soccer cards with the sport preset
-    add_card("Soccer", player_name, year, brand, card_number, status, notes=notes)
-
-# 4. Search Collection by Sport or Player
-def search_collection(query_term):
-    conn = sqlite3.connect('collector_workbench.db')
-    cursor = conn.cursor()
-    
-    # Searches across both player name and sport type
-    cursor.execute('''
-        SELECT id, sport, year, brand, card_number, status, notes 
-        FROM collection 
-        WHERE player_name LIKE ? OR sport LIKE ?
-    ''', (f'%{query_term}%', f'%{query_term}%'))
-    
-    results = cursor.fetchall()
-    conn.close()
-    
-    if results:
-        print(f"\nFound {len(results)} result(s) for '{query_term}':")
-        for row in results:
-            print(f"ID: {row[0]} | Sport: {row[1]} | {row[2]} {row[3]} #{row[4]} | Status: {row[5]} | Notes: {row[6]}")
+    if sport_filter:
+        # Export a specific subset (e.g., just 'Soccer' or 'Rugby')
+        cursor.execute('''
+            SELECT id, sport, player_name, year, brand, card_number, status, date_sent, date_received, notes 
+            FROM collection 
+            WHERE sport COLLATE NOCASE = ?
+        ''', (sport_filter,))
+        print(f"Exporting subset for sport: {sport_filter}...")
     else:
-        print(f"\nNo records found matching '{query_term}'.")
+        # Export everything across all sports
+        cursor.execute('''
+            SELECT id, sport, player_name, year, brand, card_number, status, date_sent, date_received, notes 
+            FROM collection
+        ''')
+        print("Exporting entire multi-sport collection...")
         
-    return results
+    rows = cursor.fetchall()
+    conn.close()
+    
+    # Convert database rows into a standard list of dictionaries
+    collection_list = [dict(row) for row in rows]
+    
+    # Write to a JSON file formatted nicely for the web
+    with open(output_filename, 'w', encoding='utf-8') as f:
+        json.dump(collection_list, f, indent=4)
+        
+    print(f"Successfully exported {len(collection_list)} record(s) to '{output_filename}'!")
 
 if __name__ == "__main__":
-    init_workbench_db()
-    
     # Example usage:
-    # add_soccer_card("Lionel Messi", 2024, "Topps Chrome", "10", "Owned", "Global Icon set")
-    # search_collection("Soccer")
+    # Export just your soccer cards for your webpage:
+    # export_collection_to_json(sport_filter="Soccer", output_filename="soccer_cards.json")
+    
+    # Or export the entire collection:
+    # export_collection_to_json(output_filename="all_sports.json")
