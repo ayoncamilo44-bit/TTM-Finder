@@ -1,7 +1,7 @@
 import sqlite3
 import csv
 
-# 1. Initialize the Database
+# 1. Initialize the Database (Updated with a 'sport' column)
 def init_workbench_db():
     conn = sqlite3.connect('collector_workbench.db')
     cursor = conn.cursor()
@@ -9,6 +9,7 @@ def init_workbench_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS collection (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            sport TEXT NOT NULL, -- e.g., 'Soccer', 'Football', 'Baseball', 'Rugby', 'Cricket'
             player_name TEXT NOT NULL,
             year INTEGER,
             brand TEXT,
@@ -22,79 +23,52 @@ def init_workbench_db():
     
     conn.commit()
     conn.close()
-    print("Database initialized successfully!")
+    print("Multi-sport database initialized successfully!")
 
-# 2. Add a Card or TTM Request
-def add_card(player_name, year, brand, card_number, status, date_sent=None, notes=""):
+# 2. Add Any Card (With Sport Specification)
+def add_card(sport, player_name, year, brand, card_number, status, date_sent=None, notes=""):
     conn = sqlite3.connect('collector_workbench.db')
     cursor = conn.cursor()
     cursor.execute('''
-        INSERT INTO collection (player_name, year, brand, card_number, status, date_sent, notes)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    ''', (player_name, year, brand, card_number, status, date_sent, notes))
+        INSERT INTO collection (sport, player_name, year, brand, card_number, status, date_sent, notes)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (sport, player_name, year, brand, card_number, status, date_sent, notes))
     conn.commit()
     conn.close()
-    print(f"Added: {year} {brand} {player_name} ({status})")
+    print(f"Added [{sport}]: {year} {brand} {player_name} ({status})")
 
-# 3. Query Pending TTM Requests
-def get_pending_ttm():
-    conn = sqlite3.connect('collector_workbench.db')
-    cursor = conn.cursor()
-    cursor.execute("SELECT id, player_name, date_sent FROM collection WHERE status = 'Sent TTM'")
-    results = cursor.fetchall()
-    conn.close()
-    return results
+# 3. Specific Helper for Soccer Cards (or other global sports)
+def add_soccer_card(player_name, year, brand, card_number, status, notes=""):
+    # Easily drop in soccer cards with the sport preset
+    add_card("Soccer", player_name, year, brand, card_number, status, notes=notes)
 
-# 4. Search Collection by Player Name
-def search_collection(player_query):
+# 4. Search Collection by Sport or Player
+def search_collection(query_term):
     conn = sqlite3.connect('collector_workbench.db')
     cursor = conn.cursor()
     
-    # Using wildcard '%' so partial names work (e.g., "Ryan" matches "Nolan Ryan")
+    # Searches across both player name and sport type
     cursor.execute('''
-        SELECT id, year, brand, card_number, status, date_sent, notes 
+        SELECT id, sport, year, brand, card_number, status, notes 
         FROM collection 
-        WHERE player_name LIKE ?
-    ''', (f'%{player_query}%',))
+        WHERE player_name LIKE ? OR sport LIKE ?
+    ''', (f'%{query_term}%', f'%{query_term}%'))
     
     results = cursor.fetchall()
     conn.close()
     
     if results:
-        print(f"\nFound {len(results)} result(s) for '{player_query}':")
+        print(f"\nFound {len(results)} result(s) for '{query_term}':")
         for row in results:
-            print(f"ID: {row[0]} | {row[1]} {row[2]} #{row[3]} | Status: {row[4]} | Notes: {row[6]}")
+            print(f"ID: {row[0]} | Sport: {row[1]} | {row[2]} {row[3]} #{row[4]} | Status: {row[5]} | Notes: {row[6]}")
     else:
-        print(f"\nNo cards found for player matching '{player_query}'.")
+        print(f"\nNo records found matching '{query_term}'.")
         
     return results
-
-# 5. Import from CSV
-def import_csv_to_workbench(csv_filename):
-    conn = sqlite3.connect('collector_workbench.db')
-    cursor = conn.cursor()
-    
-    with open(csv_filename, mode='r', encoding='utf-8') as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            cursor.execute('''
-                INSERT INTO collection (player_name, year, brand, card_number, status, notes)
-                VALUES (?, ?, ?, ?, ?, ?)
-            ''', (
-                row.get('Player'), 
-                row.get('Year'), 
-                row.get('Brand'), 
-                row.get('Card Number'), 
-                row.get('Status', 'Owned'), 
-                row.get('Notes', '')
-            ))
-            
-    conn.commit()
-    conn.close()
-    print(f"Successfully imported data from {csv_filename}!")
 
 if __name__ == "__main__":
     init_workbench_db()
     
-    # Example test search after running:
-    # search_collection("Ryan")
+    # Example usage:
+    # add_soccer_card("Lionel Messi", 2024, "Topps Chrome", "10", "Owned", "Global Icon set")
+    # search_collection("Soccer")
